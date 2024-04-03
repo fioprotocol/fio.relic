@@ -1,3 +1,10 @@
+//********************************************************************************************
+//Developer: Sergiy Stoyan
+//        s.y.stoyan@gmail.com
+//        sergiy.stoyan@hotmail.com
+//        http://www.cliversoft.com
+//********************************************************************************************
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

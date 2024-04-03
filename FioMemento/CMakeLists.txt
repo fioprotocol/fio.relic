@@ -25,6 +25,7 @@ add_executable (FioMemento
 	#"cJSON_Utils.c" "cJSON_Utils.h" 
 	"utils.cpp"	"utils.h"
 	"SocketServer.cpp" "SocketServer.h"
+	"Database.h" "Database.cpp"
 )
 
 #if (CMAKE_VERSION VERSION_GREATER 3.12)

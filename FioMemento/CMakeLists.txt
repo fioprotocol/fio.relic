@@ -1,0 +1,33 @@
+﻿
+cmake_minimum_required (VERSION 3.12)
+
+project ("FioMemento" VERSION 0.0.1)
+
+add_compile_definitions(APP_NAME="${PROJECT_NAME}")
+add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
+
+#add_compile_definitions(StreamTimeTolerableShift=0.000001)#seconds
+
+set(CMAKE_CXX_STANDARD 17)
+
+# set(FioMemento_SOURCES
+	# "main.cpp" 	 
+	# "cJSON.c" "cJSON.h" 
+	# "cJSON_Utils.c" "cJSON_Utils.h" 
+	# "utils.cpp"	"utils.h" 		
+ #	"StreamProcessor.cpp" "StreamProcessor.h"
+# )
+
+
+add_executable (FioMemento 
+	"main.cpp" 	 
+	#"cJSON.c" "cJSON.h" 
+	#"cJSON_Utils.c" "cJSON_Utils.h" 
+	"utils.cpp"	"utils.h"
+	 
+)
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET FioMemento PROPERTY CXX_STANDARD 20)
+endif()
+

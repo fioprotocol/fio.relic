@@ -5,6 +5,8 @@
 //        http://www.cliversoft.com
 //********************************************************************************************
 
+#include <mysql.h>
+
 //extern "C" {
 //#include <libavformat/avformat.h>
 //#include <libavcodec/codec_id.h>

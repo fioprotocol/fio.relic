@@ -10,60 +10,13 @@
 #include <string.h>
 #include <chrono>
 
+//#include <appbase/application.hpp>
+
 //extern "C" {
 //#include "cJSON.h"
 //}
 //
 #include "utils.h"
-
-using namespace std::chrono;
-class Progresser
-{
-public:
-
-	Progresser(int fileCount, milliseconds showProgressInterval = milliseconds(300), int showProgressFactor = 100)
-	{
-		Progresser::fileCount = fileCount;
-		currentFileIndex = 0;
-		Progresser::showProgressInterval = showProgressInterval;
-		Progresser::nextShowProgressTime = milliseconds(0);
-		totalProgress = 0;
-		Progresser::showProgressFactor = showProgressFactor;
-	}
-
-	void NextFile()
-	{
-		currentFileIndex++;
-	}
-
-	void OnFileProgress(float progress)
-	{
-		milliseconds time = duration_cast<milliseconds>(system_clock::now().time_since_epoch());
-		if (time < nextShowProgressTime)
-			return;
-		totalProgress = (float)(currentFileIndex - 1 + progress) / fileCount;
-		printf("{{\"currentFileIndex\": %i, \"progress\": %i %%}}\n", currentFileIndex, (int)(totalProgress * showProgressFactor));
-		fflush(stdout);
-		nextShowProgressTime = time + showProgressInterval;
-	}
-
-	void Finish()
-	{
-		if (totalProgress < 1)
-		{
-			nextShowProgressTime = milliseconds(0);
-			OnFileProgress(1);
-		}
-	}
-
-protected:
-	int fileCount;
-	int currentFileIndex;
-	milliseconds showProgressInterval;
-	milliseconds nextShowProgressTime;
-	float totalProgress;
-	int showProgressFactor;
-};
 
 int main(int argc, char** argv)
 {
@@ -89,5 +42,23 @@ int main(int argc, char** argv)
 		STDOUT_CURRENT_EXCEPTION(NULL);
 	}
 
-	return 0;
+	/*try {
+		appbase::app().register_plugin<receiver_plugin>();	
+		if (!appbase::app().initialize<receiver_plugin>(argc, argv))
+			return -1;
+		initialize_logging();
+		appbase::app().startup();
+		appbase::app().exec();
+	}
+	catch (const boost::exception& e) {
+		std::cerr << boost::diagnostic_information(e) << "\n";
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << "\n";
+	}
+	catch (...) {
+		std::cerr << "unknown exception\n";
+	}
+	std::cout << "exited cleanly\n";
+	return 0;*/
 }

@@ -107,10 +107,12 @@ https://github.com/Antelope-Memento/antelope_memento/?tab=readme-ov-file#install
 
 Set parameters in the memento scripts.
 
-Running everything together:
-systemctl start memento_dbwriter@wax1
 
-systemctl start memento_dataguard@wax
+RUNNING everything together:
+
+sudo systemctl start fio-nodeos
+
+systemctl start memento_dbwriter@wax1
 
 /usr/local/sbin/chronicle-receiver --config-dir=/srv/memento_wax1/chronicle-config --data-dir=/srv/memento_wax1/chronicle-data
 OR

@@ -14,3 +14,12 @@ apt-get update && apt-get install -y mariadb-server mariadb-client
 ## Install MariaDB Connector/C and package dependencies:
 
 sudo apt install libmariadb3 libmariadb-dev
+
+
+## Install boost packages required by appbase (to build the app):
+sudo apt-get install libboost-system-dev
+sudo apt-get install libboost-filesystem-dev
+sudo apt-get install libboost-date-time-dev
+sudo apt-get install libboost-chrono-dev
+sudo apt-get install libboost-program-options-dev
+sudo apt-get install libboost-test-dev

@@ -11,18 +11,19 @@ add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 #include(GNUInstallDirs)
 
 set(BOOST_REQUIRED_COMPONENTS
-    thread 
-	unit_test_framework 
-	filesystem 
 	date_time 
-	system 
-	iostreams 
+	filesystem 
+	system
+	chrono
 	program_options
+	unit_test_framework 
+    #thread 
+	#iostreams 
 )
 
-set(BOOST_MIN_VERSION 1.67.0) 
+set(BOOST_MIN_VERSION 1.71.0) 
 #find_package(
-    #Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
+#    Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
 #)
 
 #target_link_libraries(${EXECUTABLE} PUBLIC  
@@ -31,7 +32,7 @@ set(BOOST_MIN_VERSION 1.67.0)
 #)
 #target_include_directories(${EXECUTABLE} PRIVATE include)
 
-#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
+add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
 
 #set(CMAKE_CXX_STANDARD 17)
 
@@ -52,7 +53,7 @@ add_executable (FioMemento
 	"Database.h" "Database.cpp"
 )
 
-
-target_link_libraries(FioMemento #${CHRONICLE_RECEIVER_NAME}
-  #PRIVATE appbase
+target_link_libraries(FioMemento 
+	#${CHRONICLE_RECEIVER_NAME}
+	PRIVATE appbase
 )

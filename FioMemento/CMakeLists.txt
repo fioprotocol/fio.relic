@@ -21,27 +21,17 @@ set(BOOST_REQUIRED_COMPONENTS
 )
 
 set(BOOST_MIN_VERSION 1.67.0) 
-find_package(
-    Boost ${BOOST_MIN_VERSION} REQUIRED
-    COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
-)
-target_link_libraries(${EXECUTABLE} PUBLIC  
-    Boost::filesystem
-    Boost::optional
-)
-target_include_directories(${EXECUTABLE} PRIVATE include)
+#find_package(
+    #Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
+#)
 
+#target_link_libraries(${EXECUTABLE} PUBLIC  
+    #Boost::filesystem
+    #Boost::optional
+#)
+#target_include_directories(${EXECUTABLE} PRIVATE include)
 
-
-#SET(Boost_USE_STATIC_LIBS ON CACHE STRING "ON or OFF")
-set(BOOST_ROOT C:/local/boost_1_67_0)
-FIND_PACKAGE(Boost 1.67 REQUIRED COMPONENTS
-thread unit_test_framework filesystem date_time system iostreams program_options
-)
-
- #Boost_INCLUDE_DIR date_time filesystem  system chrono program_options unit_test_framework)
-
-add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
+#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
 
 set(CMAKE_CXX_STANDARD 17)
 

@@ -5,13 +5,11 @@
 //        http://www.cliversoft.com
 //********************************************************************************************
 
-//#include <mysql.h>
+//https://mariadb.com/docs/server/connect/programming-languages/cpp/sample-app/
+//https://mariadb.com/docs/server/connect/programming-languages/cpp/development/
 
-//extern "C" {
-//#include <libavformat/avformat.h>
-//#include <libavcodec/codec_id.h>
-//	//#include <libavutil/timecode.h>
-//}
+#include <mariadb/conncpp.hpp>
+//#include <conncpp.hpp>
 
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +19,8 @@
 
 Database::Database()
 {
+	//sql::Connection
+	
 }
 
 void Database::Close()

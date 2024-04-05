@@ -19,12 +19,23 @@ set(BOOST_REQUIRED_COMPONENTS
 	unit_test_framework 
     #thread 
 	#iostreams 
+
+	#charconv #MySql
 )
 
 set(BOOST_MIN_VERSION 1.71.0) 
-#find_package(
-#    Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
-#)
+find_package(
+    Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
+)
+
+find_package(
+    mariadbcpp
+)
+#include_directories("/usr/include/mariadb") #!!!change to find_package
+add_library(mariadbcpp STATIC IMPORTED)
+set_property(TARGET mariadbcpp PROPERTY IMPORTED_LOCATION "/usr/lib/libmariadbcpp.so") #path to libmariadbcpp.so
+
+#pkg_check_modules(mariadb REQUIRED IMPORTED_TARGET "mysqlclient")
 
 #target_link_libraries(${EXECUTABLE} PUBLIC  
     #Boost::filesystem
@@ -32,7 +43,7 @@ set(BOOST_MIN_VERSION 1.71.0)
 #)
 #target_include_directories(${EXECUTABLE} PRIVATE include)
 
-add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
+#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
 
 #set(CMAKE_CXX_STANDARD 17)
 
@@ -53,7 +64,13 @@ add_executable (FioMemento
 	"Database.h" "Database.cpp"
 )
 
-target_link_libraries(FioMemento 
+#target_link_libraries(FioMemento 
 	#${CHRONICLE_RECEIVER_NAME}
-	PRIVATE appbase
-)
+#	PRIVATE appbase
+#)
+
+#set(HEADER_FILES ${YOUR_DIRECTORY}/file1.h ${YOUR_DIRECTORY}/file2.h)
+#add_library(mylib libsrc.cpp ${HEADER_FILES})
+#target_include_directories(mylib PRIVATE ${YOUR_DIRECTORY})
+#add_executable(myexec execfile.cpp ${HEADER_FILES})
+#target_include_directories(myexec PRIVATE ${YOUR_DIRECTORY})

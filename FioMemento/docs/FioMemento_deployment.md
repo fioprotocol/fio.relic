@@ -8,13 +8,18 @@ systemctl daemon-reload
 
 ## Database engine
 
-apt-get update && apt-get install -y mariadb-server mariadb-client
+sudo apt-get update && apt-get install -y mariadb-server mariadb-client
 
 
 ## Install MariaDB Connector/C and package dependencies:
-
+(https://mariadb.com/docs/server/connect/programming-languages/c/install/)
 sudo apt install libmariadb3 libmariadb-dev
 
+
+## Install MariaDB Connector/C++ and package dependencies:
+(https://mariadb.com/docs/server/connect/programming-languages/cpp/install/)
+wget https://dlm.mariadb.com/3752139/Connectors/cpp/connector-cpp-1.1.3/mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
+sudo dpkg -i mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
 
 ## Install boost packages required by appbase (to build the app):
 sudo apt-get install libboost-system-dev

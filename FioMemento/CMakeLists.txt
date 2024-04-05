@@ -1,5 +1,4 @@
-﻿
-cmake_minimum_required (VERSION 3.12)
+﻿cmake_minimum_required (VERSION 3.12)
 
 project ("FioMemento" VERSION 0.0.1)
 
@@ -28,6 +27,7 @@ find_package(
     Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
 )
 
+#https://stackoverflow.com/questions/72590567/use-mariadb-connector-cpp-with-cmake-project
 find_package(
     mariadbcpp
 )

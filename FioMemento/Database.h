@@ -21,7 +21,12 @@ class Database
 
 public:
 
-	Database();
+	Database(char* user, char* password, char* url = "jdbc:mariadb://localhost:3306/todo")
+	{
+		Database::user = std::string(user);
+		Database::password = std::string(password);
+		Database::url = std::string(url);
+	}
 
 	~Database()
 	{
@@ -35,9 +40,10 @@ public:
 		}
 	}
 
-	//bool ProcessPacket(AVPacket* packet);
-	//void Flush();
+	void Initialize();
 	void Close();
+
+	void Prune(int blockNumber);
 
 	enum Status Status()
 	{
@@ -46,6 +52,15 @@ public:
 
 protected:
 	enum Status status = Status::Error;
+	std::unique_ptr<sql::Connection> connection = NULL;
+	std::string user;
+	std::string password;
+	std::string url;
+
+	std::unique_ptr<sql::PreparedStatement> sth_get_min_irrev = NULL;
+	std::unique_ptr<sql::PreparedStatement> sth_get_min_tx_block = NULL;
+	std::unique_ptr<sql::PreparedStatement> sth_prune_transactions = NULL;
+	std::unique_ptr<sql::PreparedStatement> sth_prune_receipts = NULL;
 };
 
 #endif //Database_H

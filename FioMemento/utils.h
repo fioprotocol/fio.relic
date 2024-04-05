@@ -13,8 +13,8 @@
 
 #define THROW_Exception2(...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 
-#define STDOUT_CURRENT_EXCEPTION(format, ...) StdOutCurrentException(__FILE__, __LINE__, __FUNCTION__, format, __VA_ARGS__)
-void StdOutCurrentException(char* file, int line, char* function, const char* format = NULL, ...);
+#define STDOUT_CURRENT_EXCEPTION(format, ...) StdOutCurrentException(__FILE__, __LINE__, __FUNCTION__, format, ## __VA_ARGS__)
+void StdOutCurrentException(const char* file, int line, const char* function, const char* format = NULL, ...);
 
 enum LogLevel
 {

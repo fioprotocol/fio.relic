@@ -33,7 +33,7 @@ set(BOOST_MIN_VERSION 1.67.0)
 
 #add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
 
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_CXX_STANDARD 17)
 
 # set(FioMemento_SOURCES
 	# "main.cpp" 	 

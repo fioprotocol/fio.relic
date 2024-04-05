@@ -10,17 +10,17 @@ add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 
 #include(GNUInstallDirs)
 
-set(BOOST_REQUIRED_COMPONENTS
-    thread 
-	unit_test_framework 
-	filesystem 
-	date_time 
-	system 
-	iostreams 
-	program_options
-)
+#set(BOOST_REQUIRED_COMPONENTS
+#    thread 
+#	unit_test_framework 
+#	filesystem 
+#	date_time 
+#	system 
+#	iostreams 
+#	program_options
+#)
 
-set(BOOST_MIN_VERSION 1.67.0) 
+#set(BOOST_MIN_VERSION 1.67.0) 
 #find_package(
     #Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
 #)

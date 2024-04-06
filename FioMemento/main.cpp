@@ -13,6 +13,7 @@
 //#include "externals/appbase/include/appbase/application.hpp"
 
 #include "utils.h"
+#include "Database.h"
 
 int main(int argc, char** argv)
 {
@@ -20,14 +21,17 @@ int main(int argc, char** argv)
 
 	StdOut(LogLevel::Info, "VERSION: %s %s", APP_NAME, APP_VERSION);
 	//StdOut(LogLevel::Info, "TEST: %s %s", "test1", "APP_VERSION");
-	if (argc < 2)
-	{
-		//StdOutUsage();
-		return 0;
-	}
+	//if (argc < 2)
+	//{
+	//	//StdOutUsage();
+	//	return 0;
+	//}
 
 	try
 	{
+		Database d = Database();
+		d.Initialize();
+		d.Prune(100);
 	}
 	catch (Exception e)
 	{

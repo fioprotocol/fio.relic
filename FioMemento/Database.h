@@ -8,6 +8,8 @@
 #ifndef Database_H
 #define Database_H
 
+#include <mariadb/conncpp.hpp>
+
 #include "utils.h"
 
 class Database
@@ -52,15 +54,20 @@ public:
 
 protected:
 	enum Status status = Status::Error;
-	std::unique_ptr<sql::Connection> connection = NULL;
+	//std::unique_ptr<sql::Connection> connection = NULL;
+	sql::Connection* connection = NULL;
 	std::string user;
 	std::string password;
 	std::string url;
 
-	std::unique_ptr<sql::PreparedStatement> sth_get_min_irrev = NULL;
-	std::unique_ptr<sql::PreparedStatement> sth_get_min_tx_block = NULL;
-	std::unique_ptr<sql::PreparedStatement> sth_prune_transactions = NULL;
-	std::unique_ptr<sql::PreparedStatement> sth_prune_receipts = NULL;
+	//std::unique_ptr<sql::PreparedStatement> sth_get_min_irrev = NULL;
+	//std::unique_ptr<sql::PreparedStatement> sth_get_min_tx_block = NULL;
+	//std::unique_ptr<sql::PreparedStatement> sth_prune_transactions = NULL;
+	//std::unique_ptr<sql::PreparedStatement> sth_prune_receipts = NULL;
+	sql::PreparedStatement* sth_get_min_irrev = NULL;
+	sql::PreparedStatement* sth_get_min_tx_block = NULL;
+	sql::PreparedStatement* sth_prune_transactions = NULL;
+	sql::PreparedStatement* sth_prune_receipts = NULL;
 };
 
 #endif //Database_H

@@ -21,8 +21,27 @@ sudo apt install libmariadb3 libmariadb-dev
 
 ## Install MariaDB Connector/C++ and package dependencies:
 (https://mariadb.com/docs/server/connect/programming-languages/cpp/install/)
-wget https://dlm.mariadb.com/3752139/Connectors/cpp/connector-cpp-1.1.3/mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
-sudo dpkg -i mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
+$ wget https://dlm.mariadb.com/3752139/Connectors/cpp/connector-cpp-1.1.3/mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
+$ sudo dpkg -i mariadb-connector-cpp_1.1.3-1+maria~focal_amd64.deb
+
+MANUAL INSTALLATION (if deb is not complete):
+$ wget https://dlm.mariadb.com/3752103/Connectors/cpp/connector-cpp-1.1.3/mariadb-connector-cpp-1.1.3-ubuntu-focal-amd64.tar.gz
+$ tar -xvzf mariadb-connector-cpp-1.1.3-ubuntu-focal-amd64.tar.gz
+$ cd mariadb-connector-cpp-1.1.3-ubuntu-focal-amd64
+Install the directories for the header files:
+$ sudo install -d /usr/include/mariadb/conncpp
+$ sudo install -d /usr/include/mariadb/conncpp/compat
+Install the header files:
+$ sudo install include/mariadb/* /usr/include/mariadb/
+$ sudo install include/mariadb/conncpp/* /usr/include/mariadb/conncpp
+$ sudo install include/mariadb/conncpp/compat/* /usr/include/mariadb/conncpp/compat
+Install the directories for the shared libraries:
+$ sudo install -d /usr/lib/mariadb
+$ sudo install -d /usr/lib/mariadb/plugin
+Install the shared libraries:
+$ sudo install lib/mariadb/libmariadbcpp.so /usr/lib
+$ sudo install lib/mariadb/plugin/* /usr/lib/mariadb/plugin
+
 
 ## Install boost packages required by appbase (to build the app):
 sudo apt-get install libboost-system-dev

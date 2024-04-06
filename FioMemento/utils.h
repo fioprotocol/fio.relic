@@ -34,7 +34,6 @@ std::string Format(const char* format, ...);
 class Exception : public std::exception
 {
 public:
-	Exception(int avErrorCode, const char* format, ...);
 	Exception(const char* format, ...);
 
 	void StdOut();
@@ -46,11 +45,6 @@ public:
 
 protected:
 	Exception() {}
-
-	/*inline void appendAvError(int avErrorCode)
-	{
-		Message += " AvError: " + GetAvError(avErrorCode);
-	}*/
 };
 
 class Exception2 : public Exception

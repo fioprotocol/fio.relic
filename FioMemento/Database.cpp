@@ -9,7 +9,6 @@
 //https://mariadb.com/docs/server/connect/programming-languages/cpp/development/
 
 #include <mariadb/conncpp.hpp>
-//#include <conncpp.hpp>
 
 #include <stdio.h>
 #include <string.h>

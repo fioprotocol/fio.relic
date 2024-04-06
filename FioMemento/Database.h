@@ -21,7 +21,7 @@ class Database
 
 public:
 
-	Database(char* user, char* password, char* url = "jdbc:mariadb://localhost:3306/todo")
+	Database(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/todo")
 	{
 		Database::user = std::string(user);
 		Database::password = std::string(password);

@@ -23,7 +23,7 @@ class Database
 
 public:
 
-	Database(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/todo")
+	Database(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/FioMemento")
 	{
 		Database::user = std::string(user);
 		Database::password = std::string(password);
@@ -54,16 +54,11 @@ public:
 
 protected:
 	enum Status status = Status::Error;
-	//std::unique_ptr<sql::Connection> connection = NULL;
 	sql::Connection* connection = NULL;
 	std::string user;
 	std::string password;
 	std::string url;
 
-	//std::unique_ptr<sql::PreparedStatement> sth_get_min_irrev = NULL;
-	//std::unique_ptr<sql::PreparedStatement> sth_get_min_tx_block = NULL;
-	//std::unique_ptr<sql::PreparedStatement> sth_prune_transactions = NULL;
-	//std::unique_ptr<sql::PreparedStatement> sth_prune_receipts = NULL;
 	sql::PreparedStatement* sth_get_min_irrev = NULL;
 	sql::PreparedStatement* sth_get_min_tx_block = NULL;
 	sql::PreparedStatement* sth_prune_transactions = NULL;

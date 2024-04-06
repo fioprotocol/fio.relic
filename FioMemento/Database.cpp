@@ -15,7 +15,6 @@
 
 #include "Database.h"
 
-
 void Database::Initialize()
 {
 	try
@@ -25,13 +24,8 @@ void Database::Initialize()
 		sql::SQLString url(Database::url);
 		sql::Properties properties({ {"user", Database::user}, {"password", Database::password} });
 
-		//connection = std::unique_ptr<sql::Connection>(driver->connect(url, properties));
 		connection = driver->connect(url, properties);
 
-		//sth_get_min_irrev = std::unique_ptr<sql::PreparedStatement>(connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC"));
-		//sth_get_min_tx_block = std::unique_ptr<sql::PreparedStatement>(connection->prepareStatement("SELECT MIN(block_num) FROM TRANSACTIONS"));
-		//sth_prune_transactions = std::unique_ptr<sql::PreparedStatement>(connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num < ?"));
-		//sth_prune_receipts = std::unique_ptr<sql::PreparedStatement>(connection->prepareStatement("DELETE FROM RECEIPTS WHERE block_num < ?"));
 		sth_get_min_irrev = connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC");
 		sth_get_min_tx_block = connection->prepareStatement("SELECT MIN(block_num) FROM TRANSACTIONS");
 		sth_prune_transactions = connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num < ?");
@@ -39,7 +33,8 @@ void Database::Initialize()
 	}
 	catch (sql::SQLException& e)
 	{
-		std::cerr << "MariaDB error: " << e.what() << std::endl;
+		std::cerr << "MariaDB error: " << ((sql::SQLException)e).getMessage() << std::endl;
+		throw e;
 	}
 }
 
@@ -47,6 +42,10 @@ void Database::Close()
 {
 	if (connection)
 	{
+		/*sth_get_min_irrev->close();
+		sth_get_min_tx_block->close();
+		sth_prune_transactions->close();
+		sth_prune_receipts->close();*/
 		connection->close();
 		connection = NULL;
 	}
@@ -54,15 +53,8 @@ void Database::Close()
 
 void Database::Prune(int blockNumber)
 {
-	try
-	{
-		sth_prune_transactions->setInt(1, blockNumber);
-		sth_prune_transactions->executeQuery();
-		sth_prune_receipts->setInt(1, blockNumber);
-		sth_prune_receipts->executeQuery();
-	}
-	catch (sql::SQLException& e)
-	{
-		std::cerr << "Error updating task status: " << e.what() << std::endl;
-	}
+	sth_prune_transactions->setInt(1, blockNumber);
+	sth_prune_transactions->executeQuery();
+	sth_prune_receipts->setInt(1, blockNumber);
+	sth_prune_receipts->executeQuery();
 }

@@ -12,8 +12,11 @@
 
 std::string FormatV(const char* format, va_list argptr)
 {
+	va_list argptr2;
+	va_copy(argptr2, argptr);
 	std::string s;
-	s.resize(vsnprintf(NULL, 0, format, argptr) + 1, 0);
+	s.resize(vsnprintf(NULL, 0, format, argptr2) + 1, 0);
+	va_end(argptr2);
 	vsnprintf(&s[0], s.size(), format, argptr);
 	if (s.length())
 		s.pop_back();
@@ -53,8 +56,6 @@ void StdOut(LogLevel logLevel, const char* format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
-	//vfprintf(stdout, format, argptr);
-	//fprintf(stdout, format);
 	StdOutV(logLevel, format, argptr);
 	va_end(argptr);
 }

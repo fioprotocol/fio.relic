@@ -13,25 +13,32 @@
 //#include "externals/appbase/include/appbase/application.hpp"
 
 #include "utils.h"
-#include "Database.h"
+#include "Cleaner.h"
 
 int main(int argc, char** argv)
 {
 	std::set_terminate([]() { STDOUT_CURRENT_EXCEPTION(NULL); std::abort(); });
 
 	StdOut(LogLevel::Info, "VERSION: %s %s", APP_NAME, APP_VERSION);
-	//StdOut(LogLevel::Info, "TEST: %s %s", "test1", "APP_VERSION");
-	//if (argc < 2)
-	//{
-	//	//StdOutUsage();
-	//	return 0;
-	//}
+	/*if (argc < 2)
+	{
+		StdOut(Info, "USAGE:\r\n\r\nOptions:\r\n\r\n-c : cleaner;\r\n-w : writer;");
+		return 0;
+	}*/
 
 	try
 	{
-		Database d = Database();
-		d.Initialize();
-		d.Prune(100);
+		//std::string s = std::string(argv[1]);
+		//if (s == "-c")
+		{
+			Cleaner cleaner = Cleaner();
+			cleaner.Run();
+		}
+		//else if (s == "-w")
+		{
+			//Cleaner cleaner = Cleaner();
+			//cleaner.Run();
+		}
 	}
 	catch (Exception e)
 	{

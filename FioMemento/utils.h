@@ -11,7 +11,7 @@
 #include <string>
 #include <stdio.h>
 
-#define THROW_Exception2(...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
+#define THROW_Exception2(...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
 
 #define STDOUT_CURRENT_EXCEPTION(format, ...) StdOutCurrentException(__FILE__, __LINE__, __FUNCTION__, format, ## __VA_ARGS__)
 void StdOutCurrentException(const char* file, int line, const char* function, const char* format = NULL, ...);
@@ -28,7 +28,6 @@ void StdOut(LogLevel logLevel, const char* format, ...);
 void StdOut(LogLevel logLevel, const std::string format, ...);
 std::string FormatV(const char* format, va_list argptr);
 std::string Format(const char* format, ...);
-//std::string GetAvError(int avErrorCode);
 
 #include <iostream>
 class Exception : public std::exception
@@ -50,8 +49,8 @@ protected:
 class Exception2 : public Exception
 {
 public:
-	Exception2(char* file, int line, char* function, int avErrorCode, const char* format, ...);
-	Exception2(char* file, int line, char* function, const char* format, ...);
+	Exception2(const char* file, int line, const char* function, int avErrorCode, const char* format, ...);
+	Exception2(const char* file, int line, const char* function, const char* format, ...);
 
 protected:
 };

@@ -34,19 +34,22 @@ std::string Format(const char* format, ...)
 
 void StdOutV(LogLevel logLevel, const char* format, va_list argptr)
 {
+	std::string s;
 	switch (logLevel)
 	{
 	case LogLevel::Info:
 		break;
 	case LogLevel::Warning:
+		s.append("WARNING: ");
 		break;
 	case LogLevel::Error:
+		s.append("ERROR: ");
 		break;
 	default:
 		fprintf(stdout, "ERROR: Unknown LogLevel : % i", logLevel);
 		break;
 	}
-	std::string s = format;
+	s.append(format);
 	s += "\r\n";
 	s = FormatV(s.data(), argptr);
 	fprintf(stdout, s.data());
@@ -122,7 +125,7 @@ void Exception::StdOut()
 		::StdOut(LogLevel::Error, Message.data());
 }
 
-Exception2::Exception2(char* file, int line, char* function, int avErrorCode, const char* format, ...) :Exception()
+Exception2::Exception2(const char* file, int line, const char* function, int avErrorCode, const char* format, ...) :Exception()
 {
 	File = getFileName(file);
 	Line = line;
@@ -135,7 +138,7 @@ Exception2::Exception2(char* file, int line, char* function, int avErrorCode, co
 	//appendAvError(avErrorCode);
 }
 
-Exception2::Exception2(char* file, int line, char* function, const char* format, ...) :Exception()
+Exception2::Exception2(const char* file, int line, const char* function, const char* format, ...) :Exception()
 {
 	File = getFileName(file);
 	Line = line;

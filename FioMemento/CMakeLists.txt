@@ -43,6 +43,7 @@ add_executable (${PROJECT_NAME}
 	"SocketServer.cpp" "SocketServer.h"
 	"Database.h" "Database.cpp"
 	#${SOURCES_FILES_LIBS}
+	"Cleaner.cpp" "Cleaner.h"
 )
 
 target_link_libraries(${PROJECT_NAME} "/usr/lib/libmariadbcpp.so")

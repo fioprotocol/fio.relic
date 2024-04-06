@@ -14,12 +14,12 @@
 
 class Database
 {
-	enum Status
+	/*enum Status
 	{
 		Open,
 		Connected,
 		Error
-	};
+	};*/
 
 public:
 
@@ -45,24 +45,18 @@ public:
 	void Initialize();
 	void Close();
 
-	void Prune(int blockNumber);
-
-	enum Status Status()
+	/*enum Status Status()
 	{
 		return status;
-	}
+	}*/
+
+	sql::Connection* Connection = NULL;
 
 protected:
-	enum Status status = Status::Error;
-	sql::Connection* connection = NULL;
+	//enum Status status = Status::Error;
 	std::string user;
 	std::string password;
 	std::string url;
-
-	sql::PreparedStatement* sth_get_min_irrev = NULL;
-	sql::PreparedStatement* sth_get_min_tx_block = NULL;
-	sql::PreparedStatement* sth_prune_transactions = NULL;
-	sql::PreparedStatement* sth_prune_receipts = NULL;
 };
 
 #endif //Database_H

@@ -1,58 +1,49 @@
-﻿
-cmake_minimum_required (VERSION 3.12)
+﻿cmake_minimum_required (VERSION 3.12)
 
 project ("FioMemento" VERSION 0.0.1)
 
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
 add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 
-#add_compile_definitions(StreamTimeTolerableShift=0.000001)#seconds
-
 #include(GNUInstallDirs)
 
-#set(BOOST_REQUIRED_COMPONENTS
-#    thread 
-#	unit_test_framework 
-#	filesystem 
-#	date_time 
-#	system 
-#	iostreams 
-#	program_options
-#)
+set(BOOST_REQUIRED_COMPONENTS
+	date_time 
+	filesystem 
+	system
+	chrono
+	program_options
+	unit_test_framework 
+    #thread 
+	#iostreams 
 
-#set(BOOST_MIN_VERSION 1.67.0) 
-#find_package(
-    #Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
-#)
+	#charconv #MySql
+)
 
-#target_link_libraries(${EXECUTABLE} PUBLIC  
-    #Boost::filesystem
-    #Boost::optional
-#)
-#target_include_directories(${EXECUTABLE} PRIVATE include)
+set(BOOST_MIN_VERSION 1.71.0) 
+find_package(
+    Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS}
+)
 
-#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
+#https://stackoverflow.com/questions/72590567/use-mariadb-connector-cpp-with-cmake-project
+find_package(
+    mariadbcpp
+)
+#include_directories("/usr/include/mariadb") #!!!change to find_package
 
-#set(CMAKE_CXX_STANDARD 17)
+#add_subdirectory("/usr/include/mariadb")
+#add_library(mariadbcpp SHARED IMPORTED)
+#set_property(TARGET mariadbcpp PROPERTY IMPORTED_LOCATION "/usr/lib/libmariadbcpp.so") #path to libmariadbcpp.so
 
-# set(FioMemento_SOURCES
-	# "main.cpp" 	 
-	# "cJSON.c" "cJSON.h" 
-	# "cJSON_Utils.c" "cJSON_Utils.h" 
-	# "utils.cpp"	"utils.h" 		
- #	"StreamProcessor.cpp" "StreamProcessor.h"
-# )
-
-add_executable (FioMemento 
+add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
 	#"cJSON.c" "cJSON.h" 
 	#"cJSON_Utils.c" "cJSON_Utils.h" 
 	"utils.cpp"	"utils.h"
 	"SocketServer.cpp" "SocketServer.h"
 	"Database.h" "Database.cpp"
+	#${SOURCES_FILES_LIBS}
+	"Cleaner.cpp" "Cleaner.h"
 )
 
-
-target_link_libraries(FioMemento #${CHRONICLE_RECEIVER_NAME}
-  #PRIVATE appbase
-)
+target_link_libraries(${PROJECT_NAME} "/usr/lib/libmariadbcpp.so")

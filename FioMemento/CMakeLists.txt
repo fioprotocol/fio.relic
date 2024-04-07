@@ -38,7 +38,7 @@ find_package(
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
 	"utils.cpp"	"utils.h"
-	"SocketServer.cpp" "SocketServer.h"
+	"WebsocketServer.cpp" "WebsocketServer.h"
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
 )

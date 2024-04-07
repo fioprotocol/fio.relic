@@ -8,6 +8,11 @@
 #ifndef SocketServer_H
 #define SocketServer_H
 
+//#include <boost/beast/core.hpp>
+//#include <boost/beast/websocket.hpp>
+//#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
+
 #include "utils.h"
 
 class SocketServer

@@ -50,3 +50,9 @@ sudo apt-get install libboost-date-time-dev
 sudo apt-get install libboost-chrono-dev
 sudo apt-get install libboost-program-options-dev
 sudo apt-get install libboost-test-dev
+
+
+## Install appbase source (to build the app):
+$ git clone https://github.com/fioprotocol/appbase.git
+
+

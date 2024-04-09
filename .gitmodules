@@ -1,6 +1,3 @@
-[submodule "FioMemento\\externals\\appbase"]
-	path = FioMemento\\externals\\appbase
-	url = https://github.com/fioprotocol/appbase.git
 [submodule "Relic/externals/appbase"]
 	path = Relic/externals/appbase
 	url = https://github.com/fioprotocol/appbase.git

@@ -45,6 +45,7 @@ add_executable (${PROJECT_NAME}
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
 	"Writer.cpp" "Writer.h"
+	"WriterWebsocketSession.cpp" "WriterWebsocketSession.h"
 )
 
 #target_include_directories(${PROJECT_NAME} PUBLIC 

@@ -16,7 +16,7 @@
 
 #include "utils.h"
 #include "Cleaner.h"
-#include "Websocket.Server.h"
+#include "Writer.h"
 
 
 
@@ -61,14 +61,14 @@ int main(int argc, char** argv)
 		//ws.Run(1);
 		//std::string s = std::string(argv[1]);
 		//if (s == "-c")
-		{
+		/*{
 			Cleaner cleaner = Cleaner();
 			cleaner.Run();
-		}
+		}*/
 		//else if (s == "-w")
 		{
-			//Cleaner cleaner = Cleaner();
-			//cleaner.Run();
+			Writer writer = Writer();
+			writer.Run();
 		}
 	}
 	catch (Exception e)

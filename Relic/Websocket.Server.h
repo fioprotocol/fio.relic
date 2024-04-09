@@ -8,21 +8,6 @@
 #ifndef WebsocketServer_H
 #define WebsocketServer_H
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/dispatch.hpp>
-#include <boost/asio/strand.hpp>
-#include <algorithm>
-#include <cstdlib>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <thread>
-#include <vector>
-
 #include "utils.h"
 #include "Websocket.Listener.h"
 
@@ -38,7 +23,14 @@ namespace Websocket
 	{
 	public:
 
-		Server(std::function<Session*(tcp::socket&& socket)> newSession, std::string ip = "127.0.0.1", int port = 8800)
+		/*Server(std::function<Session* (tcp::socket* socket)> newSession, std::string ip = "127.0.0.1", int port = 8800)
+		{
+			Server::newSession = newSession;
+			endpoint.address(net::ip::make_address(ip));
+			endpoint.port(port);
+		}*/
+
+		Server(std::function<Session* (tcp::socket&& socket)> newSession, std::string ip = "127.0.0.1", int port = 8800)
 		{
 			Server::newSession = newSession;
 			endpoint.address(net::ip::make_address(ip));

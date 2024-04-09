@@ -39,7 +39,7 @@ namespace Websocket
 	{
 	public:
 
-		explicit Session(tcp::socket&& socket) : websocket(std::move(socket))// Take ownership of the socket
+		Session(tcp::socket&& socket) :websocket(std::move(socket))
 		{
 		}
 
@@ -61,9 +61,10 @@ namespace Websocket
 
 		void Write(beast::flat_buffer buffer);
 
-		std::function<void(beast::flat_buffer buffer)> OnRead;
+		virtual void OnRead(beast::flat_buffer buffer) = 0;
 
 	private:
+		//websocket::stream<beast::tcp_stream>* websocket;
 		websocket::stream<beast::tcp_stream> websocket;
 
 		void onRun();

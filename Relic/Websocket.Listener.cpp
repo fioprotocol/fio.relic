@@ -45,7 +45,7 @@ void Listener::onAccept(beast::error_code ec, tcp::socket socket)
 	if (ec)
 		THROW_SocketException2("accept", ec);
 
-	Session* session = newSession(std::move(socket));// new Session(std::move(socket));
+	Session* session = newSession(std::move(socket)); //newSession(&socket);// new Session(std::move(socket));
 	sessions.push_back(session);
 	session->Run();//(!) blocking till disconnect
 	auto s = std::find(sessions.begin(), sessions.end(), session);

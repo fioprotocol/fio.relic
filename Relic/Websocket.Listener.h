@@ -8,21 +8,6 @@
 #ifndef WebsocketListener_H
 #define WebsocketListener_H
 
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/asio/connect.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/dispatch.hpp>
-#include <boost/asio/strand.hpp>
-#include <algorithm>
-#include <cstdlib>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <thread>
-#include <vector>
-
 #include "utils.h"
 #include "Websocket.Session.h"
 
@@ -68,7 +53,7 @@ namespace Websocket
 
 		std::vector<Session*> sessions;
 
-		std::function<Session*(tcp::socket&& socket)> newSession;
+		std::function<Session* (tcp::socket&& socket)> newSession;
 	};
 }
 

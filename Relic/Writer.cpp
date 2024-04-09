@@ -10,6 +10,12 @@
 
 #include "Writer.h"
 #include "WebsocketServer.h"
+#include "WriterWebsocketSession.h"
+
+Websocket::Session* newSession(tcp::socket&& socket)
+{
+	return new WriterWebsocketSession(std::move(socket));
+}
 
 void Writer::initialize()
 {
@@ -28,7 +34,7 @@ void Writer::initialize()
 	sth_fork_receipts = database->Connection->prepareStatement("DELETE FROM RECEIPTS WHERE block_num>=?");
 	sth_fork_transactions = database->Connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num>=?");
 
-	server = new Websocket::Server(NULL);
+	server = new Websocket::Server(newSession);
 	server->Run(1);
 }
 

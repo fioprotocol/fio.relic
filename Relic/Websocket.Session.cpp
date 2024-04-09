@@ -62,10 +62,9 @@ void Session::onRead(beast::error_code ec, std::size_t bytes_transferred)
 		return;
 
 	if (ec)
-		THROW_SocketException2("accept", ec);
+		THROW_SocketException2("onRead", ec);
 
-	if (OnRead)
-		OnRead(bufferIn);
+	OnRead(bufferIn);
 	bufferIn.consume(bufferIn.size());
 
 	read();

@@ -5,8 +5,8 @@
 //        http://www.cliversoft.com
 //********************************************************************************************
 
-#ifndef SocketServer_H
-#define SocketServer_H
+#ifndef WebsocketSession_H
+#define WebsocketSession_H
 
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -25,42 +25,57 @@
 
 #include "utils.h"
 
+#define THROW_SocketException2(...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, "Websocket: %s (code: %i)", ## __VA_ARGS__)
+
 namespace beast = boost::beast;         // from <boost/beast.hpp>
 namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-class WebsocketServer : public std::enable_shared_from_this<WebsocketServer>
+namespace Websocket
 {
-public:
-
-	WebsocketServer(std::string ip = "127.0.0.1", int port = 8800)
+	class Session : public std::enable_shared_from_this<Session>
 	{
-		endpoint.address(net::ip::make_address(ip));
-		endpoint.port(port);
-	}
+	public:
 
-	~WebsocketServer()
-	{
-		try
+		explicit Session(tcp::socket&& socket) : websocket(std::move(socket))// Take ownership of the socket
 		{
-			Close();
 		}
-		catch (...)
+
+		~Session()
 		{
-			STDOUT_CURRENT_EXCEPTION("Close()");
+			try
+			{
+				Close();
+			}
+			catch (...)
+			{
+				STDOUT_CURRENT_EXCEPTION("Close()");
+			}
 		}
-	}
 
-	void Run(int threadNumber);
-	void Close();
-	void RunAsync(int threadNumber);
+		void Run();
 
-private:
+		void Close();
 
-	tcp::endpoint endpoint;
-	std::vector<std::thread*> threads;
-};
+		void Write(beast::flat_buffer buffer);
 
-#endif //SocketServer_H
+		std::function<void(beast::flat_buffer buffer)> OnRead;
+
+	private:
+		websocket::stream<beast::tcp_stream> websocket;
+
+		void onRun();
+		void onAccept(beast::error_code ec);
+
+		void read();
+		void onRead(beast::error_code ec, std::size_t bytes_transferred);
+		beast::flat_buffer bufferIn;
+
+		void onWrite(beast::error_code ec, std::size_t bytes_transferred);
+		beast::flat_buffer* bufferOut;
+	};
+}
+
+#endif //WebsocketSession_H

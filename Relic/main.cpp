@@ -16,7 +16,7 @@
 
 #include "utils.h"
 #include "Cleaner.h"
-#include "WebsocketServer.h"
+#include "Websocket.Server.h"
 
 
 
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
 	try
 	{
-		WebsocketServer ws = WebsocketServer();
+		Websocket::Server ws = Websocket::Server();
 		ws.Run(1);
 		//std::string s = std::string(argv[1]);
 		//if (s == "-c")

@@ -5,22 +5,23 @@
 //        http://www.cliversoft.com
 //********************************************************************************************
 
-#ifndef Cleaner_H
-#define Cleaner_H
+#ifndef Writer_H
+#define Writer_H
+
 
 #include "Database.h"
 #include "utils.h"
+#include "Websocket.Server.h"
 
-class Cleaner
+class Writer
 {
 public:
 
-	Cleaner(int keepDays = 1)
+	Writer()
 	{
-		Cleaner::keepDays = keepDays;
 	}
 
-	~Cleaner()
+	~Writer()
 	{
 		try
 		{
@@ -37,16 +38,20 @@ public:
 
 protected:
 	Database* database = NULL;
+	Websocket::Server* server = NULL;
 	void initialize();
 
-	sql::PreparedStatement* sth_get_min_irrev = NULL;
-	sql::PreparedStatement* sth_get_min_tx_block = NULL;
+	sql::PreparedStatement* sth_upd_sync_head = NULL;
+	sql::PreparedStatement* sth_fork_bkp = NULL;
+	sql::PreparedStatement* sth_upd_sync_fork = NULL;
+	sql::PreparedStatement* sth_check_sync_health = NULL;
+	sql::PreparedStatement* sth_am_i_master = NULL;
+	sql::PreparedStatement* sth_clean_bkp = NULL;
 	sql::PreparedStatement* sth_prune_transactions = NULL;
 	sql::PreparedStatement* sth_prune_receipts = NULL;
-
-	int lastIrrev = 0;
-	int keepBlocks = keepDays * 24 * 7200;
-	int keepDays;
+	sql::PreparedStatement* sth_fetch_forking_traces = NULL;
+	sql::PreparedStatement* sth_fork_receipts = NULL;
+	sql::PreparedStatement* sth_fork_transactions = NULL;
 };
 
-#endif //Cleaner_H
+#endif //Writer_H

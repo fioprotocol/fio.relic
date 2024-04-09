@@ -14,7 +14,7 @@ void Server::run(int threadNumber, bool async)
 	threadNumber = std::max<int>(1, threadNumber);
 	net::io_context ioc(threadNumber);// The io_context is required for all I/O
 
-	listener = std::make_shared<Listener>(ioc, endpoint);
+	listener = std::make_shared<Listener>(newSession, ioc, endpoint);
 	listener->Run();
 
 	if (!async)

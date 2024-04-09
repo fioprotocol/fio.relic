@@ -37,8 +37,9 @@ namespace Websocket
 	class Listener : public std::enable_shared_from_this<Listener>
 	{
 	public:
-		Listener(net::io_context& ioc_, tcp::endpoint endpoint_) : ioc(ioc_), acceptor(ioc_), endpoint(endpoint_)
+		Listener(std::function<Session*(tcp::socket&& socket)> newSession, net::io_context& ioc_, tcp::endpoint endpoint_) : ioc(ioc_), acceptor(ioc_), endpoint(endpoint_)
 		{
+			Listener::newSession = newSession;
 		}
 
 		~Listener()
@@ -65,7 +66,9 @@ namespace Websocket
 		tcp::endpoint endpoint;
 		tcp::acceptor acceptor;
 
-		std::vector<std::shared_ptr<Session>> sessions;
+		std::vector<Session*> sessions;
+
+		std::function<Session*(tcp::socket&& socket)> newSession;
 	};
 }
 

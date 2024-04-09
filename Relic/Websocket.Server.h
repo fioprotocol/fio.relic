@@ -38,8 +38,9 @@ namespace Websocket
 	{
 	public:
 
-		Server(std::string ip = "127.0.0.1", int port = 8800)
+		Server(std::function<Session*(tcp::socket&& socket)> newSession, std::string ip = "127.0.0.1", int port = 8800)
 		{
+			Server::newSession = newSession;
 			endpoint.address(net::ip::make_address(ip));
 			endpoint.port(port);
 		}
@@ -63,6 +64,8 @@ namespace Websocket
 	private:
 
 		void run(int threadNumber, bool async);
+
+		std::function<Session*(tcp::socket&& socket)> newSession;
 
 		tcp::endpoint endpoint;
 		std::vector<std::thread*> threads;

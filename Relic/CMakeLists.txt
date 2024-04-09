@@ -41,8 +41,10 @@ add_executable (${PROJECT_NAME}
 	"Websocket.Session.cpp" "Websocket.Session.h"
 	"Websocket.Listener.cpp" "Websocket.Listener.h"
 	"Websocket.Server.cpp" "Websocket.Server.h"
+	#"WebsocketServer.cpp" "WebsocketServer.h"
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
+	"Writer.cpp" "Writer.h"
 )
 
 #target_include_directories(${PROJECT_NAME} PUBLIC 

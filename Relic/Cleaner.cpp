@@ -14,6 +14,7 @@
 
 void Cleaner::initialize()
 {
+	database = new Database();
 	database->Initialize();
 
 	sth_get_min_irrev = database->Connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC");

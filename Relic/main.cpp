@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 
 	try
 	{
-		Websocket::Server ws = Websocket::Server();
-		ws.Run(1);
+		//Websocket::Server ws = Websocket::Server();
+		//ws.Run(1);
 		//std::string s = std::string(argv[1]);
 		//if (s == "-c")
 		{

@@ -37,7 +37,6 @@ void Listener::Run()
 	if (ec)
 		THROW_SocketException2("listen", ec);
 
-	//for (;;)//!!!blocking
 	acceptor.async_accept(net::make_strand(ioc), beast::bind_front_handler(&Listener::onAccept, shared_from_this()));// The new connection gets its own strand
 }
 
@@ -46,12 +45,15 @@ void Listener::onAccept(beast::error_code ec, tcp::socket socket)
 	if (ec)
 		THROW_SocketException2("accept", ec);
 
-	std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket));
+	Session* session = newSession(std::move(socket));// new Session(std::move(socket));
 	sessions.push_back(session);
-	session->Run();// blocking till disconnect
+	session->Run();//(!) blocking till disconnect
 	auto s = std::find(sessions.begin(), sessions.end(), session);
 	if (s != sessions.end())
+	{
 		sessions.erase(s);
+		delete session;
+	}
 
 	acceptor.async_accept(net::make_strand(ioc), beast::bind_front_handler(&Listener::onAccept, shared_from_this()));// The new connection gets its own strand
 }

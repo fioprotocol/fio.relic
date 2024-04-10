@@ -37,7 +37,8 @@ public:
 	void Run();
 	void OnRead(const beast::flat_buffer& buffer) override;
 
-protected:
+private:
+	void sanityCheck();
 
 	sql::PreparedStatement* sth_upd_sync_head = NULL;
 	sql::PreparedStatement* sth_fork_bkp = NULL;
@@ -50,6 +51,10 @@ protected:
 	sql::PreparedStatement* sth_fetch_forking_traces = NULL;
 	sql::PreparedStatement* sth_fork_receipts = NULL;
 	sql::PreparedStatement* sth_fork_transactions = NULL;
+
+	int sourceId = -1;
+	bool noTraces = false;
+	bool keepBlocks = false;
 };
 
 #endif //Writer_H

@@ -41,9 +41,9 @@ void WebsocketServer::Run(std::string ip, int port)
 	{
 		StdOut(Info, "Waiting for connection...");
 		tcp::socket socket = acceptor.accept(ec);
-		StdOut(Info, "Connected");
 		if (ec)
 			THROW_SocketException2("accept", ec);
+		StdOut(Info, "Connected");
 
 		websocket = new websocket::stream<beast::tcp_stream>(std::move(socket));
 		websocket->set_option(websocket::stream_base::timeout::suggested(beast::role_type::server));
@@ -53,6 +53,7 @@ void WebsocketServer::Run(std::string ip, int port)
 		websocket->accept(ec);
 		if (ec)
 			THROW_SocketException2("handshake", ec);
+		StdOut(Info, "Handshaked.");
 		for (;;)
 		{
 			beast::flat_buffer buffer;

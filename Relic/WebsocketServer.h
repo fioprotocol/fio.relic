@@ -54,7 +54,10 @@ public:
 	void Run(std::string ip = "127.0.0.1", int port = 8800);
 	void Close();
 	void Write(beast::flat_buffer& buffer);
-	virtual	void OnRead(const beast::flat_buffer& buffer) = 0;
+
+protected:
+	virtual	void onRead(const beast::flat_buffer& buffer) = 0;
+	virtual	void onDisconnect() = 0;
 
 private:
 

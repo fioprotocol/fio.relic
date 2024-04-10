@@ -32,12 +32,17 @@ void Writer::Run()
 	WebsocketServer::Run();
 }
 
-void Writer::OnRead(const beast::flat_buffer& buffer)
+void Writer::onRead(const beast::flat_buffer& buffer)
 {
 	/*auto s = beast::buffers_to_string(buffer.data());
 	std::fprintf(stdout, s.c_str());
 	fflush(stdout);*/
 	StdOut(Info, "%s", beast::buffers_to_string(buffer.data()).c_str());
+}
+
+void Writer::onDisconnect()
+{
+	connection->rollback();
 }
 
 void Writer::Close()

@@ -60,10 +60,11 @@ void WebsocketServer::Run(std::string ip, int port)
 			websocket->read(buffer, ec);
 			if (ec)
 			{
+				onDisconnect();
 				StdOut(Info, "Connection closed: %s", ec.message().c_str());
 				break;
 			}
-			OnRead(buffer);
+			onRead(buffer);
 		}
 	}
 }

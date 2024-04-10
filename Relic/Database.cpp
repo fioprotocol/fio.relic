@@ -25,7 +25,7 @@ void Database::Initialize(char* user, char* password, const char* url)
 
 		connection = driver->connect(url, properties);
 
-		if (!connection->getAutoCommit())
+		if (!connection->getAutoCommit())//??? switch to manual commit?
 			THROW_Exception2("Autocommit is not enabled.");
 	}
 	catch (sql::SQLException& e)

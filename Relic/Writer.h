@@ -35,7 +35,11 @@ public:
 
 	void Close();
 	void Run();
-	void OnRead(const beast::flat_buffer& buffer) override;
+
+protected:
+
+	void onRead(const beast::flat_buffer& buffer) override; 
+	void onDisconnect() override;
 
 private:
 	void sanityCheck();

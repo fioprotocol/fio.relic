@@ -12,36 +12,20 @@
 
 #include "Cleaner.h"
 
-void Cleaner::initialize()
-{
-	database = new Database();
-	database->Initialize();
-
-	sth_get_min_irrev = database->Connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC");
-	sth_get_min_tx_block = database->Connection->prepareStatement("SELECT MIN(block_num) FROM TRANSACTIONS");
-	sth_prune_transactions = database->Connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num < ?");
-	sth_prune_receipts = database->Connection->prepareStatement("DELETE FROM RECEIPTS WHERE block_num < ?");
-
-	keepBlocks = keepDays * 24 * 7200;
-}
-
-void Cleaner::Close()
-{
-	if (database)
-	{
-		database->Close();
-		database = NULL;
-	}
-}
-
 void Cleaner::Run()
 {
-	initialize();
+	Database::Initialize();
+	sth_get_min_irrev = connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC");
+	sth_get_min_tx_block = connection->prepareStatement("SELECT MIN(block_num) FROM TRANSACTIONS");
+	sth_prune_transactions = connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num < ?");
+	sth_prune_receipts = connection->prepareStatement("DELETE FROM RECEIPTS WHERE block_num < ?");
+
+	keepBlocks = keepDays * 24 * 7200;
 
 	for (;; std::this_thread::sleep_for(std::chrono::seconds(10)))
 	{
 		sql::ResultSet* r = sth_get_min_irrev->executeQuery();
-		//database->Connection->commit();!!!by default Autocommit is enabled
+		//connection->commit();!!!by default Autocommit is enabled
 		r->next();
 		//r->isAfterLast();
 		int minIrrev = r->getInt(1);
@@ -76,4 +60,9 @@ void Cleaner::Run()
 			minBlock = deleteUpto;
 		}
 	}
+}
+
+void Cleaner::Close()
+{
+	Database::Close();
 }

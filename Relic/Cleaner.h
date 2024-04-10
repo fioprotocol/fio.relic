@@ -11,7 +11,7 @@
 #include "Database.h"
 #include "utils.h"
 
-class Cleaner
+class Cleaner:public Database
 {
 public:
 
@@ -36,8 +36,6 @@ public:
 	void Run();
 
 protected:
-	Database* database = NULL;
-	void initialize();
 
 	sql::PreparedStatement* sth_get_min_irrev = NULL;
 	sql::PreparedStatement* sth_get_min_tx_block = NULL;

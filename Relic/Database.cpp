@@ -10,32 +10,35 @@
 
 #include "Database.h"
 
-void Database::Initialize()
+void Database::Initialize(char* user, char* password, const char* url)
 {
+	Database::user = std::string(user);
+	Database::password = std::string(password);
+	Database::url = std::string(url);
+
 	try
 	{
 		sql::Driver* driver = sql::mariadb::get_driver_instance();
-		
+
 		sql::SQLString url(Database::url);
 		sql::Properties properties({ {"user", Database::user}, {"password", Database::password} });
 
-		Connection = driver->connect(url, properties);
+		connection = driver->connect(url, properties);
 
-		if (!Connection->getAutoCommit())
+		if (!connection->getAutoCommit())
 			THROW_Exception2("Autocommit is not enabled.");
 	}
 	catch (sql::SQLException& e)
 	{
-		std::cerr << "MariaDB error: " << ((sql::SQLException)e).getMessage() << std::endl;
-		throw e;
+		THROW_Exception2("Database error: %s", ((sql::SQLException)e).getMessage().c_str());
 	}
 }
 
 void Database::Close()
 {
-	if (Connection)
+	if (connection)
 	{
-		Connection->close();
-		Connection = NULL;
+		connection->close();
+		connection = NULL;
 	}
 }

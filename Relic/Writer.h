@@ -13,7 +13,7 @@
 #include "utils.h"
 #include "WebsocketServer.h"
 
-class Writer :public WebsocketServer
+class Writer :public WebsocketServer,public Database
 {
 public:
 
@@ -38,8 +38,6 @@ public:
 	void OnRead(const beast::flat_buffer& buffer) override;
 
 protected:
-	Database* database = NULL;
-	void initialize();
 
 	sql::PreparedStatement* sth_upd_sync_head = NULL;
 	sql::PreparedStatement* sth_fork_bkp = NULL;

@@ -23,11 +23,8 @@ class Database
 
 public:
 
-	Database(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic")
+	Database()
 	{
-		Database::user = std::string(user);
-		Database::password = std::string(password);
-		Database::url = std::string(url);
 	}
 
 	~Database()
@@ -42,7 +39,7 @@ public:
 		}
 	}
 
-	void Initialize();
+	void Initialize(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
 	void Close();
 
 	/*enum Status Status()
@@ -50,13 +47,13 @@ public:
 		return status;
 	}*/
 
-	sql::Connection* Connection = NULL;
 
 protected:
 	//enum Status status = Status::Error;
 	std::string user;
 	std::string password;
 	std::string url;
+	sql::Connection* connection = NULL;
 };
 
 #endif //Database_H

@@ -8,7 +8,6 @@
 #ifndef Writer_H
 #define Writer_H
 
-
 #include "Database.h"
 #include "utils.h"
 #include "WebsocketServer.h"
@@ -56,7 +55,7 @@ private:
 	sql::PreparedStatement* sth_fork_receipts = NULL;
 	sql::PreparedStatement* sth_fork_transactions = NULL;
 
-	int sourceId = -1;
+	int sourceId = 1;
 	bool noTraces = false;
 	bool keepBlocks = false;
 };

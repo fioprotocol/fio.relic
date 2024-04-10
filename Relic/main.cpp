@@ -98,6 +98,6 @@ int main(int argc, char** argv)
 	//}
 	//std::cout << "exited cleanly\n";
 
-	system("pause");
+	getchar();
 	return 0;
 }

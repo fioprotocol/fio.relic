@@ -16,22 +16,22 @@ void Database::Initialize(char* user, char* password, const char* url)
 	Database::password = std::string(password);
 	Database::url = std::string(url);
 
-	try
-	{
+	//try
+	//{
 		sql::Driver* driver = sql::mariadb::get_driver_instance();
 
-		sql::SQLString url(Database::url);
 		sql::Properties properties({ {"user", Database::user}, {"password", Database::password} });
 
-		connection = driver->connect(url, properties);
+		connection = driver->connect(Database::url, properties);
 
 		if (!connection->getAutoCommit())//??? switch to manual commit?
 			THROW_Exception2("Autocommit is not enabled.");
-	}
-	catch (sql::SQLException& e)
-	{
-		THROW_Exception2("Database error: %s", ((sql::SQLException)e).getMessage().c_str());
-	}
+	//}
+	//catch (sql::SQLException& e)
+	//{
+	//	//THROW_Exception2("Database error: %s", ((sql::SQLException)e).getMessage().c_str());
+	//	THROW_DatabaseException2(e);
+	//}
 }
 
 void Database::Close()

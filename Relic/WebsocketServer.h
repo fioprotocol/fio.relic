@@ -56,6 +56,7 @@ public:
 	void Write(beast::flat_buffer& buffer);
 
 	bool Binary = true;
+	bool AutoFragment = true;
 
 protected:
 	virtual	void onRead(const beast::flat_buffer& buffer) = 0;

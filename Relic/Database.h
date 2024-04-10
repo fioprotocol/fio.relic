@@ -12,6 +12,8 @@
 
 #include "utils.h"
 
+#define THROW_DatabaseException2(exception) throw Exception2(__FILE__, __LINE__, __FUNCTION__, "Database: %s", ((sql::SQLException)exception).getMessage().c_str())
+
 class Database
 {
 	/*enum Status

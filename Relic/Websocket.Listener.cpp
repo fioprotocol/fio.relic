@@ -13,7 +13,10 @@ void Listener::Close()
 {
 	acceptor.close();
 	for (auto s : sessions)
+	{
 		s->Close();
+		delete s;
+	}
 	sessions.empty();
 }
 

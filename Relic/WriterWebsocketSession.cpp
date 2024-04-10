@@ -11,5 +11,5 @@ using namespace Websocket;
 
 void WriterWebsocketSession::OnRead(beast::flat_buffer buffer)
 {
-
+	//shared_from_this();
 }

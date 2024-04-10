@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "Cleaner.h"
 #include "Writer.h"
+#include "WebsocketServer.h"
 
 
 
@@ -57,8 +58,8 @@ int main(int argc, char** argv)
 
 	try
 	{
-		//Websocket::Server ws = Websocket::Server();
-		//ws.Run(1);
+		WebsocketServer ws = WebsocketServer();
+		ws.Run();
 		//std::string s = std::string(argv[1]);
 		//if (s == "-c")
 		/*{
@@ -98,5 +99,7 @@ int main(int argc, char** argv)
 	//	std::cerr << "unknown exception\n";
 	//}
 	//std::cout << "exited cleanly\n";
+
+	system("pause");
 	return 0;
 }

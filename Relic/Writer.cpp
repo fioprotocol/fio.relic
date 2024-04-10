@@ -16,6 +16,10 @@ Websocket::Session* newSession(tcp::socket&& socket)
 {
 	return new WriterWebsocketSession(std::move(socket));
 }
+//void OnNewSession(Websocket::Session*)
+//{
+//	return new WriterWebsocketSession(std::move(socket));
+//}
 
 void Writer::initialize()
 {

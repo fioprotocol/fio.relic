@@ -11,11 +11,15 @@ using namespace Websocket;
 
 void Session::Run()
 {
+	//auto g = websocket.get_executor();
+	//auto h = beast::bind_front_handler(&Session::onRun, shared_from_this());
 	// We need to be executing within a strand to perform async operations
 	// on the I/O objects in this session. Although not strictly necessary
 	// for single-threaded contexts, this example code is written to be
 	// thread-safe by default.
-	net::dispatch(websocket.get_executor(), beast::bind_front_handler(&Session::onRun, shared_from_this()));
+	//net::dispatch(g, h);!!!exception???
+
+	onRun();
 }
 
 void Session::Close()

@@ -11,13 +11,13 @@
 
 #include "Database.h"
 #include "utils.h"
-#include "Websocket.Server.h"
+#include "WebsocketServer.h"
 
-class Writer
+class Writer :public WebsocketServer
 {
 public:
 
-	Writer()
+	Writer() :WebsocketServer()
 	{
 	}
 
@@ -35,10 +35,10 @@ public:
 
 	void Close();
 	void Run();
+	void OnRead(const beast::flat_buffer& buffer) override;
 
 protected:
 	Database* database = NULL;
-	Websocket::Server* server = NULL;
 	void initialize();
 
 	sql::PreparedStatement* sth_upd_sync_head = NULL;

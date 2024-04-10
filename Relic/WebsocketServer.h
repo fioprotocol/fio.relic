@@ -35,10 +35,8 @@ class WebsocketServer : public std::enable_shared_from_this<WebsocketServer>
 {
 public:
 
-	WebsocketServer(std::string ip = "127.0.0.1", int port = 8800)
+	WebsocketServer()
 	{
-		endpoint.address(net::ip::make_address(ip));
-		endpoint.port(port);
 	}
 
 	~WebsocketServer()
@@ -53,15 +51,14 @@ public:
 		}
 	}
 
-	void Run(/*std::function<void(beast::flat_buffer buffer)> read, std::function<void(beast::flat_buffer buffer)> write*/);
+	void Run(std::string ip = "127.0.0.1", int port = 8800);
 	void Close();
+	void Write(beast::flat_buffer& buffer);
+	virtual	void OnRead(const beast::flat_buffer& buffer) = 0;
 
 private:
 
-	tcp::endpoint endpoint;
-	//std::shared_ptr<Listener> listener;
-	std::function<void(beast::flat_buffer buffer)> read;
-	std::function<void(beast::flat_buffer buffer)> write;
+	websocket::stream<beast::tcp_stream>* websocket;
 };
 
 #endif //SocketServer_H

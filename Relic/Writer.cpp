@@ -10,18 +10,8 @@
 
 #include "Writer.h"
 #include "WebsocketServer.h"
-#include "WriterWebsocketSession.h"
 
-Websocket::Session* newSession(tcp::socket&& socket)
-{
-	return new WriterWebsocketSession(std::move(socket));
-}
-//void OnNewSession(Websocket::Session*)
-//{
-//	return new WriterWebsocketSession(std::move(socket));
-//}
-
-void Writer::initialize()
+void Writer::Run()
 {
 	database = new Database();
 	database->Initialize();
@@ -38,25 +28,24 @@ void Writer::initialize()
 	sth_fork_receipts = database->Connection->prepareStatement("DELETE FROM RECEIPTS WHERE block_num>=?");
 	sth_fork_transactions = database->Connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num>=?");
 
-	server = new Websocket::Server(newSession);
-	server->Run(1);
+	WebsocketServer::Run();
+}
+
+void Writer::OnRead(const beast::flat_buffer& buffer)
+{
+	/*auto s = beast::buffers_to_string(buffer.data());
+	std::fprintf(stdout, s.c_str());
+	fflush(stdout);*/
+	StdOut(Info, "%s", beast::buffers_to_string(buffer.data()).c_str());
 }
 
 void Writer::Close()
 {
-	if (server)
-	{
-		server->Close();
-		server = NULL;
-	}
+	WebsocketServer::Close();
+
 	if (database)
 	{
 		database->Close();
 		database = NULL;
 	}
-}
-
-void Writer::Run()
-{
-	initialize();
 }

@@ -58,8 +58,6 @@ int main(int argc, char** argv)
 
 	try
 	{
-		WebsocketServer ws = WebsocketServer();
-		ws.Run();
 		//std::string s = std::string(argv[1]);
 		//if (s == "-c")
 		/*{

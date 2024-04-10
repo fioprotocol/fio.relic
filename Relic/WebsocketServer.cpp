@@ -46,8 +46,9 @@ void WebsocketServer::Run(std::string ip, int port)
 		StdOut(Info, "Connected");
 
 		websocket = new websocket::stream<beast::tcp_stream>(std::move(socket));
+		websocket->binary(Binary);
 		websocket->set_option(websocket::stream_base::timeout::suggested(beast::role_type::server));
-		websocket->set_option(websocket::stream_base::decorator([](websocket::response_type& res) {res.set(http::field::server, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
+		//websocket->set_option(websocket::stream_base::decorator([](websocket::response_type& res) {res.set(http::field::server, std::string(BOOST_BEAST_VERSION_STRING) + " websocket-server-async"); }));
 		StdOut(Info, "Handshaking...");
 		beast::error_code ec;
 		websocket->accept(ec);

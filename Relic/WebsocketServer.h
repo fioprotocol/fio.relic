@@ -55,6 +55,8 @@ public:
 	void Close();
 	void Write(beast::flat_buffer& buffer);
 
+	bool Binary = true;
+
 protected:
 	virtual	void onRead(const beast::flat_buffer& buffer) = 0;
 	virtual	void onDisconnect() = 0;

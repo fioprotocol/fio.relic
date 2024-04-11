@@ -44,6 +44,20 @@ public:
 	void Initialize(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
 	void Close();
 
+	/*bool Autocommit()
+	{
+		if (!connection)
+			THROW_Exception2("No connection.");
+		return connection->getAutoCommit();
+	}
+
+	void Autocommit(bool value)
+	{
+		if (!connection)
+			THROW_Exception2("No connection.");
+		return connection->setAutoCommit(value);
+	}*/
+
 	/*enum Status Status()
 	{
 		return status;

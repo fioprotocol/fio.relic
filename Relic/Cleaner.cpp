@@ -17,6 +17,9 @@ void Cleaner::Run()
 	try
 	{
 		Database::Initialize();
+
+		connection->setAutoCommit(false);
+
 		sth_get_min_irrev = connection->prepareStatement("SELECT MIN(irreversible) FROM SYNC");
 		sth_get_min_tx_block = connection->prepareStatement("SELECT MIN(block_num) FROM TRANSACTIONS");
 		sth_prune_transactions = connection->prepareStatement("DELETE FROM TRANSACTIONS WHERE block_num < ?");
@@ -27,7 +30,7 @@ void Cleaner::Run()
 		for (;; std::this_thread::sleep_for(std::chrono::seconds(10)))
 		{
 			sql::ResultSet* r = sth_get_min_irrev->executeQuery();
-			//connection->commit();!!!by default Autocommit is enabled
+			connection->commit();
 			r->next();
 			//r->isAfterLast();
 			int minIrrev = r->getInt(1);
@@ -57,7 +60,7 @@ void Cleaner::Run()
 				sth_prune_receipts->setInt(1, deleteUpto);
 				sth_prune_receipts->executeQuery();
 				sth_prune_receipts->executeQuery();
-				//$db->{'dbh'}->commit();!!!by default Autocommit is enabled
+				connection->commit();
 
 				minBlock = deleteUpto;
 			}

@@ -47,10 +47,11 @@ add_executable (${PROJECT_NAME}
 	"Writer.cpp" "Writer.h"
 )
 
-#target_include_directories(${PROJECT_NAME} PUBLIC 
-#	${Boost_INCLUDE_DIRS} #/usr/include/
-#	"/usr/include/boost"
-#) 
+include_directories(
+  externals/appbase/include
+  externals/rapidjson/include
+  ${Boost_INCLUDE_DIR}
+) 
 
 target_link_libraries(${PROJECT_NAME} PUBLIC 
 	${Boost_LIBRARIES}

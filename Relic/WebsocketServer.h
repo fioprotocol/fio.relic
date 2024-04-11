@@ -53,7 +53,7 @@ public:
 
 	void Run(std::string ip = "127.0.0.1", int port = 8800);
 	void Close();
-	void Write(beast::flat_buffer& buffer);
+	void Write(const boost::asio::const_buffer& buffer);
 
 	bool Binary = true;
 	bool AutoFragment = true;

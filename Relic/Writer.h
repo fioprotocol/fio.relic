@@ -11,6 +11,7 @@
 #include "Database.h"
 #include "utils.h"
 #include "WebsocketServer.h"
+#include "rapidjson/document.h"
 
 class Writer :public WebsocketServer,public Database
 {
@@ -42,6 +43,7 @@ protected:
 
 private:
 	void sanityCheck();
+	int processData(int msgType, rapidjson::Document& json, char* jsonStr);
 
 	sql::PreparedStatement* sth_upd_sync_head = NULL;
 	sql::PreparedStatement* sth_fork_bkp = NULL;
@@ -55,9 +57,13 @@ private:
 	sql::PreparedStatement* sth_fork_receipts = NULL;
 	sql::PreparedStatement* sth_fork_transactions = NULL;
 
+	bool iAmMaster = false;
+	bool justCommitted = false;
 	int sourceId = 1;
 	bool noTraces = false;
 	bool keepBlocks = false;
+	time_t retiredTime = 0;
+	int logId = -1;
 };
 
 #endif //Writer_H

@@ -8,10 +8,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
+//#include <boost/property_tree/ptree.hpp>
+//#include <boost/property_tree/json_parser.hpp>
 //#include <boost/json.hpp>
 //#include <boost/json/src.hpp>
+
+//#include "rapidjson/stringbuffer.h"
 
 #include "Writer.h"
 #include "WebsocketServer.h"
@@ -44,23 +46,56 @@ void Writer::Run()
 	WebsocketServer::Run();
 }
 
+uint32_t readInt32_LittleEndian(char*& cs)
+{
+	auto i = (cs[3] << 24) | (cs[2] << 16) | (cs[1] << 8) | cs[0];
+	//auto i = (cs[0] << 24) | (cs[1] << 16) | (cs[2] << 8) | cs[3];
+	cs += 4;
+	return i;
+}
+
+//uint32_t readInt32(std::string& s)
+//{
+//	auto i = (s[3] << 24) | (s[2] << 16) | (s[1] << 8) | s[0];
+//	s.erase(0, 4);
+//	return i;
+//}
+
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
-	/*auto s = beast::buffers_to_string(buffer.data());
-	std::fprintf(stdout, s.c_str());
-	fflush(stdout);*/
-	//StdOut(Info, "%s", beast::buffers_to_string(buffer.data()).c_str());
+	auto s = beast::buffers_to_string(buffer.data());
+	char* cs = &s[0];
+	uint msgType = readInt32_LittleEndian(cs);
+	uint opts = readInt32_LittleEndian(cs);
+	rapidjson::Document json;
+	json.Parse(cs);
+	if (json.HasParseError())
+		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
-	//boost::property_tree::ptree pt;
-	//std::stringstream ss(buffer.data());
-	//boost::property_tree::read_json(ss, pt);
+	if (iAmMaster && justCommitted)
+	{
+		// verify that I am still the master
+		sth_am_i_master->setInt(1, sourceId);
+		auto r = sth_am_i_master->executeQuery();
+		if (!r->first() || !r->getByte(1))
+		{
+			StdOut(Warning, "I am no longer the master (sourceid=%d)", sourceId);
+			iAmMaster = false;
+			retiredTime = time(NULL);
+			logId = -1;
+		}
+		justCommitted = false;
+	}
 
-	///*std::string message_received;
-	//for (auto& [k, v] : pt.get_child("message.data")) {
-	//	message_received += static_cast<char>(v.get_value<ushort>());
-	//}*/
-	//std::string s = pt.data();
-	//StdOut(Info, s);
+	int ack = processData(msgType, json, cs);
+	if (ack >= 0)
+	{
+		char cs[4];
+		sprintf(cs, "%d", ack);
+		boost::asio::const_buffer b(cs, sizeof(cs));
+		Write(b);
+		StdOut(Info, "ack %d", ack);
+	}
 }
 
 void Writer::onDisconnect()
@@ -107,7 +142,7 @@ void Writer::sanityCheck()
 	int confirmedBlock = r->getInt(1);
 	int unconfirmedBlock = confirmedBlock;
 	int irreversible = r->getInt(2);
-	bool iAmMaster = r->getInt(3);
+	iAmMaster = r->getInt(3);
 	StdOut(Info, "Starting from confirmed_block=%d, irreversible=%d, sourceid=%d, is_master=%d", confirmedBlock, irreversible, sourceId, iAmMaster);
 
 	if (noTraces)
@@ -122,4 +157,9 @@ void Writer::sanityCheck()
 		if (keepBlocks)
 			StdOut(Info, "Automatically pruning the history older than %d blocks", keepBlocks);
 	}
+}
+
+int Writer::processData(int msgType, rapidjson::Document& json, char* jsonStr)
+{
+
 }

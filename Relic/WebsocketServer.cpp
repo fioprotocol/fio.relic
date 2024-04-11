@@ -78,13 +78,13 @@ void WebsocketServer::Close()
 		websocket->close(websocket::close_code::going_away, ec);
 }
 
-void WebsocketServer::Write(beast::flat_buffer& buffer)
+void WebsocketServer::Write(const boost::asio::const_buffer& buffer)
 {
 	beast::error_code ec;
 	if (!websocket)
 		THROW_Exception2("No connection to write in.");
 	websocket->text(websocket->got_text());
-	websocket->write(buffer.data(), ec);
+	websocket->write(buffer, ec);
 	if (ec)
 		THROW_SocketException2("write", ec);
 }

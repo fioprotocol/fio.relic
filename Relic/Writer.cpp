@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 //#include <boost/property_tree/ptree.hpp>
 //#include <boost/property_tree/json_parser.hpp>
@@ -55,18 +56,15 @@ void Writer::Run()
 
 uint32_t readInt32_LittleEndian(char*& cs)
 {
-	auto i = (cs[3] << 24) | (cs[2] << 16) | (cs[1] << 8) | cs[0];
+	//auto i = (cs[3] << 24) | (cs[2] << 16) | (cs[1] << 8) | cs[0];
 	//auto i = (cs[0] << 24) | (cs[1] << 16) | (cs[2] << 8) | cs[3];
+	//cs += 4;
+	//return i;
+	uint32_t n;
+	memcpy(&n, cs, sizeof(n));
 	cs += 4;
-	return i;
+	return n;
 }
-
-//uint32_t readInt32(std::string& s)
-//{
-//	auto i = (s[3] << 24) | (s[2] << 16) | (s[1] << 8) | s[0];
-//	s.erase(0, 4);
-//	return i;
-//}
 
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
@@ -178,7 +176,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 	switch (msgType)
 	{
 	case 1001: // CHRONICLE_MSGTYPE_FORK
-
+	{
 		StdOut(Info, "Fork at %s", blockNum);
 
 		//getdb();
@@ -210,7 +208,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		justCommitted = 1;
 
 		return confirmedBlock;
-
+	}
 	case 1003: // CHRONICLE_MSGTYPE_TX_TRACE
 	{
 		if (blockNum <= confirmedBlock)
@@ -237,7 +235,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		return -1;
 	}
 	case 1010: // CHRONICLE_MSGTYPE_BLOCK_COMPLETED
-
+	{
 		blocksCounter++;
 		auto blockTime = data["block_timestamp"].GetString();
 		blockTime = strchr(blockTime, 'T') + 1;
@@ -425,6 +423,12 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		trxCounter = 0;
 
 		return confirmedBlock;
+	}
+	default:
+	{
+		StdOut(Warning, "Unknown message type: %d", msgType);
+		return -1;
+	}
 	}
 	return -1;
 }

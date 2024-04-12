@@ -66,14 +66,21 @@ uint32_t readInt32_LittleEndian(char*& cs)
 	return n;
 }
 
+uint32_t readInt32_LittleEndian(std::string& s)
+{
+	uint32_t n;
+	memcpy(&n, s.c_str(), sizeof(n));
+	s.erase(0, 4);
+	return n;
+}
+
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
 	auto s = beast::buffers_to_string(buffer.data());
-	char* cs = &s[0];
-	uint msgType = readInt32_LittleEndian(cs);
-	uint opts = readInt32_LittleEndian(cs);
+	uint msgType = readInt32_LittleEndian(s);
+	uint opts = readInt32_LittleEndian(s);
 	rapidjson::Document json;
-	json.Parse(cs);
+	json.Parse(s.c_str());
 	if (json.HasParseError())
 		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
@@ -86,13 +93,13 @@ void Writer::onRead(const beast::flat_buffer& buffer)
 		{
 			StdOut(Warning, "I am no longer the master (sourceid=%d)", sourceId);
 			iAmMaster = false;
-			retiredTime = time(NULL);
+			retiredTime = std::chrono::system_clock::now();
 			logId = -1;
 		}
 		justCommitted = false;
 	}
 
-	int ack = processData(msgType, json, cs);
+	int ack = processData(msgType, json, s);
 	if (ack >= 0)
 	{
 		char cs[4];
@@ -164,8 +171,17 @@ void Writer::sanityCheck()
 	}
 }
 
-int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
+std::string getBlockTime(rapidjson::Document& data)
 {
+	auto bt = data["block_timestamp"].GetString();
+	return std::string(strchr(bt, 'T') + 1);
+}
+
+int Writer::processData(uint msgType, rapidjson::Document& data, std::string& jsonStr)
+{
+	if (!connection->isValid())
+		connection->reconnect();
+
 	//if (iAmMaster && keepEventLog)
 	//	if (msgType == 1001 or msgType == 1003)
 	//	{
@@ -189,9 +205,9 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		confirmedBlock = blockNum - 1;
 		unconfirmedBlock = confirmedBlock;
 
-		/*@insert_transactions = ();
-		@insert_receipts = ();
-		% upsert_recv_seq_max = ();*/
+		insertTransactions.clear();
+		insertReceipts.clear();
+		upsertRecvSeqMax.clear();
 
 		if (iAmMaster)
 			forkTraces(blockNum);
@@ -205,7 +221,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		sth_upd_sync_fork->setInt(2, sourceId);
 		sth_upd_sync_fork->execute();
 		connection->commit();
-		justCommitted = 1;
+		justCommitted = true;
 
 		return confirmedBlock;
 	}
@@ -214,21 +230,21 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 		if (blockNum <= confirmedBlock)
 			return -1;
 
-		auto trace = data["trace"].GetObject();
+		rapidjson::GenericObject<false, rapidjson::Value> trace = data["trace"].GetObject();
 		if (strcasecmp(trace["status"].GetString(), "executed"))
 			return -1;
 		auto actionTraces = trace["action_traces"].GetArray();
 		if (!actionTraces.Size())
 			return -1;
 
-		auto blockTime = data["block_timestamp"].GetString();
-		blockTime = strchr(blockTime, 'T') + 1;
+		auto blockTime = getBlockTime(data);
 
-		auto trxSeq = actionTraces[0]["receipt"]["global_sequence"].GetObject();
-		//if (iAmMaster)
-			//saveTrace(trxSeq, blockNum, blockTime, trace, jsonStr);
-		//else
-		//	insertBkpTraces.push_back(Trace{ trxCounter, blockNum, blockTime, trace["id"].GetString(), $dbh->quote(${$jsptr}, $db_binary_type)]);
+		ulong trxSeq = actionTraces[0]["receipt"]["global_sequence"].GetUint64();
+		if (iAmMaster)
+			saveTrace(trxSeq, blockNum, blockTime, trace, jsonStr);
+		else
+			// push(@insert_bkp_traces,	[$trx_seq, $block_num, $dbh->quote($block_time), $dbh->quote($trace->{'id'}),$dbh->quote(${ $jsptr }, $db_binary_type)]);
+			insertBkpTraces.push_back(Trace{ trxSeq, blockNum, blockTime, trace["id"].GetString(), jsonStr });
 
 		trxCounter++;
 
@@ -237,8 +253,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 	case 1010: // CHRONICLE_MSGTYPE_BLOCK_COMPLETED
 	{
 		blocksCounter++;
-		auto blockTime = data["block_timestamp"].GetString();
-		blockTime = strchr(blockTime, 'T') + 1;
+		auto blockTime = getBlockTime(data);
 		long int lastIrreversible = data["last_irreversible"].GetInt64();
 
 		if (blockNum > unconfirmedBlock + 1)
@@ -272,11 +287,6 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 						}*/
 				}
 			}
-			else
-			{
-				sth_clean_log->setInt(1, keepEventLog);
-				sth_clean_log->execute();
-			}
 		}
 
 		if (iAmMaster)
@@ -286,7 +296,6 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 			{
 				& {$hook}(blockNum, lastIrreversible, $data->{'block_id'});
 			}*/
-			sendEventsBatch();
 		}
 		else if (insertBkpTraces.size())
 		{
@@ -294,7 +303,7 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 			{
 				sth_insrt_bkp_traces->setInt64(1, t.seq);
 				sth_insrt_bkp_traces->setInt64(2, t.block_num);
-				sth_insrt_bkp_traces->setInt64(3, t.block_time);
+				sth_insrt_bkp_traces->setString(3, t.block_time);
 				sth_insrt_bkp_traces->setString(4, t.trx_id);
 				sth_insrt_bkp_traces->setString(5, t.trace);
 				sth_insrt_bkp_traces->execute();
@@ -309,24 +318,22 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 			return unconfirmedBlock;
 
 		if (unconfirmedBlock - confirmedBlock < ackEvery)
-			return confirmedBlock;
+			return -1;
 
-		//if (iAmMaster)
-			/*foreach my $hook(@ack_hooks)
-{
-	& {$hook}(blockNum);
-}*/
+		/*if (iAmMaster)
+		foreach my $hook(@ack_hooks)
+		& {$hook}(blockNum);*/
 
 		sth_upd_sync_head->setInt(1, blockNum);
 		sth_upd_sync_head->setString(2, blockTime);
 		sth_upd_sync_head->setString(3, data["block_id"].GetString());
-		sth_upd_sync_head->setInt(4, lastIrreversible);
+		sth_upd_sync_head->setInt64(4, lastIrreversible);
 		sth_upd_sync_head->setInt(5, sourceId);
 		connection->commit();
-		justCommitted = 1;
+		justCommitted = true;
 		confirmedBlock = unconfirmedBlock;
 
-		if (!iAmMaster && blockNum > lastIrreversible && time(NULL) > retiredTime + 60)
+		if (!iAmMaster && blockNum > lastIrreversible && std::chrono::system_clock::now() > retiredTime + std::chrono::seconds(60))
 		{
 			// check if the master is still alive
 			int my_upd = -1;
@@ -372,14 +379,8 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 				sleep(5);
 
 				// delete all reversible traces written by old master
-				long		startBlock = master_irrev + 1;
+				long startBlock = master_irrev + 1;
 				forkTraces(startBlock);
-
-				if (keepEventLog)
-				{
-					// insert an explicit fork
-						//push(@insert_event_log, [startBlock, 1001,								$dbh->quote('{"block_num":"'.startBlock . '"}', $db_binary_type)]);
-				}
 
 				// copy data from BKP_TRACES
 				int copied_rows = 0;
@@ -388,37 +389,35 @@ int Writer::processData(int msgType, rapidjson::Document& data, char* jsonStr)
 				for (r->first(); r->isAfterLast(); r->next())
 				{
 					auto js = r->getBlob("trace");
+					std::istreambuf_iterator<char> isb = std::istreambuf_iterator<char>(*js);
+					std::string s(isb, std::istreambuf_iterator<char>());
 					rapidjson::Document data;
-					//data.ParseStream(js->read());
-
-					//saveTrace($r->[0], $r->[1], $r->[2], $data->{'trace'}, \$js);
+					data.Parse(s.c_str());
+					saveTrace(r->getUInt64(1), r->getInt64(2), r->getString(3).c_str(), data["trace"].GetObject(), jsonStr);
 					copied_rows++;
-					//if (keepEventLog)
-											//push(@insert_event_log, [$r->[1], 1003, $dbh->quote($r->[4], $db_binary_type)]);
 				}
 
 				sendTracesBatch();
-				sendEventsBatch();
 				connection->commit();
-				justCommitted = 1;
+				justCommitted = true;
 				StdOut(Info, "Copied %d rows from backup", copied_rows);
 
 				sth_fork_bkp->setInt64(1, startBlock);
 				sth_fork_bkp->execute();
 				connection->commit();
-				justCommitted = 1;
+				justCommitted = true;
 			}
 		}
 
-		/*my($year, $mon, $mday, $hour, $min, $sec, $msec) = split(/ [-:.T] / , $data->{'block_timestamp'});
-		my $epoch = timegm_nocheck($sec, $min, $hour, $mday, $mon - 1, $year);
-		float gap = (time(NULL) - $epoch) / 3600.0;
-
-		int period = time(NULL) - counterStart;
+		std::tm tm = {};
+		strptime(data["block_timestamp"].GetString(), "%Y-%m-%dT%H:%M:%S", &tm);
+		auto blockTimestamp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+		float gap = std::chrono::duration<float>(std::chrono::system_clock::now() - blockTimestamp).count() / 3600;
+		int period = std::chrono::duration<float>(std::chrono::system_clock::now() - counterStart).count();
 		StdOut(Info, "%s - blocks/s: %8.2f, trx/block: %8.2f, trx/s: %8.2f, gap: %8.4fh, ",
 			(iAmMaster ? 'M' : 'S'), blocksCounter / period, trxCounter / blocksCounter, trxCounter / period, gap
-		);*/
-		counterStart = time(NULL);
+		);
+		counterStart = std::chrono::system_clock::now();
 		blocksCounter = 0;
 		trxCounter = 0;
 
@@ -459,32 +458,28 @@ void Writer::forkTraces(long startBlock)
 }
 
 
-void Writer::saveTrace(char* trxSeq, long blockNum, time_t blockTime, char* trace, char* jsptr)
+void Writer::saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string& jsptr)
 {
-	/*if (not $no_traces)
+	if (!noTraces)
 	{
-		my $dbh = $db->{'dbh'};
-		my $qtime = $dbh->quote($block_time);
-
-		push(@insert_transactions,
-			 [$trx_seq, $block_num, $qtime, $dbh->quote($trace->{'id'}), $dbh->quote(${$jsptr}, $db_binary_type)]);
-
-		foreach my $atrace(@{$trace->{'action_traces'}})
+		//my $qtime = $dbh->quote($block_time);
+		// [$trx_seq, $block_num, $qtime, $dbh->quote($trace->{'id'}), $dbh->quote(${$jsptr}, $db_binary_type)]);!!!DBI::SQL_BINARY
+		insertTransactions.push_back(Transaction{ trxSeq , blockNum ,blockTime,trace["id"].GetString() ,jsptr });
+		auto actionTraces = trace["action_traces"].GetArray();
+		for (rapidjson::Value::ConstValueIterator itr = actionTraces.Begin(); itr != actionTraces.End(); ++itr)
 		{
-			my $act = $atrace->{'act'};
-			my $receipt = $atrace->{'receipt'};
-			my $receiver = $receipt->{'receiver'};
-			my $recv_sequence = $receipt->{'recv_sequence'};
-
-			push(@insert_receipts,[$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),
-									$dbh->quote($act->{'name'}), $dbh->quote($receiver),
-									$recv_sequence]);
-
-			$upsert_recv_seq_max{$receiver} = $recv_sequence;
+			auto atrace = itr->GetObject();
+			auto	act = atrace["act"].GetObject();
+			auto	receipt = atrace["receipt"].GetObject();
+			auto	receiver = receipt["receiver"].GetString();
+			long	recv_sequence = receipt["recv_sequence"].GetInt64();
+			//push(@insert_receipts, [$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),$dbh->quote($act->{'name'}), $dbh->quote($receiver),$recv_sequence]);
+			insertReceipts.push_back(Receipt{ trxSeq,blockNum, blockTime, act["account"].GetString() , act["name"].GetString() , receiver , recv_sequence });
+			upsertRecvSeqMax[receiver] = recv_sequence;
 		}
 	}
 
-	foreach my $hook(@trace_hooks)
+	/*foreach my $hook(@trace_hooks)
 	{
 		& {$hook}($trx_seq, $block_num, $block_time, $trace, $jsptr);
 	}*/
@@ -533,29 +528,29 @@ void Writer::sendTracesBatch()
 }
 
 
-void Writer::sendEventsBatch()
-{
-	/*if ($i_am_master and defined($keep_event_log) and scalar(@insert_event_log) > 0)
-	{
-		if (not defined($log_id))
-		{
-			my $sth = $db->{'dbh'}->prepare('SELECT MAX(id) FROM EVENT_LOG');
-			$sth->execute();
-			my $r = $sth->fetchall_arrayref();
-			if (scalar(@{$r}) > 0)
-			{
-				$log_id = $r->[0][0];
-			}
-			else
-			{
-				$log_id = 0;
-			}
-		}
-
-		my $query = 'INSERT INTO EVENT_LOG (id, block_num, event_type, data) VALUES ' .
-			join(',', map {'('.join(',', ++$log_id, @{$_}) . ')'} @insert_event_log);
-
-		$db->{'dbh'}->do($query);
-		@insert_event_log = ();
-	}*/
-}
+//void Writer::sendEventsBatch()
+//{
+//	if ($i_am_master and defined($keep_event_log) and scalar(@insert_event_log) > 0)
+//	{
+//		if (not defined($log_id))
+//		{
+//			my $sth = $db->{'dbh'}->prepare('SELECT MAX(id) FROM EVENT_LOG');
+//			$sth->execute();
+//			my $r = $sth->fetchall_arrayref();
+//			if (scalar(@{$r}) > 0)
+//			{
+//				$log_id = $r->[0][0];
+//			}
+//			else
+//			{
+//				$log_id = 0;
+//			}
+//		}
+//
+//		my $query = 'INSERT INTO EVENT_LOG (id, block_num, event_type, data) VALUES ' .
+//			join(',', map {'('.join(',', ++$log_id, @{$_}) . ')'} @insert_event_log);
+//
+//		$db->{'dbh'}->do($query);
+//		@insert_event_log = ();
+//	}
+//}

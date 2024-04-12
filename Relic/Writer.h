@@ -43,10 +43,10 @@ protected:
 
 private:
 	void sanityCheck();
-	int processData(int msgType, rapidjson::Document& data, char* jsonStr);
+	int processData(uint msgType, rapidjson::Document& data, std::string& jsonStr);
 	void forkTraces(long startBlock);
-	void saveTrace(char* trxSeq, long blockNum, time_t blockTime, char* trace, char* jsptr);
-	void sendEventsBatch();
+	void saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string& jsptr);
+	//void sendEventsBatch();
 	void sendTracesBatch();
 
 	sql::PreparedStatement* sth_upd_sync_head = NULL;
@@ -66,31 +66,62 @@ private:
 	sql::PreparedStatement* sth_fetch_bkp_traces = NULL;
 	sql::PreparedStatement* sth_insrt_bkp_traces = NULL;
 
-	struct Trace
-	{
-		long seq;
-		long block_num;
-		time_t block_time;
-		char trx_id[64];
-		std::string trace;
-	};
-
 	bool iAmMaster = false;
 	bool justCommitted = false;
 	int sourceId = 1;
 	bool noTraces = false;
 	long int keepBlocks = -1;
-	time_t retiredTime = 0;
+	std::chrono::system_clock::time_point retiredTime = {};
 	int logId = -1;
-	bool keepEventLog = false;
 	int confirmedBlock = -1;
 	long int irreversible = -1;
 	int unconfirmedBlock = -1;
 	int trxCounter = 0;
 	int blocksCounter = 0;
 	int ackEvery = 100;
+	std::chrono::system_clock::time_point counterStart = {};
+
+	struct Trace
+	{
+		ulong seq;
+		long block_num;
+		std::string block_time;
+		std::string trx_id;
+		std::string trace;
+	};
 	std::vector<Trace> insertBkpTraces;
-	time_t counterStart = 0;
+
+	struct Transaction
+	{
+		ulong	seq;
+		long	block_num;
+		std::string block_time;
+		std::string trx_id;
+		std::string trace;
+
+	};
+	std::vector<Transaction> insertTransactions;
+
+	struct Receipt
+	{
+		ulong	seq;
+		long	block_num;
+		std::string block_time;
+		std::string	contract;
+		std::string	action;
+		std::string	receiver;
+		long	recv_sequence;
+	};
+	std::vector<Receipt> insertReceipts;
+
+	std::map<std::string, long>	upsertRecvSeqMax;
+
+	//struct Event
+	//{
+
+	//};
+	//bool keepEventLog = false;
+	//std::vector<Event> insertEventLog;
 };
 
 #endif //Writer_H

@@ -461,7 +461,6 @@ void Writer::forkTraces(long startBlock)
 	sth_fork_transactions->execute();
 }
 
-
 void Writer::saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string& jsptr)
 {
 	if (!noTraces)

@@ -9,41 +9,51 @@
 #include <stdio.h>
 #include <string.h>
 #include <chrono>
+#include <boost/filesystem/path.hpp>
+#include <boost/core/demangle.hpp>
 
 //#include "externals/appbase/include/appbase/application.hpp"
-//#include </home/cliver/appbase/include/appbase/application.hpp>
-//#include <appbase/application.hpp>
+#include <appbase/application.hpp>
 
 #include "utils.h"
 #include "Cleaner.h"
 #include "Writer.h"
 #include "WebsocketServer.h"
 
+namespace bpo = boost::program_options;
 
+class Relic_plugin : public appbase::plugin<Relic_plugin>
+{
+public:
+	Relic_plugin() {};
 
-//class net_plugin : public appbase::plugin<net_plugin>
-//{
-//public:
-//	net_plugin() {};
-//	~net_plugin() {};
-//
-//	//APPBASE_PLUGIN_REQUIRES((chain_plugin));
-//
-//	/*virtual void set_program_options(options_description& cli, options_description& cfg) override
-//	{
-//		cfg.add_options()
-//			("listen-endpoint", bpo::value<string>()->default_value("127.0.0.1:9876"), "The local IP address and port to listen for incoming connections.")
-//			("remote-endpoint", bpo::value< vector<string> >()->composing(), "The IP address and port of a remote peer to sync with.")
-//			("public-endpoint", bpo::value<string>()->default_value("0.0.0.0:9876"), "The public IP address and port that should be advertized to peers.")
-//			;
-//	}*/
-//
-//	void plugin_initialize(const variables_map& options) { std::cout << "initialize net plugin\n"; }
-//	void plugin_startup() { std::cout << "starting net plugin \n"; }
-//	void plugin_shutdown() { std::cout << "shutdown net plugin \n"; }
-//};
+	~Relic_plugin() {};
 
+	APPBASE_PLUGIN_REQUIRES();
 
+	virtual void set_program_options(bpo::options_description& cli, bpo::options_description& cfg) override
+	{
+		cfg.add_options()
+			("listen-endpoint", bpo::value<std::string>()->default_value("127.0.0.1:9876"), "The local IP address and port to listen for incoming connections.")
+			("remote-endpoint", bpo::value< std::vector<std::string> >()->composing(), "The IP address and port of a remote peer to sync with.")
+			("public-endpoint", bpo::value<std::string>()->default_value("0.0.0.0:9876"), "The public IP address and port that should be advertized to peers.")
+			;
+	}
+
+	void plugin_initialize(const boost::program_options::variables_map& options)
+	{
+	}
+
+	void plugin_startup()
+	{
+		StdOut(Info, "Starting Relic...");
+	}
+
+	void plugin_shutdown()
+	{
+		StdOut(Info, "Shutdown Relic...");
+	}
+};
 
 int main(int argc, char** argv)
 {
@@ -79,24 +89,32 @@ int main(int argc, char** argv)
 		STDOUT_CURRENT_EXCEPTION(NULL);
 	}
 
-	//try {
-	//	appbase::app().register_plugin<net_plugin>();
-	//	if (!appbase::app().initialize<net_plugin>(argc, argv))
-	//		return -1;
-	//	//initialize_logging();
-	//	appbase::app().startup();
-	//	appbase::app().exec();
-	//}
-	///*catch (const boost::exception& e) {
-	//	std::cerr << boost::diagnostic_information(e) << "\n";
-	//}*/
-	//catch (const std::exception& e) {
-	//	std::cerr << e.what() << "\n";
-	//}
-	//catch (...) {
-	//	std::cerr << "unknown exception\n";
-	//}
-	//std::cout << "exited cleanly\n";
+	try
+	{
+		//appbase::app().register_plugin<Relic_plugin>();
+		//if (!appbase::app().initialize<Relic_plugin>(argc, argv))
+		//	return -1;
+		////initialize_logging();
+		//appbase::app().startup();
+		//appbase::app().exec();
+	}
+	catch (const boost::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
+	}
+	catch (Exception e)
+	{
+		e.StdOut();
+	}
+	catch (const std::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
+	}
+	catch (...)
+	{
+		STDOUT_CURRENT_EXCEPTION(NULL);
+	}
+	std::cout << "exited cleanly\n";
 
 	getchar();
 	return 0;

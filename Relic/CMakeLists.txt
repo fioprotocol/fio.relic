@@ -23,17 +23,11 @@ find_package(
     Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS} #/usr/include/boost
 )
 
-#include_directories("/home/cliver/appbase/include") #for appbase sources
-#include_directories("c:/Users/serge/Documents/_PROJECTS/fio-relic/Relic/externals/appbase/include") #for appbase sources
-
 find_package(
     mariadbcpp #/usr/include/mariadb
 )
 
-#https://stackoverflow.com/questions/72590567/use-mariadb-connector-cpp-with-cmake-project
-#add_subdirectory("/usr/include/mariadb")
-#add_library(mariadbcpp SHARED IMPORTED)
-#set_property(TARGET mariadbcpp PROPERTY IMPORTED_LOCATION "/usr/lib/libmariadbcpp.so") #path to libmariadbcpp.so
+#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
 
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
@@ -56,6 +50,7 @@ include_directories(
 target_link_libraries(${PROJECT_NAME} PUBLIC 
 	${Boost_LIBRARIES}
 	mariadbcpp	#/usr/lib/libmariadbcpp.so
+	#appbase
 )
 #message(Boost_LIBRARIES="${Boost_LIBRARIES}")
 #message(Boost_INCLUDE_DIRS="${Boost_INCLUDE_DIRS}")

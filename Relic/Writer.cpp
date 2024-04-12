@@ -43,6 +43,9 @@ void Writer::Run()
 		sth_upd_sync2 = connection->prepareStatement("UPDATE SYNC SET is_master=1 WHERE sourceid = ?");
 		sth_fetch_bkp_traces = connection->prepareStatement("SELECT seq, block_num, block_time, trx_id, trace FROM BKP_TRACES WHERE block_num >= ? ORDER BY seq");
 		sth_insrt_bkp_traces = connection->prepareStatement("INSERT INTO BKP_TRACES (seq, block_num, block_time, trx_id, trace) VALUES ?,?,?,?,?");
+		sth_insert_transactions = connection->prepareStatement("INSERT INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ?,?,?,?,?");
+		sth_insert_receipts = connection->prepareStatement("INSERT INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES ?,?,?,?,?,?,?");
+		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES ?,? ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
 
 		sanityCheck();
 	}
@@ -179,9 +182,6 @@ std::string getBlockTime(rapidjson::Document& data)
 
 int Writer::processData(uint msgType, rapidjson::Document& data, std::string& jsonStr)
 {
-	if (!connection->isValid())
-		connection->reconnect();
-
 	//if (iAmMaster && keepEventLog)
 	//	if (msgType == 1001 or msgType == 1003)
 	//	{
@@ -196,6 +196,9 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 		StdOut(Info, "Fork at %s", blockNum);
 
 		//getdb();
+		if (!connection->isValid())
+			connection->reconnect();
+
 		connection->commit();
 		justCommitted = true;
 
@@ -291,7 +294,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 
 		if (iAmMaster)
 		{
-			sendTracesBatch();
+			sendTracesBatch();//!!!it may be non committed???
 			/*foreach my $hook(@block_hooks)
 			{
 				& {$hook}(blockNum, lastIrreversible, $data->{'block_id'});
@@ -306,8 +309,9 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 				sth_insrt_bkp_traces->setString(3, t.block_time);
 				sth_insrt_bkp_traces->setString(4, t.trx_id);
 				sth_insrt_bkp_traces->setString(5, t.trace);
-				sth_insrt_bkp_traces->execute();
+				sth_insrt_bkp_traces->addBatch();
 			}
+			sth_insrt_bkp_traces->executeBatch();
 			insertBkpTraces.clear();
 		}
 
@@ -389,7 +393,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 				for (r->first(); r->isAfterLast(); r->next())
 				{
 					auto js = r->getBlob("trace");
-					std::istreambuf_iterator<char> isb = std::istreambuf_iterator<char>(*js);
+					std::istreambuf_iterator<char> isb(*js);
 					std::string s(isb, std::istreambuf_iterator<char>());
 					rapidjson::Document data;
 					data.Parse(s.c_str());
@@ -485,46 +489,53 @@ void Writer::saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime
 	}*/
 }
 
-
 void Writer::sendTracesBatch()
 {
-	/*if (scalar(@insert_transactions) > 0)
+	if (!insertTransactions.size())
+		return;
+
+	for (auto t : insertTransactions)
 	{
-		my $dbh = $db->{'dbh'};
+		sth_insert_transactions->setUInt64(1, t.seq);
+		sth_insert_transactions->setInt64(2, t.block_num);
+		sth_insert_transactions->setDateTime(3, t.block_time);
+		sth_insert_transactions->setString(4, t.trx_id);
+		std::stringstream s(t.trace);
+		sth_insert_transactions->setBlob(5, &s);
+		sth_insert_transactions->addBatch();
+	}
+	sth_insert_transactions->executeBatch();
 
-		my $query = 'INSERT INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ' .
-			join(',', map {'('.join(',', @{$_}) . ')'} @insert_transactions);
-
-		$dbh->do($query);
-
-		if (scalar(@insert_receipts) > 0)
+	if (insertReceipts.size())
+	{
+		for (auto r : insertReceipts)
 		{
-			$query = 'INSERT INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES ' .
-				join(',', map {'('.join(',', @{$_}) . ')'} @insert_receipts);
-			$dbh->do($query);
+			sth_insert_receipts->setUInt64(1, r.seq);
+			sth_insert_receipts->setInt64(2, r.block_num);
+			sth_insert_receipts->setDateTime(3, r.block_time);
+			sth_insert_receipts->setString(4, r.contract);
+			sth_insert_receipts->setString(5, r.action);
+			sth_insert_receipts->setString(6, r.receiver);
+			sth_insert_receipts->setInt64(7, r.recv_sequence);
+			sth_insert_receipts->addBatch();
 		}
+		sth_insert_receipts->executeBatch();
+	}
 
-		if (scalar(keys % upsert_recv_seq_max) > 0)
+	if (upsertRecvSeqMax.size())
+	{
+		for (auto p : upsertRecvSeqMax)
 		{
-			if ($db_is_postgres)
-			{
-				$query = 'INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES ' .
-					join(',', map {'('.$dbh->quote($_) . ','.$upsert_recv_seq_max{$_} . ')'} keys % upsert_recv_seq_max) .
-					' ON CONFLICT (account_name) DO UPDATE SET recv_sequence_max = EXCLUDED.recv_sequence_max';
-			}
-			else
-			{
-				$query = 'INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES ' .
-					join(',', map {'('.$dbh->quote($_) . ','.$upsert_recv_seq_max{$_} . ')'} keys % upsert_recv_seq_max) .
-					' ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)';
-			}
-			$dbh->do($query);
+			sth_insert_recv_seq_max->setString(1, p.first);
+			sth_insert_recv_seq_max->setInt64(2, p.second);
+			sth_insert_recv_seq_max->addBatch();
 		}
+		sth_insert_recv_seq_max->executeBatch();
+	}
 
-		@insert_transactions = ();
-		@insert_receipts = ();
-		% upsert_recv_seq_max = ();
-	}*/
+	insertTransactions.clear();
+	insertReceipts.clear();
+	upsertRecvSeqMax.clear();
 }
 
 

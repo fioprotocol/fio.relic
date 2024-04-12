@@ -65,6 +65,9 @@ private:
 	sql::PreparedStatement* sth_upd_sync2 = NULL;
 	sql::PreparedStatement* sth_fetch_bkp_traces = NULL;
 	sql::PreparedStatement* sth_insrt_bkp_traces = NULL;
+	sql::PreparedStatement* sth_insert_transactions = NULL;
+	sql::PreparedStatement* sth_insert_receipts = NULL;
+	sql::PreparedStatement* sth_insert_recv_seq_max = NULL;
 
 	bool iAmMaster = false;
 	bool justCommitted = false;

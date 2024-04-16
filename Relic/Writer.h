@@ -68,7 +68,7 @@ private:
 	void sanityCheck();
 	int processData(const beast::flat_buffer& buffer);
 	void forkTraces(int64_t startBlock);
-	void saveTrace(uint64_t trxSeq, int64_t blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr);
+	void saveTrace(uint64_t trxSeq, int64_t blockNum, std::string&& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string&& jsonStr);
 	//void sendEventsBatch();
 	void sendTracesBatch();
 
@@ -110,7 +110,7 @@ private:
 		int64_t block_num;
 		std::string block_time;
 		std::string trx_id;
-		boost::shared_ptr<std::string> trace;
+		std::string trace;
 	};
 	std::vector<Trace> insertBkpTraces;
 
@@ -120,7 +120,7 @@ private:
 		int64_t block_num;
 		std::string block_time;
 		std::string trx_id;
-		boost::shared_ptr<std::string> trace;
+		std::string trace;
 
 	};
 	std::vector<Transaction> insertTransactions;

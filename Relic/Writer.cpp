@@ -86,9 +86,9 @@ void Writer::Run()
 		sth_upd_sync1 = connection->prepareStatement("UPDATE SYNC SET is_master=0 WHERE sourceid != ?");
 		sth_upd_sync2 = connection->prepareStatement("UPDATE SYNC SET is_master=1 WHERE sourceid = ?");
 		sth_fetch_bkp_traces = connection->prepareStatement("SELECT seq, block_num, block_time, trx_id, trace FROM BKP_TRACES WHERE block_num >= ? ORDER BY seq");
-		sth_insrt_bkp_traces = connection->prepareStatement("INSERT INTO BKP_TRACES (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
-		sth_insert_transactions = connection->prepareStatement("INSERT INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
-		sth_insert_receipts = connection->prepareStatement("INSERT INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES (?,?,?,?,?,?,?)");
+		sth_insrt_bkp_traces = connection->prepareStatement("INSERT IGNORE INTO BKP_TRACES (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
+		sth_insert_transactions = connection->prepareStatement("INSERT IGNORE INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
+		sth_insert_receipts = connection->prepareStatement("INSERT IGNORE INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES (?,?,?,?,?,?,?)");
 		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES (?,?) ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
 
 		sanityCheck();
@@ -104,7 +104,7 @@ void Writer::Run()
 	WebsocketServer::Run();
 }
 
-uint32_t readInt32_LittleEndian(char*& cs)
+uint32_t readInt32_LittleEndian(char* cs)
 {
 	//auto i = (cs[3] << 24) | (cs[2] << 16) | (cs[1] << 8) | cs[0];
 	//auto i = (cs[0] << 24) | (cs[1] << 16) | (cs[2] << 8) | cs[3];
@@ -112,17 +112,16 @@ uint32_t readInt32_LittleEndian(char*& cs)
 	//return i;
 	uint32_t n;
 	memcpy(&n, cs, sizeof(n));
-	cs += 4;
 	return n;
 }
 
-uint32_t readInt32_LittleEndian(std::string& s)
-{
-	uint32_t n;
-	memcpy(&n, s.c_str(), sizeof(n));
-	s = s.erase(0, 4);
-	return n;
-}
+//uint32_t readInt32_LittleEndian(std::string& s)
+//{
+//	uint32_t n;
+//	memcpy(&n, s.c_str(), sizeof(n));
+//	s = s.erase(0, 4);
+//	return n;
+//}
 
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
@@ -174,10 +173,11 @@ int Writer::processData(const beast::flat_buffer& buffer)
 		THROW_Exception2("Could not reconnect the db.");
 
 	std::string buffer_ = beast::buffers_to_string(buffer.data());
-	uint msgType = readInt32_LittleEndian(buffer_);
-	uint opts = readInt32_LittleEndian(buffer_);
+	uint msgType = readInt32_LittleEndian(&buffer_[0]);
+	uint opts = readInt32_LittleEndian(&buffer_[4]);
+	const std::string jsonStr = &buffer_[8];
 	rapidjson::Document json;
-	json.Parse(buffer_.c_str());
+	json.Parse(jsonStr.c_str());
 	if (json.HasParseError())
 		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
@@ -232,14 +232,12 @@ int Writer::processData(const beast::flat_buffer& buffer)
 			return -1;
 
 		auto blockTime = getBlockTime(json);
-
-		boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
 		uint64_t trxSeq = std::stoul(actionTraces[0]["receipt"]["global_sequence"].GetString());
 		if (iAmMaster)
-			saveTrace(trxSeq, blockNum, blockTime, trace, jsonStr);
+			saveTrace(trxSeq, blockNum, std::move(blockTime), trace, std::move(jsonStr));
 		else
 			// push(@insert_bkp_traces,	[$trx_seq, $block_num, $dbh->quote($block_time), $dbh->quote($trace->{'id'}),$dbh->quote(${ $jsptr }, $db_binary_type)]);
-			insertBkpTraces.push_back(Trace{ trxSeq, blockNum, blockTime, trace["id"].GetString(), jsonStr });
+			insertBkpTraces.push_back(Trace{ trxSeq, blockNum, std::move(blockTime), std::move(trace["id"].GetString()), std::move(jsonStr) });
 
 		trxCounter++;
 
@@ -300,7 +298,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 				sth_insrt_bkp_traces->setInt64(2, t.block_num);
 				sth_insrt_bkp_traces->setString(3, t.block_time);
 				sth_insrt_bkp_traces->setString(4, t.trx_id);
-				sth_insrt_bkp_traces->setString(5, *t.trace);
+				sth_insrt_bkp_traces->setString(5, t.trace);
 				sth_insrt_bkp_traces->addBatch();
 			}
 			sth_insrt_bkp_traces->executeBatch();
@@ -379,19 +377,17 @@ int Writer::processData(const beast::flat_buffer& buffer)
 				forkTraces(startBlock);
 
 				// copy data from BKP_TRACES
-				boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
 				int copied_rows = 0;
 				sth_fetch_bkp_traces->setInt64(1, startBlock);
 				r = sth_fetch_bkp_traces->executeQuery();
-				auto trace = json["trace"].GetObject();
 				for (r->first(); r->isAfterLast(); r->next())
 				{
-					auto js = r->getBlob("trace");
-					std::istreambuf_iterator<char> isb(*js);
-					std::string s(isb, std::istreambuf_iterator<char>());
-					rapidjson::Document data;
-					data.Parse(s.c_str());
-					saveTrace(r->getUInt64(1), r->getInt64(2), r->getString(3).c_str(), trace, jsonStr);
+					auto bkpTraceB = r->getBlob(5);
+					std::istreambuf_iterator<char> isb(*bkpTraceB);
+					std::string bkpTraceJsonStr(isb, std::istreambuf_iterator<char>());
+					rapidjson::Document bkpTraceJson;
+					bkpTraceJson.Parse(bkpTraceJsonStr.c_str());
+					saveTrace(r->getUInt64(1), r->getInt64(2), std::move(r->getString(3).c_str()), bkpTraceJson["trace"].GetObject(), std::move(bkpTraceJsonStr));
 					copied_rows++;
 				}
 
@@ -421,7 +417,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	}
 	default:
 	{
-		StdOut(Warning, "Unknown message type: %d", msgType);
+		//StdOut(Warning, "Unknown message type: %d", msgType);
 		return -1;
 	}
 	}
@@ -453,13 +449,13 @@ void Writer::forkTraces(int64_t startBlock)
 	sth_fork_transactions->execute();
 }
 
-void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr)
+void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string&& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string&& jsonStr)
 {
 	if (!noTraces)
 	{
 		//my $qtime = $dbh->quote($block_time);
 		// [$trx_seq, $block_num, $qtime, $dbh->quote($trace->{'id'}), $dbh->quote(${$jsptr}, $db_binary_type)]);!!!DBI::SQL_BINARY
-		insertTransactions.push_back(Transaction{ trxSeq, blockNum, blockTime, trace["id"].GetString(), jsonStr });
+		insertTransactions.push_back(Transaction{ trxSeq, blockNum, blockTime, std::move(trace["id"].GetString()), std::move(jsonStr) });
 		auto actionTraces = trace["action_traces"].GetArray();
 		for (rapidjson::Value::ConstValueIterator itr = actionTraces.Begin(); itr != actionTraces.End(); ++itr)
 		{
@@ -469,7 +465,7 @@ void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string blockTime,
 			auto receiver = receipt["receiver"].GetString();
 			int64_t recv_sequence = std::stol(receipt["recv_sequence"].GetString());
 			//push(@insert_receipts, [$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),$dbh->quote($act->{'name'}), $dbh->quote($receiver),$recv_sequence]);
-			insertReceipts.push_back(Receipt{ trxSeq, blockNum, blockTime, act["account"].GetString(), act["name"].GetString(), receiver, recv_sequence });
+			insertReceipts.push_back(Receipt{ trxSeq, blockNum, blockTime, std::move(act["account"].GetString()), std::move(act["name"].GetString()), std::move(receiver), recv_sequence });
 			upsertRecvSeqMax[receiver] = recv_sequence;
 		}
 	}
@@ -491,7 +487,7 @@ void Writer::sendTracesBatch()
 		sth_insert_transactions->setInt64(2, t.block_num);
 		sth_insert_transactions->setDateTime(3, t.block_time);
 		sth_insert_transactions->setString(4, t.trx_id);
-		std::stringstream s(*t.trace);
+		std::stringstream s(t.trace);
 		sth_insert_transactions->setBlob(5, &s);
 		sth_insert_transactions->addBatch();
 	}

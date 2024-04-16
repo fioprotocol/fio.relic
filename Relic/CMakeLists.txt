@@ -39,7 +39,10 @@ add_executable (${PROJECT_NAME}
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
 	"Writer.cpp" "Writer.h"
+	#"externals/appbase/application.cpp"
 )
+
+add_library(appbase "externals/appbase/application.cpp" "externals/appbase/include/appbase/application.hpp")
 
 include_directories(
   externals/appbase/include

@@ -79,11 +79,11 @@ uint32_t readInt32_LittleEndian(std::string& s)
 
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
-	auto s = beast::buffers_to_string(buffer.data());
-	uint msgType = readInt32_LittleEndian(s);
-	uint opts = readInt32_LittleEndian(s);
+	auto dataStr = beast::buffers_to_string(buffer.data());
+	uint msgType = readInt32_LittleEndian(dataStr);
+	uint opts = readInt32_LittleEndian(dataStr);
 	rapidjson::Document json;
-	json.Parse(s.c_str());
+	json.Parse(dataStr.c_str());
 	if (json.HasParseError())
 		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
@@ -102,7 +102,7 @@ void Writer::onRead(const beast::flat_buffer& buffer)
 		justCommitted = false;
 	}
 
-	int ack = processData(msgType, json, s);
+	int ack = processData(msgType, json, boost::make_shared<std::string>(dataStr));
 	if (ack >= 0)
 	{
 		char cs[4];
@@ -180,13 +180,16 @@ std::string getBlockTime(rapidjson::Document& data)
 	return std::string(strchr(bt, 'T') + 1);
 }
 
-int Writer::processData(uint msgType, rapidjson::Document& data, std::string& jsonStr)
+int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_ptr<std::string> jsonStr)
 {
 	//if (iAmMaster && keepEventLog)
 	//	if (msgType == 1001 or msgType == 1003)
 	//	{
 	//		//push(@insert_event_log, [$data->{'block_num'}, $msgtype, $db->{'dbh'}->quote(${ $jsptr }, $db_binary_type)]);
 	//	}
+
+	if (!connection->isValid() && !connection->reconnect())
+		THROW_Exception2("Could not reconnect the db.");
 
 	long int blockNum = data["block_num"].GetInt64();
 	switch (msgType)
@@ -196,8 +199,6 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 		StdOut(Info, "Fork at %s", blockNum);
 
 		//getdb();
-		if (!connection->isValid())
-			connection->reconnect();
 
 		connection->commit();
 		justCommitted = true;
@@ -308,7 +309,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 				sth_insrt_bkp_traces->setInt64(2, t.block_num);
 				sth_insrt_bkp_traces->setString(3, t.block_time);
 				sth_insrt_bkp_traces->setString(4, t.trx_id);
-				sth_insrt_bkp_traces->setString(5, t.trace);
+				sth_insrt_bkp_traces->setString(5, *t.trace);
 				sth_insrt_bkp_traces->addBatch();
 			}
 			sth_insrt_bkp_traces->executeBatch();
@@ -390,6 +391,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 				int copied_rows = 0;
 				sth_fetch_bkp_traces->setInt64(1, startBlock);
 				r = sth_fetch_bkp_traces->executeQuery();
+				auto trace = data["trace"].GetObject();
 				for (r->first(); r->isAfterLast(); r->next())
 				{
 					auto js = r->getBlob("trace");
@@ -397,7 +399,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, std::string& js
 					std::string s(isb, std::istreambuf_iterator<char>());
 					rapidjson::Document data;
 					data.Parse(s.c_str());
-					saveTrace(r->getUInt64(1), r->getInt64(2), r->getString(3).c_str(), data["trace"].GetObject(), jsonStr);
+					saveTrace(r->getUInt64(1), r->getInt64(2), r->getString(3).c_str(), trace, jsonStr);
 					copied_rows++;
 				}
 
@@ -461,23 +463,23 @@ void Writer::forkTraces(long startBlock)
 	sth_fork_transactions->execute();
 }
 
-void Writer::saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string& jsptr)
+void Writer::saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr)
 {
 	if (!noTraces)
 	{
 		//my $qtime = $dbh->quote($block_time);
 		// [$trx_seq, $block_num, $qtime, $dbh->quote($trace->{'id'}), $dbh->quote(${$jsptr}, $db_binary_type)]);!!!DBI::SQL_BINARY
-		insertTransactions.push_back(Transaction{ trxSeq , blockNum ,blockTime,trace["id"].GetString() ,jsptr });
+		insertTransactions.push_back(Transaction{ trxSeq, blockNum, blockTime, trace["id"].GetString(), jsonStr });
 		auto actionTraces = trace["action_traces"].GetArray();
 		for (rapidjson::Value::ConstValueIterator itr = actionTraces.Begin(); itr != actionTraces.End(); ++itr)
 		{
 			auto atrace = itr->GetObject();
-			auto	act = atrace["act"].GetObject();
-			auto	receipt = atrace["receipt"].GetObject();
-			auto	receiver = receipt["receiver"].GetString();
-			long	recv_sequence = receipt["recv_sequence"].GetInt64();
+			auto act = atrace["act"].GetObject();
+			auto receipt = atrace["receipt"].GetObject();
+			auto receiver = receipt["receiver"].GetString();
+			long recv_sequence = receipt["recv_sequence"].GetInt64();
 			//push(@insert_receipts, [$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),$dbh->quote($act->{'name'}), $dbh->quote($receiver),$recv_sequence]);
-			insertReceipts.push_back(Receipt{ trxSeq,blockNum, blockTime, act["account"].GetString() , act["name"].GetString() , receiver , recv_sequence });
+			insertReceipts.push_back(Receipt{ trxSeq, blockNum, blockTime, act["account"].GetString(), act["name"].GetString(), receiver, recv_sequence });
 			upsertRecvSeqMax[receiver] = recv_sequence;
 		}
 	}
@@ -499,7 +501,7 @@ void Writer::sendTracesBatch()
 		sth_insert_transactions->setInt64(2, t.block_num);
 		sth_insert_transactions->setDateTime(3, t.block_time);
 		sth_insert_transactions->setString(4, t.trx_id);
-		std::stringstream s(t.trace);
+		std::stringstream s(*t.trace);
 		sth_insert_transactions->setBlob(5, &s);
 		sth_insert_transactions->addBatch();
 	}

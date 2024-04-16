@@ -11,7 +11,7 @@
 #include "Database.h"
 #include "utils.h"
 
-class Cleaner:public Database
+class Cleaner :public Database
 {
 public:
 
@@ -30,6 +30,21 @@ public:
 		{
 			STDOUT_CURRENT_EXCEPTION("Close()");
 		}
+	}
+
+	std::string GetUsage()
+	{
+		return std::string(
+			"Usage: $0 --keepdays = N --database = DBNAME[options...]\n"
+			"The utility opens a WS port for Chronicle to send data to.\n"
+			"Options:\n"
+			"  --dsn=DBSTRING     database connection string\n"
+			"  --dbuser=USER      \[$db_user\]\n"
+			"  --dbpw=PASSWORD    \[$db_password\]\n"
+			"  --keepdays=N       delete the history older tnan N days\n"
+			//"  --plugin=FILE.pl   plugin program for custom processing\n"
+			//"  --parg KEY=VAL     plugin configuration options\n"
+		);
 	}
 
 	void Close();

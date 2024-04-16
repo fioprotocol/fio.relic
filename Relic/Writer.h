@@ -11,7 +11,7 @@
 #include "Database.h"
 #include "utils.h"
 #include "WebsocketServer.h"
-#include "rapidjson/document.h"
+#include <rapidjson/document.h>
 
 class Writer :public WebsocketServer, public Database
 {
@@ -34,7 +34,25 @@ public:
 	}
 
 	void Close();
-	void Run();
+	void Run(/*int sourceId, bool noTraces = false, int ackEvery = 100*/);
+
+	std::string GetUsage()
+	{
+		return std::string("Usage: $0 --id=N --dsn=DBSTRING [options...]\n"
+			"The utility opens a WS port for Chronicle to send data to.\n"
+			"Options:\n"
+			"  --id=N             source instance identifier (1 or 2)\n"
+			"  --port=N           \[$port\] TCP port to listen to websocket connection\n"
+			"  --ack=N            \[$ack_every\] Send acknowledgements every N blocks\n"
+			"  --dsn=DBSTRING     database connection string\n"
+			"  --dbuser=USER      \[$db_user\]\n"
+			"  --dbpw=PASSWORD    \[$db_password\]\n"
+			"  --keepdays=N       delete the history older tnan N days\n"
+			//"  --plugin=FILE.pl   plugin program for custom processing\n"
+			//"  --parg KEY=VAL     plugin configuration options\n"
+			"  --notraces         skip writing TRANSACTIONS, RECEIPTS tables\n"
+		);
+	}
 
 protected:
 
@@ -42,10 +60,15 @@ protected:
 	void onDisconnect() override;
 
 private:
+	
+	int sourceId = 1;
+	bool noTraces = false;
+	int ackEvery = 100;
+
 	void sanityCheck();
-	int processData(uint msgType, rapidjson::Document& data, std::string& jsonStr);
+	int processData(uint msgType, rapidjson::Document& data, boost::shared_ptr<std::string> jsonStr);
 	void forkTraces(long startBlock);
-	void saveTrace(ulong trxSeq, long blockNum, const std::string& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string& jsptr);
+	void saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr);
 	//void sendEventsBatch();
 	void sendTracesBatch();
 
@@ -71,8 +94,6 @@ private:
 
 	bool iAmMaster = false;
 	bool justCommitted = false;
-	int sourceId = 1;
-	bool noTraces = false;
 	long int keepBlocks = -1;
 	std::chrono::system_clock::time_point retiredTime = {};
 	int logId = -1;
@@ -81,7 +102,6 @@ private:
 	int unconfirmedBlock = -1;
 	int trxCounter = 0;
 	int blocksCounter = 0;
-	int ackEvery = 100;
 	std::chrono::system_clock::time_point counterStart = {};
 
 	struct Trace
@@ -90,30 +110,30 @@ private:
 		long block_num;
 		std::string block_time;
 		std::string trx_id;
-		std::string trace;
+		boost::shared_ptr<std::string> trace;
 	};
 	std::vector<Trace> insertBkpTraces;
 
 	struct Transaction
 	{
-		ulong	seq;
-		long	block_num;
+		ulong seq;
+		long block_num;
 		std::string block_time;
 		std::string trx_id;
-		std::string trace;
+		boost::shared_ptr<std::string> trace;
 
 	};
 	std::vector<Transaction> insertTransactions;
 
 	struct Receipt
 	{
-		ulong	seq;
-		long	block_num;
+		ulong seq;
+		long block_num;
 		std::string block_time;
 		std::string	contract;
 		std::string	action;
 		std::string	receiver;
-		long	recv_sequence;
+		long recv_sequence;
 	};
 	std::vector<Receipt> insertReceipts;
 

@@ -9,10 +9,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <chrono>
-#include <boost/filesystem/path.hpp>
-#include <boost/core/demangle.hpp>
-
-//#include "externals/appbase/include/appbase/application.hpp"
 #include <appbase/application.hpp>
 
 #include "utils.h"
@@ -79,18 +75,7 @@ int main(int argc, char** argv)
 			Writer writer = Writer();
 			writer.Run();
 		}
-	}
-	catch (Exception e)
-	{
-		e.StdOut();
-	}
-	catch (...)
-	{
-		STDOUT_CURRENT_EXCEPTION(NULL);
-	}
-
-	try
-	{
+		//appbase::app().register_plugin<Relic_plugin>();
 		//appbase::app().register_plugin<Relic_plugin>();
 		//if (!appbase::app().initialize<Relic_plugin>(argc, argv))
 		//	return -1;
@@ -108,7 +93,7 @@ int main(int argc, char** argv)
 	}
 	catch (const std::exception& e)
 	{
-		StdOut(Error, boost::diagnostic_information(e));
+		StdOut(Error, e.what()/*boost::diagnostic_information(e)*/);
 	}
 	catch (...)
 	{

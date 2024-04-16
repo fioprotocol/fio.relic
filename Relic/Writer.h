@@ -67,8 +67,8 @@ private:
 
 	void sanityCheck();
 	int processData(const beast::flat_buffer& buffer);
-	void forkTraces(long startBlock);
-	void saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr);
+	void forkTraces(int64_t startBlock);
+	void saveTrace(uint64_t trxSeq, int64_t blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr);
 	//void sendEventsBatch();
 	void sendTracesBatch();
 
@@ -97,17 +97,17 @@ private:
 	long int keepBlocks = -1;
 	std::chrono::system_clock::time_point retiredTime = {};
 	int logId = -1;
-	int confirmedBlock = -1;
-	long int irreversible = -1;
-	int unconfirmedBlock = -1;
+	int64_t confirmedBlock = -1;
+	int64_t irreversible = -1;
+	int64_t unconfirmedBlock = -1;
 	int trxCounter = 0;
 	int blocksCounter = 0;
 	std::chrono::system_clock::time_point counterStart = {};
 
 	struct Trace
 	{
-		ulong seq;
-		long block_num;
+		uint64_t seq;
+		int64_t block_num;
 		std::string block_time;
 		std::string trx_id;
 		boost::shared_ptr<std::string> trace;
@@ -116,8 +116,8 @@ private:
 
 	struct Transaction
 	{
-		ulong seq;
-		long block_num;
+		uint64_t seq;
+		int64_t block_num;
 		std::string block_time;
 		std::string trx_id;
 		boost::shared_ptr<std::string> trace;
@@ -127,17 +127,17 @@ private:
 
 	struct Receipt
 	{
-		ulong seq;
-		long block_num;
+		uint64_t seq;
+		int64_t block_num;
 		std::string block_time;
 		std::string	contract;
 		std::string	action;
 		std::string	receiver;
-		long recv_sequence;
+		int64_t recv_sequence;
 	};
 	std::vector<Receipt> insertReceipts;
 
-	std::map<std::string, long>	upsertRecvSeqMax;
+	std::map<std::string, int64_t>	upsertRecvSeqMax;
 
 	//struct Event
 	//{

@@ -46,9 +46,9 @@ void Writer::sanityCheck()
 	r->next();
 	if (r->isAfterLast())
 		THROW_Exception2("sourceid=%s is not defined in SYNC table", sourceId);
-	confirmedBlock = r->getInt(1);
+	confirmedBlock = r->getInt64(1);
 	unconfirmedBlock = confirmedBlock;
-	irreversible = r->getInt(2);
+	irreversible = r->getInt64(2);
 	iAmMaster = r->getInt(3);
 	StdOut(Info, "Starting from confirmed_block=%d, irreversible=%d, sourceid=%d, is_master=%d", confirmedBlock, irreversible, sourceId, iAmMaster);
 
@@ -86,10 +86,10 @@ void Writer::Run()
 		sth_upd_sync1 = connection->prepareStatement("UPDATE SYNC SET is_master=0 WHERE sourceid != ?");
 		sth_upd_sync2 = connection->prepareStatement("UPDATE SYNC SET is_master=1 WHERE sourceid = ?");
 		sth_fetch_bkp_traces = connection->prepareStatement("SELECT seq, block_num, block_time, trx_id, trace FROM BKP_TRACES WHERE block_num >= ? ORDER BY seq");
-		sth_insrt_bkp_traces = connection->prepareStatement("INSERT INTO BKP_TRACES (seq, block_num, block_time, trx_id, trace) VALUES ?,?,?,?,?");
-		sth_insert_transactions = connection->prepareStatement("INSERT INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ?,?,?,?,?");
-		sth_insert_receipts = connection->prepareStatement("INSERT INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES ?,?,?,?,?,?,?");
-		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES ?,? ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
+		sth_insrt_bkp_traces = connection->prepareStatement("INSERT INTO BKP_TRACES (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
+		sth_insert_transactions = connection->prepareStatement("INSERT INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES (?,?,?,?,?)");
+		sth_insert_receipts = connection->prepareStatement("INSERT INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES (?,?,?,?,?,?,?)");
+		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES (?,?) ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
 
 		sanityCheck();
 
@@ -120,7 +120,7 @@ uint32_t readInt32_LittleEndian(std::string& s)
 {
 	uint32_t n;
 	memcpy(&n, s.c_str(), sizeof(n));
-	s.erase(0, 4);
+	s = s.erase(0, 4);
 	return n;
 }
 
@@ -144,9 +144,8 @@ void Writer::onRead(const beast::flat_buffer& buffer)
 	int ack = processData(buffer);
 	if (ack >= 0)
 	{
-		char cs[4];
-		sprintf(cs, "%d", ack);
-		boost::asio::const_buffer b(cs, sizeof(cs));
+		std::string s = std::to_string(ack);
+		const boost::asio::const_buffer b(s.data(), s.size());
 		Write(b);
 		StdOut(Info, "ack %d", ack);
 	}
@@ -174,7 +173,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	if (!connection->isValid() && !connection->reconnect())
 		THROW_Exception2("Could not reconnect the db.");
 
-	auto buffer_ = beast::buffers_to_string(buffer.data());
+	std::string buffer_ = beast::buffers_to_string(buffer.data());
 	uint msgType = readInt32_LittleEndian(buffer_);
 	uint opts = readInt32_LittleEndian(buffer_);
 	rapidjson::Document json;
@@ -182,9 +181,9 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	if (json.HasParseError())
 		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
-	boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
+	int64_t blockNum = std::stol(json["block_num"].GetString());
 
-	long blockNum = std::stol(json["block_num"].GetString());
+	StdOut(Info, "msgType: %d", msgType);
 	switch (msgType)
 	{
 	case 1001: // CHRONICLE_MSGTYPE_FORK
@@ -208,11 +207,11 @@ int Writer::processData(const beast::flat_buffer& buffer)
 			forkTraces(blockNum);
 		else
 		{
-			sth_fork_bkp->setInt(1, blockNum);
+			sth_fork_bkp->setInt64(1, blockNum);
 			sth_fork_bkp->execute();
 		}
 
-		sth_upd_sync_fork->setInt(1, confirmedBlock);
+		sth_upd_sync_fork->setInt64(1, confirmedBlock);
 		sth_upd_sync_fork->setInt(2, sourceId);
 		sth_upd_sync_fork->execute();
 		connection->commit();
@@ -234,7 +233,8 @@ int Writer::processData(const beast::flat_buffer& buffer)
 
 		auto blockTime = getBlockTime(json);
 
-		ulong trxSeq = std::stoul(actionTraces[0]["receipt"]["global_sequence"].GetString());
+		boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
+		uint64_t trxSeq = std::stoul(actionTraces[0]["receipt"]["global_sequence"].GetString());
 		if (iAmMaster)
 			saveTrace(trxSeq, blockNum, blockTime, trace, jsonStr);
 		else
@@ -249,7 +249,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	{
 		blocksCounter++;
 		auto blockTime = getBlockTime(json);
-		long int lastIrreversible = std::stol(json["last_irreversible"].GetString());
+		int64_t lastIrreversible = std::stol(json["last_irreversible"].GetString());
 
 		if (blockNum > unconfirmedBlock + 1)
 			StdOut(Warning, "Missing blocks %d to %d", unconfirmedBlock + 1, blockNum - 1);
@@ -296,7 +296,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 		{
 			for (Trace t : insertBkpTraces)
 			{
-				sth_insrt_bkp_traces->setInt64(1, t.seq);
+				sth_insrt_bkp_traces->setUInt64(1, t.seq);
 				sth_insrt_bkp_traces->setInt64(2, t.block_num);
 				sth_insrt_bkp_traces->setString(3, t.block_time);
 				sth_insrt_bkp_traces->setString(4, t.trx_id);
@@ -379,6 +379,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 				forkTraces(startBlock);
 
 				// copy data from BKP_TRACES
+				boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
 				int copied_rows = 0;
 				sth_fetch_bkp_traces->setInt64(1, startBlock);
 				r = sth_fetch_bkp_traces->executeQuery();
@@ -411,9 +412,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 		auto blockTimestamp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 		float gap = std::chrono::duration<float>(std::chrono::system_clock::now() - blockTimestamp).count() / 3600;
 		int period = std::chrono::duration<float>(std::chrono::system_clock::now() - counterStart).count();
-		StdOut(Info, "%s - blocks/s: %8.2f, trx/block: %8.2f, trx/s: %8.2f, gap: %8.4fh, ",
-			(iAmMaster ? 'M' : 'S'), blocksCounter / period, trxCounter / blocksCounter, trxCounter / period, gap
-		);
+		StdOut(Info, "%s - blocks/s: %8.2f, trx/block: %8.2f, trx/s: %8.2f, gap: %8.4fh", (iAmMaster ? "Master" : "Slave"), blocksCounter / period, trxCounter / blocksCounter, trxCounter / period, gap);
 		counterStart = std::chrono::system_clock::now();
 		blocksCounter = 0;
 		trxCounter = 0;
@@ -429,7 +428,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	return -1;
 }
 
-void Writer::forkTraces(long startBlock)
+void Writer::forkTraces(int64_t startBlock)
 {
 	/*foreach my $hook(@fork_hooks)
 	{
@@ -454,7 +453,7 @@ void Writer::forkTraces(long startBlock)
 	sth_fork_transactions->execute();
 }
 
-void Writer::saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr)
+void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr)
 {
 	if (!noTraces)
 	{
@@ -468,7 +467,7 @@ void Writer::saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const
 			auto act = atrace["act"].GetObject();
 			auto receipt = atrace["receipt"].GetObject();
 			auto receiver = receipt["receiver"].GetString();
-			long recv_sequence = std::stol(receipt["recv_sequence"].GetString());
+			int64_t recv_sequence = std::stol(receipt["recv_sequence"].GetString());
 			//push(@insert_receipts, [$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),$dbh->quote($act->{'name'}), $dbh->quote($receiver),$recv_sequence]);
 			insertReceipts.push_back(Receipt{ trxSeq, blockNum, blockTime, act["account"].GetString(), act["name"].GetString(), receiver, recv_sequence });
 			upsertRecvSeqMax[receiver] = recv_sequence;

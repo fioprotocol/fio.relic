@@ -14,10 +14,54 @@
 //#include <boost/json.hpp>
 //#include <boost/json/src.hpp>
 
-//#include "rapidjson/stringbuffer.h"
-
 #include "Writer.h"
 #include "WebsocketServer.h"
+
+void Writer::sanityCheck()
+{
+	// sanity check, there should be only one master
+	auto sth = connection->prepareStatement("SELECT sourceid, block_num, irreversible FROM SYNC WHERE is_master = 1");
+	sql::ResultSet* r = sth->executeQuery();
+	int mastersNumber = r->rowsCount();
+	if (mastersNumber < 1)
+		THROW_Exception2("No master is defined in SYNC table");
+	if (mastersNumber > 1)
+		THROW_Exception2("More than one master is defined in SYNC table");
+	r->first();
+	int masterSourceId = r->getInt(1);
+	int masterBlockNumber = r->getInt(2);
+	bool masterIrreversible = r->getInt(3);
+
+	// sanity check, there cannot be more than one slave
+	sth = connection->prepareStatement("SELECT sourceid, block_num, irreversible FROM SYNC WHERE is_master=0");
+	r = sth->executeQuery();
+	int slavesNumber = r->rowsCount();
+	if (slavesNumber > 1)
+		THROW_Exception2("SYNC table contains more than one slave");
+
+	// fetch last sync status
+	sth = connection->prepareStatement("SELECT block_num, irreversible, is_master FROM SYNC WHERE sourceid=?");
+	sth->setInt(1, sourceId);
+	r = sth->executeQuery();
+	r->next();
+	if (r->isAfterLast())
+		THROW_Exception2("sourceid=%s is not defined in SYNC table", sourceId);
+	confirmedBlock = r->getInt(1);
+	unconfirmedBlock = confirmedBlock;
+	irreversible = r->getInt(2);
+	iAmMaster = r->getInt(3);
+	StdOut(Info, "Starting from confirmed_block=%d, irreversible=%d, sourceid=%d, is_master=%d", confirmedBlock, irreversible, sourceId, iAmMaster);
+
+	if (!iAmMaster)
+	{
+		// make sure the master is running
+		if (!masterBlockNumber || !masterIrreversible)
+			THROW_Exception2("sourceid=%d is defined as master, but it has not started yet.", masterSourceId);
+
+		if (keepBlocks >= 0)
+			StdOut(Info, "Automatically pruning the history older than %d blocks", keepBlocks);
+	}
+}
 
 void Writer::Run()
 {
@@ -48,6 +92,9 @@ void Writer::Run()
 		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES ?,? ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
 
 		sanityCheck();
+
+		if (noTraces)
+			StdOut(Info, "Skipping the updates for TRANSACTIONS, RECEIPTS, RECV_SEQUENCE_MAX tables.");
 	}
 	catch (sql::SQLException& e)
 	{
@@ -79,14 +126,6 @@ uint32_t readInt32_LittleEndian(std::string& s)
 
 void Writer::onRead(const beast::flat_buffer& buffer)
 {
-	auto dataStr = beast::buffers_to_string(buffer.data());
-	uint msgType = readInt32_LittleEndian(dataStr);
-	uint opts = readInt32_LittleEndian(dataStr);
-	rapidjson::Document json;
-	json.Parse(dataStr.c_str());
-	if (json.HasParseError())
-		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
-
 	if (iAmMaster && justCommitted)
 	{
 		// verify that I am still the master
@@ -102,7 +141,7 @@ void Writer::onRead(const beast::flat_buffer& buffer)
 		justCommitted = false;
 	}
 
-	int ack = processData(msgType, json, boost::make_shared<std::string>(dataStr));
+	int ack = processData(buffer);
 	if (ack >= 0)
 	{
 		char cs[4];
@@ -124,81 +163,33 @@ void Writer::Close()
 	Database::Close();
 }
 
-void Writer::sanityCheck()
-{
-	// sanity check, there should be only one master
-	auto sth = connection->prepareStatement("SELECT sourceid, block_num, irreversible FROM SYNC WHERE is_master = 1");
-	sql::ResultSet* r = sth->executeQuery();
-	int mastersNumber = r->rowsCount();
-	if (mastersNumber < 1)
-		THROW_Exception2("No master is defined in SYNC table");
-	if (mastersNumber > 1)
-		THROW_Exception2("More than one master is defined in SYNC table");
-	r->first();
-	int masterSourceId = r->getInt(1);
-	int masterBlockNumber = r->getInt(2);
-	bool masterIrreversible = r->getInt(3);
-
-	// sanity check, there cannot be more than one slave
-	sth = connection->prepareStatement("SELECT sourceid, block_num, irreversible FROM SYNC WHERE is_master=0");
-	r = sth->executeQuery();
-	int slavesNumber = r->rowsCount();
-	if (slavesNumber > 1)
-		THROW_Exception2("SYNC table contains more than one slave");
-
-	// fetch last sync status
-	sth = connection->prepareStatement("SELECT block_num, irreversible, is_master FROM SYNC WHERE sourceid=?");
-	sth->setInt(1, sourceId);
-	r = sth->executeQuery();
-	r->next();
-	if (r->isAfterLast())
-		THROW_Exception2("sourceid=%s is not defined in SYNC table", sourceId);
-
-	int confirmedBlock = r->getInt(1);
-	int unconfirmedBlock = confirmedBlock;
-	int irreversible = r->getInt(2);
-	iAmMaster = r->getInt(3);
-	StdOut(Info, "Starting from confirmed_block=%d, irreversible=%d, sourceid=%d, is_master=%d", confirmedBlock, irreversible, sourceId, iAmMaster);
-
-	if (noTraces)
-		StdOut(Info, "Skipping the updates for TRANSACTIONS, RECEIPTS, RECV_SEQUENCE_MAX tables.");
-
-	if (!iAmMaster)
-	{
-		// make sure the master is running
-		if (!masterBlockNumber || !masterIrreversible)
-			THROW_Exception2("sourceid=%d is defined as master, but it has not started yet.", masterSourceId);
-
-		if (keepBlocks >= 0)
-			StdOut(Info, "Automatically pruning the history older than %d blocks", keepBlocks);
-	}
-}
-
 std::string getBlockTime(rapidjson::Document& data)
 {
-	auto bt = data["block_timestamp"].GetString();
-	return std::string(strchr(bt, 'T') + 1);
+	auto bt = std::string(data["block_timestamp"].GetString());
+	return bt.replace(bt.find("T"), 1, " ");
 }
 
-int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_ptr<std::string> jsonStr)
+int Writer::processData(const beast::flat_buffer& buffer)
 {
-	//if (iAmMaster && keepEventLog)
-	//	if (msgType == 1001 or msgType == 1003)
-	//	{
-	//		//push(@insert_event_log, [$data->{'block_num'}, $msgtype, $db->{'dbh'}->quote(${ $jsptr }, $db_binary_type)]);
-	//	}
-
 	if (!connection->isValid() && !connection->reconnect())
 		THROW_Exception2("Could not reconnect the db.");
 
-	long int blockNum = data["block_num"].GetInt64();
+	auto buffer_ = beast::buffers_to_string(buffer.data());
+	uint msgType = readInt32_LittleEndian(buffer_);
+	uint opts = readInt32_LittleEndian(buffer_);
+	rapidjson::Document json;
+	json.Parse(buffer_.c_str());
+	if (json.HasParseError())
+		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
+
+	boost::shared_ptr<std::string> jsonStr = boost::make_shared<std::string>(buffer_);
+
+	long blockNum = std::stol(json["block_num"].GetString());
 	switch (msgType)
 	{
 	case 1001: // CHRONICLE_MSGTYPE_FORK
 	{
-		StdOut(Info, "Fork at %s", blockNum);
-
-		//getdb();
+		StdOut(Info, "Fork at %d", blockNum);
 
 		connection->commit();
 		justCommitted = true;
@@ -234,16 +225,16 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 		if (blockNum <= confirmedBlock)
 			return -1;
 
-		rapidjson::GenericObject<false, rapidjson::Value> trace = data["trace"].GetObject();
+		rapidjson::GenericObject<false, rapidjson::Value> trace = json["trace"].GetObject();
 		if (strcasecmp(trace["status"].GetString(), "executed"))
 			return -1;
 		auto actionTraces = trace["action_traces"].GetArray();
 		if (!actionTraces.Size())
 			return -1;
 
-		auto blockTime = getBlockTime(data);
+		auto blockTime = getBlockTime(json);
 
-		ulong trxSeq = actionTraces[0]["receipt"]["global_sequence"].GetUint64();
+		ulong trxSeq = std::stoul(actionTraces[0]["receipt"]["global_sequence"].GetString());
 		if (iAmMaster)
 			saveTrace(trxSeq, blockNum, blockTime, trace, jsonStr);
 		else
@@ -257,8 +248,8 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 	case 1010: // CHRONICLE_MSGTYPE_BLOCK_COMPLETED
 	{
 		blocksCounter++;
-		auto blockTime = getBlockTime(data);
-		long int lastIrreversible = data["last_irreversible"].GetInt64();
+		auto blockTime = getBlockTime(json);
+		long int lastIrreversible = std::stol(json["last_irreversible"].GetString());
 
 		if (blockNum > unconfirmedBlock + 1)
 			StdOut(Warning, "Missing blocks %d to %d", unconfirmedBlock + 1, blockNum - 1);
@@ -320,7 +311,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 
 		if (unconfirmedBlock <= confirmedBlock)
 			// we are catching up through irreversible data, and this block was already stored in DB
-			return unconfirmedBlock;
+			return unconfirmedBlock;//!!!shouldn't we call rollback() here???
 
 		if (unconfirmedBlock - confirmedBlock < ackEvery)
 			return -1;
@@ -331,7 +322,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 
 		sth_upd_sync_head->setInt(1, blockNum);
 		sth_upd_sync_head->setString(2, blockTime);
-		sth_upd_sync_head->setString(3, data["block_id"].GetString());
+		sth_upd_sync_head->setString(3, json["block_id"].GetString());
 		sth_upd_sync_head->setInt64(4, lastIrreversible);
 		sth_upd_sync_head->setInt(5, sourceId);
 		connection->commit();
@@ -391,7 +382,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 				int copied_rows = 0;
 				sth_fetch_bkp_traces->setInt64(1, startBlock);
 				r = sth_fetch_bkp_traces->executeQuery();
-				auto trace = data["trace"].GetObject();
+				auto trace = json["trace"].GetObject();
 				for (r->first(); r->isAfterLast(); r->next())
 				{
 					auto js = r->getBlob("trace");
@@ -416,7 +407,7 @@ int Writer::processData(uint msgType, rapidjson::Document& data, boost::shared_p
 		}
 
 		std::tm tm = {};
-		strptime(data["block_timestamp"].GetString(), "%Y-%m-%dT%H:%M:%S", &tm);
+		strptime(json["block_timestamp"].GetString(), "%Y-%m-%dT%H:%M:%S", &tm);
 		auto blockTimestamp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 		float gap = std::chrono::duration<float>(std::chrono::system_clock::now() - blockTimestamp).count() / 3600;
 		int period = std::chrono::duration<float>(std::chrono::system_clock::now() - counterStart).count();
@@ -477,7 +468,7 @@ void Writer::saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const
 			auto act = atrace["act"].GetObject();
 			auto receipt = atrace["receipt"].GetObject();
 			auto receiver = receipt["receiver"].GetString();
-			long recv_sequence = receipt["recv_sequence"].GetInt64();
+			long recv_sequence = std::stol(receipt["recv_sequence"].GetString());
 			//push(@insert_receipts, [$trx_seq, $block_num, $qtime, $dbh->quote($act->{'account'}),$dbh->quote($act->{'name'}), $dbh->quote($receiver),$recv_sequence]);
 			insertReceipts.push_back(Receipt{ trxSeq, blockNum, blockTime, act["account"].GetString(), act["name"].GetString(), receiver, recv_sequence });
 			upsertRecvSeqMax[receiver] = recv_sequence;

@@ -55,7 +55,7 @@ void WebsocketServer::Run(std::string ip, int port)
 		websocket->accept(ec);
 		if (ec)
 			THROW_SocketException2("handshake", ec);
-		StdOut(Info, "Handshaked.");
+		//StdOut(Info, "Handshaked.");
 		for (;;)
 		{
 			beast::flat_buffer buffer;

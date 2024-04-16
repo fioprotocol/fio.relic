@@ -32,7 +32,7 @@ std::string Format(const char* format, ...)
 	return s;
 }
 
-void StdOutV(LogLevel logLevel, const char* format, va_list argptr)
+void WriteV(_IO_FILE* file, LogLevel logLevel, const char* format, va_list argptr)
 {
 	std::string s;
 	switch (logLevel)
@@ -46,13 +46,34 @@ void StdOutV(LogLevel logLevel, const char* format, va_list argptr)
 		s.append("ERROR: ");
 		break;
 	default:
-		fprintf(stdout, "ERROR: Unknown LogLevel : % i", logLevel);
+		fprintf(file, "ERROR: Unknown LogLevel : % i", logLevel);
 		break;
 	}
 	s.append(format);
 	s += "\r\n";
 	s = FormatV(s.data(), argptr);
-	fprintf(stdout, s.data());
+	fprintf(file, s.data());
+}
+
+void Write(_IO_FILE* file, LogLevel logLevel, const char* format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	WriteV(file, logLevel, format, argptr);
+	va_end(argptr);
+}
+
+void Write(_IO_FILE* file, LogLevel logLevel, const std::string format, ...)
+{
+	va_list argptr;
+	va_start(argptr, format);
+	WriteV(file, logLevel, format.data(), argptr);
+	va_end(argptr);
+}
+
+void StdOutV(LogLevel logLevel, const char* format, va_list argptr)
+{
+	WriteV(stdout, logLevel, format, argptr);
 }
 
 void StdOut(LogLevel logLevel, const char* format, ...)

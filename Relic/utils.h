@@ -23,7 +23,10 @@ enum LogLevel
 	Error
 };
 
-//void StdOutV(LogLevel logLevel, const char* format, va_list argptr);
+void WriteV(_IO_FILE* file, LogLevel logLevel, const char* format, va_list argptr);
+void Write(_IO_FILE* file, LogLevel logLevel, const char* format, ...);
+void Write(_IO_FILE* file, LogLevel logLevel, const std::string format, ...);
+void StdOutV(LogLevel logLevel, const char* format, va_list argptr);
 void StdOut(LogLevel logLevel, const char* format, ...);
 void StdOut(LogLevel logLevel, const std::string format, ...);
 std::string FormatV(const char* format, va_list argptr);

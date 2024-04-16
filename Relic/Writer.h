@@ -66,7 +66,7 @@ private:
 	int ackEvery = 100;
 
 	void sanityCheck();
-	int processData(uint msgType, rapidjson::Document& data, boost::shared_ptr<std::string> jsonStr);
+	int processData(const beast::flat_buffer& buffer);
 	void forkTraces(long startBlock);
 	void saveTrace(ulong trxSeq, long blockNum, std::string blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, boost::shared_ptr<std::string> jsonStr);
 	//void sendEventsBatch();

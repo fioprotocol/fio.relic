@@ -82,6 +82,7 @@ int main(int argc, char** argv)
 		////initialize_logging();
 		//appbase::app().startup();
 		//appbase::app().exec();
+		StdOut(Info, "Exiting cleanly...");
 	}
 	catch (const boost::exception& e)
 	{
@@ -99,7 +100,6 @@ int main(int argc, char** argv)
 	{
 		STDOUT_CURRENT_EXCEPTION(NULL);
 	}
-	std::cout << "exited cleanly\n";
 
 	getchar();
 	return 0;

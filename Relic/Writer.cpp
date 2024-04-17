@@ -204,13 +204,12 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	if (json.HasParseError())
 		THROW_Exception2("JSON error: %d, offset: %d", json.GetParseError(), json.GetErrorOffset());
 
-	int64_t blockNum = std::stol(json["block_num"].GetString());
-
 	StdOut(Info, "msgType: %d", msgType);
 	switch (msgType)
 	{
 	case 1001: // CHRONICLE_MSGTYPE_FORK
 	{
+		int64_t blockNum = std::stol(json["block_num"].GetString());
 		StdOut(Info, "Fork at %d", blockNum);
 
 		connection->commit();
@@ -244,6 +243,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	}
 	case 1003: // CHRONICLE_MSGTYPE_TX_TRACE
 	{
+		int64_t blockNum = std::stol(json["block_num"].GetString());
 		if (blockNum <= confirmedBlock)
 			return -1;
 
@@ -272,6 +272,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 		auto blockTime = getBlockTime(json);
 		int64_t lastIrreversible = std::stol(json["last_irreversible"].GetString());
 
+		int64_t blockNum = std::stol(json["block_num"].GetString());
 		if (blockNum > unconfirmedBlock + 1)
 			StdOut(Warning, "Missing blocks %d to %d", unconfirmedBlock + 1, blockNum - 1);
 

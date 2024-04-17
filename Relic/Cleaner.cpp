@@ -29,6 +29,9 @@ void Cleaner::Run()
 
 		for (;; std::this_thread::sleep_for(std::chrono::seconds(10)))
 		{
+			if (!connection->isValid() && !connection->reconnect())
+				THROW_Exception2("Could not reconnect the db.");
+
 			sql::ResultSet* r = sth_get_min_irrev->executeQuery();
 			connection->commit();
 			r->next();

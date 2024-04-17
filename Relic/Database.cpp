@@ -36,6 +36,7 @@ void Database::Close()
 	if (connection)
 	{
 		connection->close();
+		delete(connection);
 		connection = NULL;
 	}
 }

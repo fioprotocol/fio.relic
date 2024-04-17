@@ -95,6 +95,8 @@ void Writer::Run()
 
 		if (noTraces)
 			StdOut(Info, "Skipping the updates for TRANSACTIONS, RECEIPTS, RECV_SEQUENCE_MAX tables.");
+		
+		connection->commit();
 	}
 	catch (sql::SQLException& e)
 	{
@@ -158,6 +160,27 @@ void Writer::onDisconnect()
 void Writer::Close()
 {
 	WebsocketServer::Close();
+
+	delete sth_upd_sync_head;
+	delete sth_fork_bkp;
+	delete sth_upd_sync_fork;
+	delete sth_check_sync_health;
+	delete sth_am_i_master;
+	delete sth_clean_bkp;
+	delete sth_prune_transactions;
+	delete sth_prune_receipts;
+	delete sth_fetch_forking_traces;
+	delete sth_fork_receipts;
+	delete sth_fork_transactions;
+	delete sth_clean_log;
+	delete sth_upd_sync1;
+	delete sth_upd_sync2;
+	delete sth_fetch_bkp_traces;
+	delete sth_insrt_bkp_traces;
+	delete sth_insert_transactions;
+	delete sth_insert_receipts;
+	delete sth_insert_recv_seq_max;
+
 	Database::Close();
 }
 
@@ -175,7 +198,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 	std::string buffer_ = beast::buffers_to_string(buffer.data());
 	uint msgType = readInt32_LittleEndian(&buffer_[0]);
 	uint opts = readInt32_LittleEndian(&buffer_[4]);
-	const std::string jsonStr = &buffer_[8];
+	std::string jsonStr = &buffer_[8];
 	rapidjson::Document json;
 	json.Parse(jsonStr.c_str());
 	if (json.HasParseError())
@@ -449,7 +472,7 @@ void Writer::forkTraces(int64_t startBlock)
 	sth_fork_transactions->execute();
 }
 
-void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string&& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, const std::string&& jsonStr)
+void Writer::saveTrace(uint64_t trxSeq, int64_t blockNum, std::string&& blockTime, const rapidjson::GenericObject<false, rapidjson::Value>& trace, std::string&& jsonStr)
 {
 	if (!noTraces)
 	{
@@ -487,8 +510,10 @@ void Writer::sendTracesBatch()
 		sth_insert_transactions->setInt64(2, t.block_num);
 		sth_insert_transactions->setDateTime(3, t.block_time);
 		sth_insert_transactions->setString(4, t.trx_id);
-		std::stringstream s(t.trace);
-		sth_insert_transactions->setBlob(5, &s);
+		/*std::stringstream s(t.trace);
+		sth_insert_transactions->setBlob(5, &s);!!!it does not work is a batch!!!*/
+		sql::bytes bs(t.trace.data(), t.trace.size());
+		sth_insert_transactions->setBytes(5, &bs);
 		sth_insert_transactions->addBatch();
 	}
 	sth_insert_transactions->executeBatch();

@@ -512,7 +512,7 @@ void Writer::sendTracesBatch()
 		sth_insert_transactions->setDateTime(3, t.block_time);
 		sth_insert_transactions->setString(4, t.trx_id);
 		/*std::stringstream s(t.trace);
-		sth_insert_transactions->setBlob(5, &s);!!!it does not work is a batch!!!*/
+		sth_insert_transactions->setBlob(5, &s);!!!it does not work in a batch!!!*/
 		sql::bytes bs(t.trace.data(), t.trace.size());
 		sth_insert_transactions->setBytes(5, &bs);
 		sth_insert_transactions->addBatch();

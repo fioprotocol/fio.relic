@@ -5,7 +5,9 @@ project ("Relic" VERSION 0.0.1)
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
 add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+#set(PLATFORM_SPECIFIC_LIBS pthread)
 
 set(BOOST_REQUIRED_COMPONENTS
 	date_time 
@@ -18,16 +20,24 @@ set(BOOST_REQUIRED_COMPONENTS
 	#iostreams 
 )
 
-set(BOOST_MIN_VERSION 1.71.0) 
 find_package(
-    Boost ${BOOST_MIN_VERSION} REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS} #/usr/include/boost
+    Boost 1.71.0 REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS} #/usr/include/boost
 )
 
 find_package(
     mariadbcpp #/usr/include/mariadb
 )
 
-#add_subdirectory(externals/appbase EXCLUDE_FROM_ALL)
+#add_subdirectory(externals/appbase#(!)make sure to remove add_subdirectory( examples ) from externals/appbase/CMakeLists.txt
+#EXCLUDE_FROM_ALL)
+#find_package( appbase )#if pre-installed
+add_library(appbase 
+	"externals/appbase/application.cpp"
+	"externals/appbase/include/appbase/application.hpp"
+	"externals/appbase/include/appbase/version.hpp"
+	"externals/appbase/include/appbase/plugin.hpp"
+	"externals/appbase/include/appbase/method.hpp"
+)
 
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
@@ -39,10 +49,7 @@ add_executable (${PROJECT_NAME}
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
 	"Writer.cpp" "Writer.h"
-	#"externals/appbase/application.cpp"
 )
-
-add_library(appbase "externals/appbase/application.cpp" "externals/appbase/include/appbase/application.hpp")
 
 include_directories(
   externals/appbase/include
@@ -50,10 +57,12 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 ) 
 
-target_link_libraries(${PROJECT_NAME} PUBLIC 
+target_link_libraries(${PROJECT_NAME}
 	${Boost_LIBRARIES}
+	appbase
 	mariadbcpp	#/usr/lib/libmariadbcpp.so
-	#appbase
+	pthread #???required by appbase
 )
+
 #message(Boost_LIBRARIES="${Boost_LIBRARIES}")
 #message(Boost_INCLUDE_DIRS="${Boost_INCLUDE_DIRS}")

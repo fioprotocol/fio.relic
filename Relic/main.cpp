@@ -76,7 +76,6 @@ int main(int argc, char** argv)
 			writer.Run();
 		}
 		//appbase::app().register_plugin<Relic_plugin>();
-		//appbase::app().register_plugin<Relic_plugin>();
 		//if (!appbase::app().initialize<Relic_plugin>(argc, argv))
 		//	return -1;
 		////initialize_logging();

@@ -41,7 +41,7 @@ public:
 		}
 	}
 
-	void Initialize(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
+	void Initialize(const char* user = "memento_rw", const char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
 	void Close();
 
 	/*bool Autocommit()

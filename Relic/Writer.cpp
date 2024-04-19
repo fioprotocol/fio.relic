@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <boost/exception/diagnostic_information.hpp> 
 
 //#include <boost/property_tree/ptree.hpp>
 //#include <boost/property_tree/json_parser.hpp>
@@ -16,6 +17,81 @@
 
 #include "Writer.h"
 #include "WebsocketServer.h"
+#include "options.h"
+
+po::options_description Writer::GetOptionsDescription()
+{
+	po::options_description od("Writer options");
+	od.add_options()
+		//((std::string(OPT_help) + ",?").c_str(), "Relic usage description.")
+		(OPT_sourceId, po::value<int>()->default_value(1), "Relic writer ID.")
+		(OPT_websocketServerPort, po::value<int>()->default_value(8800), "Relic websocket port where Chronicle is to connect to.")
+		(OPT_websocketServerIp, po::value<std::string>()->default_value(std::to_string(INADDR_ANY)), "Relic websocket IP where Chronicle is to connect to.")
+		(OPT_dbUser, po::value<std::string>()->required(), "Relic database user.")
+		(OPT_dbPassword, po::value<std::string>()->required(), "Relic database password.")
+		(OPT_dbUrl, po::value<std::string>()->required(), "Relic database url.")
+		(OPT_ackEvery, po::value<int>()->default_value(100), "Send acknowledgements every N blocks.")
+		(OPT_keepDays, po::value<int>()->default_value(-1), "Delete the history older tnan N days.")
+		(OPT_noTraces, po::value<bool>()->default_value(false), "Skip writing TRANSACTIONS, RECEIPTS tables.")
+		;
+	return od;
+}
+
+bool Writer::getOptions()
+{
+	try
+	{
+		po::options_description od = GetOptionsDescription();
+		po::variables_map vm;
+		store(po::command_line_parser(argc, argv).options(od).allow_unregistered().run(), vm);
+		store(po::parse_config_file(CONFIG_FILE, od, true), vm);
+		po::notify(vm);
+		sourceId = vm.at(OPT_sourceId).as<int>();
+		websocketServerPort = vm.at(OPT_websocketServerPort).as<int>();
+		websocketServerIp = vm.at(OPT_websocketServerIp).as<std::string>();
+		dbUser = vm.at(OPT_dbUser).as<std::string>();
+		dbPassword = vm.at(OPT_dbPassword).as<std::string>();
+		dbUrl = vm.at(OPT_dbUrl).as<std::string>();
+		ackEvery = vm.at(OPT_ackEvery).as<int>();
+		int keepDays = vm.at(OPT_keepDays).as<int>();
+		if (keepDays >= 0)
+			keepBlocks = keepDays * 24 * 7200;
+		noTraces = vm.at(OPT_noTraces).as<bool>();
+
+		//StdOut(Info, "Configuration: "
+		//	"\r\n%s=%d"
+		//	"\r\n%s=%d"
+		//	"\r\n%s=%s"
+		//	"\r\n%s=%s"
+		//	//"\r\n%s=%s"
+		//	"\r\n%s=%s"
+		//	"\r\n%s=%d"
+		//	"\r\n%s=%d"
+		//	"\r\n%s=%d",
+		//	OPT_sourceId, sourceId,
+		//	OPT_websocketServerPort, websocketServerPort,
+		//	OPT_websocketServerIp, websocketServerIp.c_str(),
+		//	OPT_dbUser, dbUser.c_str(),
+		//	//OPT_dbPassword, dbPassword.c_str(),
+		//	OPT_dbUrl, dbUrl.c_str(),
+		//	OPT_ackEvery, ackEvery,
+		//	OPT_keepDays, keepDays,
+		//	OPT_noTraces, noTraces
+		//);
+		StdOutConfiguration(vm);
+		return true;
+	}
+	catch (const boost::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
+	}
+	catch (const std::exception& e)
+	{
+		StdOut(Error, e.what()/*boost::diagnostic_information(e)*/);
+	}
+	Writer::GetOptionsDescription().print(std::cout);
+	return false;
+}
 
 void Writer::sanityCheck()
 {
@@ -67,6 +143,9 @@ void Writer::Run()
 {
 	try
 	{
+		if (!getOptions())
+			return;
+
 		Database::Initialize();
 
 		connection->setAutoCommit(false);
@@ -91,11 +170,14 @@ void Writer::Run()
 		sth_insert_receipts = connection->prepareStatement("INSERT IGNORE INTO RECEIPTS (seq, block_num, block_time, contract, action, receiver, recv_sequence) VALUES (?,?,?,?,?,?,?)");
 		sth_insert_recv_seq_max = connection->prepareStatement("INSERT INTO RECV_SEQUENCE_MAX (account_name, recv_sequence_max) VALUES (?,?) ON DUPLICATE KEY UPDATE recv_sequence_max = VALUES(recv_sequence_max)");
 
+		//if (keepDays > 0)
+		//	keepBlocks = keepDays * 24 * 7200;
+
 		sanityCheck();
 
 		if (noTraces)
 			StdOut(Info, "Skipping the updates for TRANSACTIONS, RECEIPTS, RECV_SEQUENCE_MAX tables.");
-		
+
 		connection->commit();
 	}
 	catch (sql::SQLException& e)
@@ -103,7 +185,7 @@ void Writer::Run()
 		THROW_DatabaseException2(e);
 	}
 
-	WebsocketServer::Run();
+	WebsocketServer::Run(websocketServerPort, websocketServerIp);
 }
 
 uint32_t readInt32_LittleEndian(char* cs)

@@ -42,6 +42,7 @@ add_executable (${PROJECT_NAME}
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"
 	"Writer.cpp" "Writer.h"
+	"options.h" "options.cpp"
 )
 
 include_directories(

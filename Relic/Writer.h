@@ -13,12 +13,17 @@
 #include "WebsocketServer.h"
 #include <rapidjson/document.h>
 
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
 class Writer :public WebsocketServer, public Database
 {
 public:
 
-	Writer() :WebsocketServer()
+	Writer(int argc, char** argv) :WebsocketServer()
 	{
+		Writer::argc = argc;
+		Writer::argv = argv;
 	}
 
 	~Writer()
@@ -36,23 +41,7 @@ public:
 	void Close();
 	void Run(/*int sourceId, bool noTraces = false, int ackEvery = 100*/);
 
-	std::string GetUsage()
-	{
-		return std::string("Usage: $0 --id=N --dsn=DBSTRING [options...]\n"
-			"The utility opens a WS port for Chronicle to send data to.\n"
-			"Options:\n"
-			"  --id=N             source instance identifier (1 or 2)\n"
-			"  --port=N           \[$port\] TCP port to listen to websocket connection\n"
-			"  --ack=N            \[$ack_every\] Send acknowledgements every N blocks\n"
-			"  --dsn=DBSTRING     database connection string\n"
-			"  --dbuser=USER      \[$db_user\]\n"
-			"  --dbpw=PASSWORD    \[$db_password\]\n"
-			"  --keepdays=N       delete the history older tnan N days\n"
-			//"  --plugin=FILE.pl   plugin program for custom processing\n"
-			//"  --parg KEY=VAL     plugin configuration options\n"
-			"  --notraces         skip writing TRANSACTIONS, RECEIPTS tables\n"
-		);
-	}
+	static po::options_description GetOptionsDescription();
 
 protected:
 
@@ -60,11 +49,20 @@ protected:
 	void onDisconnect() override;
 
 private:
+	int argc;
+	char** argv;
 
+	std::string websocketServerIp;
+	int websocketServerPort;
+	std::string dbUser;
+	std::string dbPassword;
+	std::string dbUrl;
+	//int keepDays = -1;
 	int sourceId = 1;
 	bool noTraces = false;
 	int ackEvery = 100;
 
+	bool getOptions();
 	void sanityCheck();
 	int processData(const beast::flat_buffer& buffer);
 	void forkTraces(int64_t startBlock);

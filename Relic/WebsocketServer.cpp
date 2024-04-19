@@ -9,10 +9,11 @@
 
 #define THROW_SocketException2(action, ec) throw Exception2(__FILE__, __LINE__, __FUNCTION__, "Websocket::%s: %s", action, ec.message().c_str())
 
-void WebsocketServer::Run(std::string ip, int port)
+void WebsocketServer::Run(int port, std::string ip)
 {
-	tcp::endpoint endpoint;
-	endpoint.address(net::ip::make_address(ip));
+	tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), port);
+	if (!ip.empty() && ip != std::to_string(INADDR_ANY))
+		endpoint.address(net::ip::make_address(ip));
 	endpoint.port(port);
 
 	StdOut(Info, "Starting websocket server...");

@@ -10,7 +10,7 @@
 
 #include "Database.h"
 
-void Database::Initialize(char* user, char* password, const char* url)
+void Database::Initialize(const char* user, const char* password, const char* url)
 {
 	Database::user = std::string(user);
 	Database::password = std::string(password);

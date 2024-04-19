@@ -51,7 +51,7 @@ public:
 		}
 	}
 
-	void Run(std::string ip = "127.0.0.1", int port = 8800);
+	void Run(int port, std::string ip = ""/*INADDR_ANY*/);
 	void Close();
 	void Write(const boost::asio::const_buffer& buffer);
 
@@ -64,7 +64,7 @@ protected:
 
 private:
 
-	websocket::stream<beast::tcp_stream>* websocket;
+	websocket::stream<beast::tcp_stream>* websocket = NULL;
 };
 
 #endif //SocketServer_H

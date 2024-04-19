@@ -75,12 +75,12 @@ int main(int argc, char** argv)
 			Writer writer = Writer();
 			writer.Run();
 		}
-		//appbase::app().register_plugin<Relic_plugin>();
-		//if (!appbase::app().initialize<Relic_plugin>(argc, argv))
-		//	return -1;
-		////initialize_logging();
-		//appbase::app().startup();
-		//appbase::app().exec();
+		appbase::app().register_plugin<Relic_plugin>();
+		if (!appbase::app().initialize<Relic_plugin>(argc, argv))
+			return -1;
+		//initialize_logging();
+		appbase::app().startup();
+		appbase::app().exec();
 		StdOut(Info, "Exiting cleanly...");
 	}
 	catch (const boost::exception& e)

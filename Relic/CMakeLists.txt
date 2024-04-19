@@ -5,10 +5,6 @@ project ("Relic" VERSION 0.0.1)
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
 add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 
-#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
-#set(PLATFORM_SPECIFIC_LIBS pthread)
-
 set(BOOST_REQUIRED_COMPONENTS
 	date_time 
 	filesystem 
@@ -28,16 +24,13 @@ find_package(
     mariadbcpp #/usr/include/mariadb
 )
 
-#add_subdirectory(externals/appbase#(!)make sure to remove add_subdirectory( examples ) from externals/appbase/CMakeLists.txt
-#EXCLUDE_FROM_ALL)
-#find_package( appbase )#if pre-installed
-add_library(appbase 
-	"externals/appbase/application.cpp"
-	"externals/appbase/include/appbase/application.hpp"
-	"externals/appbase/include/appbase/version.hpp"
-	"externals/appbase/include/appbase/plugin.hpp"
-	"externals/appbase/include/appbase/method.hpp"
+set(CMAKE_CXX_STANDARD 17)#(!)required by appbase
+
+add_subdirectory(
+	externals/appbase#(!)use https://github.com/AntelopeIO/appbase.git as https://github.com/fioprotocol/appbase.git does not compile
+	EXCLUDE_FROM_ALL
 )
+#find_package( appbase )#if pre-installed
 
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
@@ -52,17 +45,14 @@ add_executable (${PROJECT_NAME}
 )
 
 include_directories(
-  externals/appbase/include
+  #externals/appbase/include
   externals/rapidjson/include
-  ${Boost_INCLUDE_DIR}
+  #${Boost_INCLUDE_DIR}
 ) 
 
 target_link_libraries(${PROJECT_NAME}
-	${Boost_LIBRARIES}
-	appbase
+PRIVATE appbase
+PUBLIC ${Boost_LIBRARIES}
 	mariadbcpp	#/usr/lib/libmariadbcpp.so
-	pthread #???required by appbase
+	#pthread #???required by appbase
 )
-
-#message(Boost_LIBRARIES="${Boost_LIBRARIES}")
-#message(Boost_INCLUDE_DIRS="${Boost_INCLUDE_DIRS}")

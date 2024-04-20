@@ -62,7 +62,7 @@ bool Cleaner::getOptions()
 	}
 	catch (const std::exception& e)
 	{
-		StdOut(Error, e.what()/*boost::diagnostic_information(e)*/);
+		StdOut(Error, boost::diagnostic_information(e));
 	}
 	Cleaner::GetOptionsDescription().print(std::cout);
 	return false;
@@ -75,7 +75,7 @@ void Cleaner::Run()
 		if (!getOptions())
 			return;
 
-		Database::Initialize();
+		Database::Initialize(dbUser, dbPassword, dbUrl);
 
 		connection->setAutoCommit(false);
 
@@ -135,4 +135,9 @@ void Cleaner::Run()
 void Cleaner::Close()
 {
 	Database::Close();
+
+	delete sth_get_min_irrev;
+	delete sth_get_min_tx_block;
+	delete sth_prune_transactions;
+	delete sth_prune_receipts;
 }

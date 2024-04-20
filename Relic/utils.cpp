@@ -7,6 +7,7 @@
 
 #include <stdarg.h>
 #include <string.h>
+#include <boost/exception/diagnostic_information.hpp> 
 
 #include "utils.h"
 
@@ -110,9 +111,17 @@ void StdOutCurrentException(const char* file, int line, const char* function, co
 	{
 		((Exception)e).StdOut();
 	}
-	catch (const std::exception& e)
+	/*catch (const std::exception& e)
 	{
 		StdOut(LogLevel::Error, e.what());
+	}*/
+	catch (const boost::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
+	}
+	catch (const std::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
 	}
 	catch (...)
 	{

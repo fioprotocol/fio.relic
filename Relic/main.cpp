@@ -103,17 +103,17 @@ int main(int argc, char** argv)
 
 		StdOut(Info, "Exiting cleanly...");
 	}
-	catch (const boost::exception& e)
-	{
-		StdOut(Error, boost::diagnostic_information(e));
-	}
 	catch (Exception e)
 	{
 		e.StdOut();
 	}
+	catch (const boost::exception& e)
+	{
+		StdOut(Error, boost::diagnostic_information(e));
+	}
 	catch (const std::exception& e)
 	{
-		StdOut(Error, e.what()/*boost::diagnostic_information(e)*/);
+		StdOut(Error, boost::diagnostic_information(e));
 	}
 	catch (...)
 	{

@@ -87,7 +87,7 @@ bool Writer::getOptions()
 	}
 	catch (const std::exception& e)
 	{
-		StdOut(Error, e.what()/*boost::diagnostic_information(e)*/);
+		StdOut(Error, boost::diagnostic_information(e));
 	}
 	Writer::GetOptionsDescription().print(std::cout);
 	return false;
@@ -146,7 +146,7 @@ void Writer::Run()
 		if (!getOptions())
 			return;
 
-		Database::Initialize();
+		Database::Initialize(dbUser, dbPassword, dbUrl);
 
 		connection->setAutoCommit(false);
 
@@ -513,7 +513,7 @@ int Writer::processData(const beast::flat_buffer& buffer)
 		strptime(json["block_timestamp"].GetString(), "%Y-%m-%dT%H:%M:%S", &tm);
 		auto blockTimestamp = std::chrono::system_clock::from_time_t(std::mktime(&tm));
 		float gap = std::chrono::duration<float>(std::chrono::system_clock::now() - blockTimestamp).count() / 3600;
-		int period = std::chrono::duration<float>(std::chrono::system_clock::now() - counterStart).count();
+		float period = std::chrono::duration<float>(std::chrono::system_clock::now() - counterStart).count();
 		StdOut(Info, "%s - blocks/s: %8.2f, trx/block: %8.2f, trx/s: %8.2f, gap: %8.4fh", (iAmMaster ? "Master" : "Slave"), blocksCounter / period, trxCounter / blocksCounter, trxCounter / period, gap);
 		counterStart = std::chrono::system_clock::now();
 		blocksCounter = 0;
@@ -587,22 +587,32 @@ void Writer::sendTracesBatch()
 	if (!insertTransactions.size())
 		return;
 
+
+	/*std::string insert_transactions("INSERT IGNORE INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ");
 	for (auto t : insertTransactions)
 	{
+		insert_transactions.append("(" + std::to_string(t.seq)).append("," + std::to_string(t.block_num)).append(",'" + t.block_time + "'").append(",'" + t.trx_id + "'").append(",'" + t.trace + "')");
+	}
+	connection->createStatement()->execute(insert_transactions);*/
+	for (auto t : insertTransactions)
+	{
+		//sth_insert_transactions->clearParameters();
 		sth_insert_transactions->setUInt64(1, t.seq);
 		sth_insert_transactions->setInt64(2, t.block_num);
 		sth_insert_transactions->setDateTime(3, t.block_time);
 		sth_insert_transactions->setString(4, t.trx_id);
-		/*std::stringstream s(t.trace);
-		sth_insert_transactions->setBlob(5, &s);!!!it does not work in a batch!!!*/
-		sql::bytes bs(t.trace.data(), t.trace.size());
-		sth_insert_transactions->setBytes(5, &bs);
+		std::istringstream s(t.trace);
+		sth_insert_transactions->setBlob(5, &s, t.trace.size());
+		//sql::bytes bs(t.trace.data(), t.trace.size());
+		//sth_insert_transactions->setBytes(5, &bs);//!!!sometimes segmentation fault or Dynamic exception type: std::length_error; std::exception::what: basic_string::_M_create
 		sth_insert_transactions->addBatch();
 	}
 	sth_insert_transactions->executeBatch();
+	sth_insert_transactions->clearBatch();//(!)necessary for setBlob(), otherwise the next executeBatch() sets an empty blob.
 
 	if (insertReceipts.size())
 	{
+		sth_insert_receipts->clearBatch();
 		for (auto r : insertReceipts)
 		{
 			sth_insert_receipts->setUInt64(1, r.seq);
@@ -615,6 +625,7 @@ void Writer::sendTracesBatch()
 			sth_insert_receipts->addBatch();
 		}
 		sth_insert_receipts->executeBatch();
+		sth_insert_receipts->clearBatch();
 	}
 
 	if (upsertRecvSeqMax.size())
@@ -626,6 +637,7 @@ void Writer::sendTracesBatch()
 			sth_insert_recv_seq_max->addBatch();
 		}
 		sth_insert_recv_seq_max->executeBatch();
+		sth_insert_recv_seq_max->clearBatch();
 	}
 
 	insertTransactions.clear();

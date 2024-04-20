@@ -10,19 +10,19 @@
 
 #include "Database.h"
 
-void Database::Initialize(const char* user, const char* password, const char* url)
+void Database::Initialize(std::string user, std::string password, std::string url)
 {
-	Database::user = std::string(user);
+	/*Database::user = std::string(user);
 	Database::password = std::string(password);
-	Database::url = std::string(url);
+	Database::url = std::string(url);*/
 
 	//try
 	//{
 		sql::Driver* driver = sql::mariadb::get_driver_instance();
 
-		sql::Properties properties({ {"user", Database::user}, {"password", Database::password} });
+		sql::Properties properties({ {"user", user}, {"password", password} });
 
-		connection = driver->connect(Database::url, properties);
+		connection = driver->connect(url, properties);
 	//}
 	//catch (sql::SQLException& e)
 	//{

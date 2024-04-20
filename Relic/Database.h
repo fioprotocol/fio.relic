@@ -41,22 +41,9 @@ public:
 		}
 	}
 
-	void Initialize(const char* user = "memento_rw", const char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
+	//void Initialize(const char* user = "memento_rw", const char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
+	void Initialize(std::string user, std::string password, std::string url);
 	void Close();
-
-	/*bool Autocommit()
-	{
-		if (!connection)
-			THROW_Exception2("No connection.");
-		return connection->getAutoCommit();
-	}
-
-	void Autocommit(bool value)
-	{
-		if (!connection)
-			THROW_Exception2("No connection.");
-		return connection->setAutoCommit(value);
-	}*/
 
 	/*enum Status Status()
 	{
@@ -66,9 +53,9 @@ public:
 
 protected:
 	//enum Status status = Status::Error;
-	std::string user;
+	/*std::string user;
 	std::string password;
-	std::string url;
+	std::string url;*/
 	sql::Connection* connection = NULL;
 };
 

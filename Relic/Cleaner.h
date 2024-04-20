@@ -11,14 +11,17 @@
 #include "Database.h"
 #include "utils.h"
 
-class Cleaner
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
+
+class Cleaner :public Database
 {
 public:
 
-	Cleaner(int keepDays = 1)
+	Cleaner(int argc, char** argv)
 	{
-		Cleaner::keepDays = keepDays;
-		database = new Database();
+		Cleaner::argc = argc;
+		Cleaner::argv = argv;
 	}
 
 	~Cleaner()
@@ -33,12 +36,21 @@ public:
 		}
 	}
 
+	static po::options_description GetOptionsDescription();
+
 	void Close();
 	void Run();
 
 protected:
-	Database* database = NULL;
-	void initialize();
+	int argc;
+	char** argv;
+
+	std::string dbUser;
+	std::string dbPassword;
+	std::string dbUrl;
+	//int keepDays = -1;
+
+	bool getOptions();
 
 	sql::PreparedStatement* sth_get_min_irrev = NULL;
 	sql::PreparedStatement* sth_get_min_tx_block = NULL;
@@ -46,8 +58,7 @@ protected:
 	sql::PreparedStatement* sth_prune_receipts = NULL;
 
 	int lastIrrev = 0;
-	int keepBlocks = keepDays * 24 * 7200;
-	int keepDays;
+	int keepBlocks = -1;
 };
 
 #endif //Cleaner_H

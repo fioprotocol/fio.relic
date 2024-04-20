@@ -12,6 +12,8 @@
 
 #include "utils.h"
 
+#define THROW_DatabaseException2(exception) throw Exception2(__FILE__, __LINE__, __FUNCTION__, "Database: %s", ((sql::SQLException)exception).getMessage().c_str())
+
 class Database
 {
 	/*enum Status
@@ -23,11 +25,8 @@ class Database
 
 public:
 
-	Database(char* user = "memento_rw", char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/FioMemento")
+	Database()
 	{
-		Database::user = std::string(user);
-		Database::password = std::string(password);
-		Database::url = std::string(url);
 	}
 
 	~Database()
@@ -42,7 +41,8 @@ public:
 		}
 	}
 
-	void Initialize();
+	//void Initialize(const char* user = "memento_rw", const char* password = "LKpoiinjdscudfc", const char* url = "jdbc:mariadb://localhost:3306/Relic");
+	void Initialize(std::string user, std::string password, std::string url);
 	void Close();
 
 	/*enum Status Status()
@@ -50,13 +50,13 @@ public:
 		return status;
 	}*/
 
-	sql::Connection* Connection = NULL;
 
 protected:
 	//enum Status status = Status::Error;
-	std::string user;
+	/*std::string user;
 	std::string password;
-	std::string url;
+	std::string url;*/
+	sql::Connection* connection = NULL;
 };
 
 #endif //Database_H

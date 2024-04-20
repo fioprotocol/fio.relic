@@ -11,7 +11,7 @@ sudo apt-get update && apt-get install -y mariadb-server mariadb-client
 
 ## Deploy database
 sh ./create_db_users.sh
-sh ./create_memento_db.sh FioMemento
+sh ./create_memento_db.sh Relic
 
 
 ## Install MariaDB Connector/C and package dependencies:
@@ -50,3 +50,9 @@ sudo apt-get install libboost-date-time-dev
 sudo apt-get install libboost-chrono-dev
 sudo apt-get install libboost-program-options-dev
 sudo apt-get install libboost-test-dev
+
+
+## Install appbase source (to build the app):
+$ git clone https://github.com/fioprotocol/appbase.git
+
+

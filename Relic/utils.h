@@ -11,7 +11,7 @@
 #include <string>
 #include <stdio.h>
 
-#define THROW_Exception2(...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, ## __VA_ARGS__)
+#define THROW_Exception2(format, ...) throw Exception2(__FILE__, __LINE__, __FUNCTION__, format, ## __VA_ARGS__)
 
 #define STDOUT_CURRENT_EXCEPTION(format, ...) StdOutCurrentException(__FILE__, __LINE__, __FUNCTION__, format, ## __VA_ARGS__)
 void StdOutCurrentException(const char* file, int line, const char* function, const char* format = NULL, ...);
@@ -23,7 +23,10 @@ enum LogLevel
 	Error
 };
 
-//void StdOutV(LogLevel logLevel, const char* format, va_list argptr);
+void WriteV(_IO_FILE* file, LogLevel logLevel, const char* format, va_list argptr);
+void Write(_IO_FILE* file, LogLevel logLevel, const char* format, ...);
+void Write(_IO_FILE* file, LogLevel logLevel, const std::string format, ...);
+void StdOutV(LogLevel logLevel, const char* format, va_list argptr);
 void StdOut(LogLevel logLevel, const char* format, ...);
 void StdOut(LogLevel logLevel, const std::string format, ...);
 std::string FormatV(const char* format, va_list argptr);

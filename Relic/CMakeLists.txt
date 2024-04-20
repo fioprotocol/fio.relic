@@ -1,15 +1,59 @@
-﻿# CMakeList.txt : CMake project for Relic, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.8)
+﻿cmake_minimum_required (VERSION 3.12)
 
-project ("Relic")
+project ("Relic" VERSION 0.0.1)
 
-# Add source to this project's executable.
-add_executable (Relic "Relic.cpp" "Relic.h")
+add_compile_definitions(APP_NAME="${PROJECT_NAME}")
+add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET Relic PROPERTY CXX_STANDARD 20)
-endif()
+set(BOOST_REQUIRED_COMPONENTS
+	date_time 
+	filesystem 
+	system
+	chrono
+	program_options
+	unit_test_framework 
+    #thread 
+	#iostreams 
+)
 
-# TODO: Add tests and install targets if needed.
+find_package(
+    Boost 1.71.0 REQUIRED COMPONENTS ${BOOST_REQUIRED_COMPONENTS} #/usr/include/boost
+)
+
+find_package(
+    mariadbcpp #/usr/include/mariadb
+)
+
+set(CMAKE_CXX_STANDARD 17)#(!)required by appbase
+
+add_subdirectory(
+	externals/appbase#(!)use https://github.com/AntelopeIO/appbase.git as https://github.com/fioprotocol/appbase.git does not compile
+	EXCLUDE_FROM_ALL
+)
+#find_package( appbase )#if pre-installed
+
+add_executable (${PROJECT_NAME} 
+	"main.cpp" 	 
+	"utils.cpp"	"utils.h"
+	"Websocket.Session.cpp" "Websocket.Session.h"
+	"Websocket.Listener.cpp" "Websocket.Listener.h"
+	"Websocket.Server.cpp" "Websocket.Server.h"
+	"WebsocketServer.cpp" "WebsocketServer.h"
+	"Database.h" "Database.cpp"
+	"Cleaner.cpp" "Cleaner.h"
+	"Writer.cpp" "Writer.h"
+	"options.h" "options.cpp"
+)
+
+include_directories(
+  #externals/appbase/include
+  externals/rapidjson/include
+  #${Boost_INCLUDE_DIR}
+) 
+
+target_link_libraries(${PROJECT_NAME}
+PRIVATE appbase
+PUBLIC ${Boost_LIBRARIES}
+	mariadbcpp	#/usr/lib/libmariadbcpp.so
+	#pthread #???required by appbase
+)

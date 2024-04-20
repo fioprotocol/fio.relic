@@ -587,28 +587,26 @@ void Writer::sendTracesBatch()
 	if (!insertTransactions.size())
 		return;
 
-
-	/*std::string insert_transactions("INSERT IGNORE INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ");
+	//!!!see why it does not work with executeBatch()
+	std::string insert_transactions("INSERT IGNORE INTO TRANSACTIONS (seq, block_num, block_time, trx_id, trace) VALUES ");
 	for (auto t : insertTransactions)
-	{
 		insert_transactions.append("(" + std::to_string(t.seq)).append("," + std::to_string(t.block_num)).append(",'" + t.block_time + "'").append(",'" + t.trx_id + "'").append(",'" + t.trace + "')");
-	}
-	connection->createStatement()->execute(insert_transactions);*/
-	for (auto t : insertTransactions)
-	{
-		//sth_insert_transactions->clearParameters();
-		sth_insert_transactions->setUInt64(1, t.seq);
-		sth_insert_transactions->setInt64(2, t.block_num);
-		sth_insert_transactions->setDateTime(3, t.block_time);
-		sth_insert_transactions->setString(4, t.trx_id);
-		std::istringstream s(t.trace);
-		sth_insert_transactions->setBlob(5, &s, t.trace.size());
-		//sql::bytes bs(t.trace.data(), t.trace.size());
-		//sth_insert_transactions->setBytes(5, &bs);//!!!sometimes segmentation fault or Dynamic exception type: std::length_error; std::exception::what: basic_string::_M_create
-		sth_insert_transactions->addBatch();
-	}
-	sth_insert_transactions->executeBatch();
-	sth_insert_transactions->clearBatch();//(!)necessary for setBlob(), otherwise the next executeBatch() sets an empty blob.
+	connection->createStatement()->execute(insert_transactions);
+	//for (auto t : insertTransactions)
+	//{
+	//	sth_insert_transactions->clearParameters();
+	//	sth_insert_transactions->setUInt64(1, t.seq);
+	//	sth_insert_transactions->setInt64(2, t.block_num);
+	//	sth_insert_transactions->setDateTime(3, t.block_time);
+	//	sth_insert_transactions->setString(4, t.trx_id);
+	//	std::stringstream s(t.trace); 
+	//	sth_insert_transactions->setBlob(5, &s, t.trace.size());//!!!some blobs are spoiled in the beginning (wrong encoding?)
+	//	//sql::bytes bs(t.trace.data(), t.trace.size());
+	//	//sth_insert_transactions->setBytes(5, &bs);//!!!sometimes segmentation fault or Dynamic exception type: std::length_error; std::exception::what: basic_string::_M_create
+	//	sth_insert_transactions->addBatch();
+	//}
+	//sth_insert_transactions->executeBatch();
+	//sth_insert_transactions->clearBatch();//(!)necessary for setBlob(), otherwise the next executeBatch() sets an empty blob.
 
 	if (insertReceipts.size())
 	{

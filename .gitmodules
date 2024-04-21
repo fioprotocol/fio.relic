@@ -1,5 +1,0 @@
-[submodule "Relic/externals/rapidjson"]
-	path = Relic/externals/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
-
-

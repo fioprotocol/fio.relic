@@ -1,4 +1,4 @@
 cat <<EOF | mysql
-CREATE USER 'memento_rw'@'localhost' IDENTIFIED BY 'LKpoiinjdscudfc';
-CREATE USER 'memento_ro'@'%' IDENTIFIED BY 'memento_ro';
+CREATE USER 'Relic_rw'@'localhost' IDENTIFIED BY 'lkdsnvkfdjnflskdm';
+CREATE USER 'Relic_ro'@'%' IDENTIFIED BY 'Relic_ro';
 EOF

@@ -1,4 +1,4 @@
-External sources: (!!!using git submodules seem to be messy)
+External sources: 
 
 appbase:	
 #url = https://github.com/fioprotocol/appbase.git #!!!does not compile
@@ -8,3 +8,14 @@ commit = d7a7580
 rapidjson:
 url = https://github.com/Tencent/rapidjson.git
 commit = ab1842a
+
+
+(!!!using git submodules seem to be messy: unpredictable commits + bad support in GitHub Desktop when switching branches)
+.gitmodules equivalent content: 
+[submodule "Relic/externals/appbase"]
+	path = Relic/externals/appbase
+	#url = https://github.com/fioprotocol/appbase.git #!!!does not compile
+	url = https://github.com/AntelopeIO/appbase.git 
+[submodule "Relic/externals/rapidjson"]
+	path = Relic/externals/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

@@ -1,9 +1,0 @@
-[submodule "Relic/externals/appbase"]
-	path = Relic/externals/appbase
-	#url = https://github.com/fioprotocol/appbase.git #!!!does not compile
-	url = https://github.com/AntelopeIO/appbase.git 
-[submodule "Relic/externals/rapidjson"]
-	path = Relic/externals/rapidjson
-	url = https://github.com/Tencent/rapidjson.git
-
-

@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.12)
 
-project ("Relic" VERSION 0.1.0)
+project ("Relic" VERSION 0.1.1)
 
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
 add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")
@@ -35,9 +35,6 @@ add_subdirectory(
 add_executable (${PROJECT_NAME} 
 	"main.cpp" 	 
 	"utils.cpp"	"utils.h"
-	"Websocket.Session.cpp" "Websocket.Session.h"
-	"Websocket.Listener.cpp" "Websocket.Listener.h"
-	"Websocket.Server.cpp" "Websocket.Server.h"
 	"WebsocketServer.cpp" "WebsocketServer.h"
 	"Database.h" "Database.cpp"
 	"Cleaner.cpp" "Cleaner.h"

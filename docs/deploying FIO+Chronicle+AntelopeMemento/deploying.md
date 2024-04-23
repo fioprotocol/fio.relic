@@ -1,58 +1,60 @@
-FIO-NODE:
+##FIO-NODE:
 
-Installation: 
+#Installation: 
 https://dev.fio.net/docs/installation-using-packages
 
-Check the package:
+#Check the package:
 certutil -hashfile filepath MD5
 
-Installation on WSL:
+#Installation on WSL:
 - make sure Ubuntu is on WSL2;
 - to have systemctl on, create /etc/wsl.conf and write there: 
 [boot]
 systemd=true
-- wsl -t <Ubuntu>;
+- $ wsl -t <Ubuntu>;
 - start Ubuntu;
 
-Config:
+WSL HELP: see WSL_tips.md
+
+#Configure:
 /etc/fio/nodeos/config.ini
 
 (Usually can be omitted:)Refresh there p2p-peer-addresses if needed from https://monitor.testnet.fioprotocol.io/#p2p
 
-Run:
-sudo systemctl start fio-nodeos
+#Run:
+$ sudo systemctl start fio-nodeos
 
-Stop:
-sudo systemctl stop fio-nodeos
+#Stop:
+$ sudo systemctl stop fio-nodeos
 
-Log:
+#Log:
 /var/log/fio/nodeos.log
 
-Binary:
+#Binary:
 /usr/local/bin
 
-Service:
+#Service:
 /lib/systemd/system/
 
-History:
+#History:
 /var/lib/fio/data/blocks
 
-Validation of the node:
+#Validation of the node:
 https://dev.fio.net/docs/validate-your-api-node
-> curl -s -X GET 'http://localhost:8888/v1/chain/get_info' | jq '.chain_id'
+$ curl -s -X GET 'http://localhost:8888/v1/chain/get_info' | jq '.chain_id'
 
-Snapshots:
+#Snapshots:
 https://snap.blockpane.com/chains/fio/
 https://seed01.eosusa.news/snaps/fio/
 
-Mainnet monitor:
+#Mainnet monitor:
 https://monitor.fioprotocol.io/
 
-Testnet monitor:
+#Testnet monitor:
 https://monitor.testnet.fioprotocol.io/
 
 
-Troubleshooting:
+#Troubleshooting:
 
 (!)If FIO was stopped not by sudo systemctl stop fio-nodeos OR Ctrl+X, it will not start with this error: ~database bit 1 <...> Replay is required.
 Remedy: (remove existing history directories)
@@ -61,39 +63,39 @@ sudo rm -fr data history history_index
 
 
 
-CHRONICLE:
+##CHRONICLE:
 
 https://github.com/EOSChronicleProject/eos-chronicle
 
 /opt/src/eos-chronicle/
 
-Building:
-mkdir -p /opt/src/
-cd /opt/src/
-git clone --recursive https://github.com/EOSChronicleProject/eos-chronicle.git
-cd eos-chronicle
-./pinned_build/install_deps.sh && mkdir build && nice ./pinned_build/chronicle_pinned_build.sh /opt/src/chronicle-deps /opt/src/eos-chronicle/build $(nproc)
+#Building (optional):
+$ mkdir -p /opt/src/
+$ cd /opt/src/
+$ git clone --recursive https://github.com/EOSChronicleProject/eos-chronicle.git
+$ cd eos-chronicle
+$ ./pinned_build/install_deps.sh && mkdir build && nice ./pinned_build/chronicle_pinned_build.sh /opt/src/chronicle-deps /opt/src/eos-chronicle/build $(nproc)
 
-sudo apt install ./antelope-chronicle-3.3-Clang-11.0.1-ubuntu20.04-x86_64.deb
+#Installing
+$ sudo apt install ./antelope-chronicle-3.3-Clang-11.0.1-ubuntu20.04-x86_64.deb
 
 Register as service (optional):
-cp /usr/local/share/chronicle_receiver@.service /etc/systemd/system/
-systemctl daemon-reload
+$ cp /usr/local/share/chronicle_receiver@.service /etc/systemd/system/
+$ systemctl daemon-reload
 
-Setting up:
-- set config.ini on the FIO node;
-- set /opt/src/eos-chronicle/config.ini;
+#Configure:
+/opt/src/eos-chronicle/config.ini
 
-Initialize (!mandatory; only once per FIO-node start):
-/usr/local/sbin/chronicle-receiver --config-dir=/opt/src/eos-chronicle/ --data-dir=/opt/src/chronicle-data --start-block=<in the FIO node log: "chain_state_history.log has blocks:..." get the first number of the 2>
+#Initialize (!mandatory; only once per FIO-node start):
+$ /usr/local/sbin/chronicle-receiver --config-dir=/opt/src/eos-chronicle/ --data-dir=/opt/src/chronicle-data --start-block=<in the FIO node log: "chain_state_history.log has blocks:..." get the first number of the 2>
 
-Start test reader (!make sure it has $binary_hdr=1):
-perl /opt/src/eos-chronicle/testing/chronicle-ws-dumper.pl &>chronicle_output.txt
+#Start test reader (!make sure it has $binary_hdr=1):
+$ perl /opt/src/eos-chronicle/testing/chronicle-ws-dumper.pl &>chronicle_output.txt
  
-Start:
-/usr/local/sbin/chronicle-receiver --config-dir=/opt/src/eos-chronicle/ --data-dir=/opt/src/chronicle-data &>/opt/src/eos-chronicle/testing/chronicle_log.txt
+#Start:
+$ /usr/local/sbin/chronicle-receiver --config-dir=/opt/src/eos-chronicle/ --data-dir=/opt/src/chronicle-data &>/opt/src/eos-chronicle/testing/chronicle_log.txt
 OR
-systemctl start chronicle_receiver@memento_wax1
+$ systemctl start chronicle_receiver@memento_wax1
 
 Troubleshooting:
 

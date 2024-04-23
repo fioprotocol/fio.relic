@@ -9,11 +9,13 @@
 
 #include "options.h"
 
-void StdOutConfiguration(po::variables_map vm)
+void StdOutConfiguration(po::variables_map vm, std::initializer_list<std::string> excludedOptions)
 {
 	std::cout << "Configuration:\r\n";
 	for (const auto& it : vm)
 	{
+		if (std::find(excludedOptions.begin(), excludedOptions.end(), it.first) != excludedOptions.end())
+			continue;
 		std::cout << it.first.c_str() << "=";
 		auto& value = it.second.value();
 		if (auto v = boost::any_cast<long>(&value))

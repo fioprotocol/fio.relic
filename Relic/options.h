@@ -22,7 +22,7 @@ namespace po = boost::program_options;
 static constexpr const char* OPT_help = "help";
 static constexpr const char* OPT_runWriter = "writer";
 static constexpr const char* OPT_runCleaner = "cleaner";
- 
+
 static constexpr const char* OPT_sourceId = "source-id";
 static constexpr const char* OPT_websocketServerIp = "ip";
 static constexpr const char* OPT_websocketServerPort = "port";
@@ -33,6 +33,6 @@ static constexpr const char* OPT_ackEvery = "ack-every";
 static constexpr const char* OPT_keepDays = "keep-days";
 static constexpr const char* OPT_noTraces = "no-traces";
 
-void StdOutConfiguration(po::variables_map vm);
+void StdOutConfiguration(po::variables_map vm, std::initializer_list<std::string> excludedOptions = {});
 
 #endif //Options_H

@@ -43,17 +43,7 @@ bool Cleaner::getOptions()
 		if (keepDays >= 0)
 			keepBlocks = keepDays * 24 * 7200;
 
-		//StdOut(Info, "Configuration: "
-		//	"\r\n%s=%s"
-		//	//"\r\n%s=%s"
-		//	"\r\n%s=%s"
-		//	"\r\n%s=%d",
-		//	OPT_dbUser, dbUser.c_str(),
-		//	//OPT_dbPassword, dbPassword.c_str(),
-		//	OPT_dbUrl, dbUrl.c_str(),
-		//	OPT_keepDays, keepDays
-		//);
-		StdOutConfiguration(vm);
+		StdOutConfiguration(vm, { /*OPT_dbPassword*/ });
 		return true;
 	}
 	catch (const boost::exception& e)

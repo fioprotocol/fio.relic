@@ -120,5 +120,7 @@ int main(int argc, char** argv)
 		STDOUT_CURRENT_EXCEPTION(NULL);
 	}
 
+	std::cout.flush();
+
 	return 0;
 }

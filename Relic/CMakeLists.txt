@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required (VERSION 3.12)
 
-project ("Relic" VERSION 0.1.3)
+project ("Relic" VERSION 0.1.5)
 
 add_compile_definitions(APP_NAME="${PROJECT_NAME}")
 add_compile_definitions(APP_VERSION="${PROJECT_VERSION}")

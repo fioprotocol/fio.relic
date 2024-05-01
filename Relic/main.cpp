@@ -50,6 +50,10 @@ public:
 private:
 };
 
+/*TBD:
+* - make Server asynch and switch to appbase
+* - (?)logger
+*/
 int main(int argc, char** argv)
 {
 	std::set_terminate(
@@ -93,6 +97,9 @@ int main(int argc, char** argv)
 		{
 			Writer writer(argc, argv);
 			writer.Run();
+			/*writer.RunAsync();
+			for (;;)
+				sleep(10);*/
 		}
 
 		/*appbase::app().register_plugin<Relic_plugin>();

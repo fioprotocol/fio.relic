@@ -19,7 +19,6 @@ $ wsl -d Ubuntu-20.2
 - write there:
 [boot]
 systemd=true
-command=cd /home/cliver
 [user]
 default=cliver
 - $ wsl --terminate Ubuntu-20.2
@@ -29,6 +28,9 @@ default=cliver
 
 
 ##Running the distro
+Set the default directory:
+$ wsl ~
+Run the distro:
 $ wsl -d Ubuntu-20.2
 
 

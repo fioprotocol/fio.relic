@@ -120,7 +120,7 @@ void Writer::sanityCheck()
 	}
 }
 
-void Writer::Run()
+void Writer::initialize()
 {
 	try
 	{
@@ -165,8 +165,18 @@ void Writer::Run()
 	{
 		THROW_DatabaseException2(e);
 	}
+}
 
+void Writer::Run()
+{
+	initialize();
 	WebsocketServer::Run(websocketServerPort, websocketServerIp);
+}
+
+void Writer::RunAsync()
+{
+	initialize();
+	WebsocketServer::RunAsync(websocketServerPort, websocketServerIp);	
 }
 
 uint32_t readInt32_LittleEndian(char* cs)

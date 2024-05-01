@@ -58,6 +58,7 @@ void WriteV(_IO_FILE* file, LogLevel logLevel, const char* format, va_list argpt
 	s.append(format);
 	s += "\r\n";
 	s = FormatV(s.c_str(), argptr);
+	//(!)on POSIX, fprintf() is thread safe
 	fprintf(file, s.c_str());
 }
 

@@ -39,7 +39,8 @@ public:
 	}
 
 	void Close();
-	void Run(/*int sourceId, bool noTraces = false, int ackEvery = 100*/);
+	void Run();
+	void RunAsync();
 
 	static po::options_description GetOptionsDescription();
 
@@ -51,6 +52,8 @@ protected:
 private:
 	int argc;
 	char** argv;
+
+	void initialize();
 
 	std::string websocketServerIp;
 	int websocketServerPort;

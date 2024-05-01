@@ -31,11 +31,11 @@ namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-class WebsocketServer : public std::enable_shared_from_this<WebsocketServer>
+class WebsocketServer //: public std::enable_shared_from_this<WebsocketServer>
 {
 public:
 
-	WebsocketServer()
+	WebsocketServer()// :sp(this)
 	{
 	}
 
@@ -52,19 +52,29 @@ public:
 	}
 
 	void Run(int port, std::string ip = ""/*INADDR_ANY*/);
+	void RunAsync(int port, std::string ip = ""/*INADDR_ANY*/);
 	void Close();
 	void Write(const boost::asio::const_buffer& buffer);
 
 	bool Binary = true;
 	bool AutoFragment = true;
+	void onAccept(boost::system::error_code ec, tcp::socket socket);
 
 protected:
 	virtual	void onRead(const beast::flat_buffer& buffer) = 0;
 	virtual	void onDisconnect() = 0;
 
 private:
+	//std::shared_ptr<WebsocketServer> sp;//required for shared_from_this()
 
+	void initialize(int port, std::string ip); 
+	void acceptAsync();
+	void read(tcp::socket&& socket);
+
+	net::io_context ioc;// The io_context is required for all I/O
+	//net::executor_work_guard<net::io_context::executor_type> work = make_work_guard(ioc.get_executor());//https://stackoverflow.com/a/69609876/23553997
 	websocket::stream<beast::tcp_stream>* websocket = NULL;
+	tcp::acceptor* acceptor = NULL;
 };
 
 #endif //SocketServer_H

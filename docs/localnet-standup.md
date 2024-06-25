@@ -1,7 +1,9 @@
 # LocalNet Build, Install and Deployment Guide
 
 ## Overview
-EOS-Chronicle is a middleware app that consumes history data available via the state history plugin of an Antelope (EOSIO) blockchain. The following instructions outline the necessary steps to setup EOS-Chronicle to consume history data from the FIO blockchain.
+fio-relic is intended to be the middleware between a fio-nodeos node providing state history via the state-history plugin and a relational database for utilization by consumers such as the fio dashboard or a block explorer. It is based on the opensource product EOS-Chronicle created by EOS-Amsterdam but refactored to be a integrated application providing the ingest of state history data, the parsing and storage of that data into a relational database for asynchronous consumption by 3rd party applications.
+
+EOS-Chronicle is a middleware app that consumes history data available via the state history plugin of an Antelope (EOSIO) blockchain and provides downstream consumers json formatted data via plugins. The following instructions outline the necessary steps to setup a local FIO blockchain, EOS-Chronicle to consume history data from that blockchain and a test consumer to display data to the user. It utilizes a 3 node block producing blockchain, an additional fio-nodeos node attached to that blockchain providing state history data as well as a test server for output of processed data as json to standard out.
 
 ## Clone, Build, Install, Configure And Execute a local blockchain, chronicle and a chronicle test web socket server
 
@@ -87,6 +89,14 @@ EOT
 ```shell
 # Start state history node (as a docker container)
 ./start 3.5, option 1, option 6
+
+# Select the default P2P Nodeos IP address and P2P Nodeos Port
+P2P Nodeos IP address [172.31.20.163]:<Enter>
+P2P Nodeos Port [8889]:<Enter>
+
+# Select option 2 to start a state history node
+1. V1 History Node 2. State History Node
+Choose(#):2<Enter>
 ```
 
 ### Start chronicle test web socket server

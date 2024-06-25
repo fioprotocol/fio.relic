@@ -31,7 +31,13 @@ cd fio/scripts
 ```
 
 ### Clone and build EOS-Chronicle
-The following command is a one-stop shop for the clone and build of eos-chronicle. This will clone eos-chronicle to a tmp directory, then move the install to /opt, update directory and file permissions to run as the default ubuntu user and then build eos-chronicle including any dependencies (llvm, clang). This is slightly different from the default instructions outlined in the EOS-Chronicle Project, https://github.com/EOSChronicleProject/eos-chronicle, in that it installs to /opt/eos-chronicle instead of /opt/src.
+The following command is a one-stop shop for the clone and build of eos-chronicle and will
+* clone eos-chronicle to a tmp directory
+* move the install to /opt/eos-chronicle
+* update directory and file permissions to run as the default ubuntu user
+* build eos-chronicle including any dependencies (llvm, clang).
+
+This is slightly different from the default instructions outlined in the EOS-Chronicle Project, https://github.com/EOSChronicleProject/eos-chronicle, in that it installs to /opt/eos-chronicle instead of /opt/src.
 
 ```shell
 cd $HOME/tmp && git clone --recursive https://github.com/EOSChronicleProject/eos-chronicle.git && sudo mv eos-chronicle /opt && sudo chown -R ubuntu:ubuntu /opt/eos-chronicle && cd /opt/eos-chronicle && sudo ./pinned_build/install_deps.sh && mkdir build && nice ./pinned_build/chronicle_pinned_build.sh /opt/eos-chronicle/chronicle-deps /opt/eos-chronicle/build $(nproc)

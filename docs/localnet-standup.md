@@ -52,8 +52,26 @@ As this is a localnet deployment of FIO, the fio.devtools framework will be used
 
 The localnet 3-node default blockchain as well as the state history node is started using the fio.devtools start script, start.sh. The 3-node blockchain is configured to process blocks on ports 9876, 9877, and 9878 and have chain api plugin ports of 8879, 8889 and 8890.
 
-The history node, which is run as a docker container, will connect to the 3-node blockchain described above, ingest blocks and store state history. Its state history api port will be 8080 and any connnections to pull state history will utilize this port. 
+The history node, which is run as a docker container, will connect to the 3-node blockchain described above, ingest blocks and store state history. Its state history api port will be 8080 and any connnections to pull state history will utilize this port.
 
+Refering to this in the EOS Chronicle doc (https://github.com/EOSChronicleProject/eos-chronicle?tab=readme-ov-file#state-history-plugin-in-nodeos) the state history node configuration will have the following attributes/values;
+
+```shell
+contracts-console = true
+validation-mode = light
+plugin = eosio::state_history_plugin
+trace-history = true
+chain-state-history = true
+trace-history-debug-mode = true
+state-history-endpoint = 0.0.0.0:8080
+```
+
+To expedite this update, the fio.devtools start script has been updated to copy the appropriate history node configuration. For example when starting a state history docker node, the script performs the following;
+```shell
+cp scripts/launch/history/container/etc/config.ini-statehistory scripts/launch/history/container/etc/config.ini
+```
+
+This will be used below when starting the history node 
 #### EOS-Chronicle
 Create the config and the data directory and initialize the eos-chronicle config.ini. The config.ini connection options are as follows;
 * host: the nodeos state history host (upstream connection to fio nodeos state history api endpoint)
@@ -104,6 +122,13 @@ Note that this web socket server represents a downstream server showing json for
 
 ```shell
 perl /opt/eos-chronicle/testing/chronicle-ws-dumper.pl --port=8891
+```
+
+Note that if any missing module errors occur running the script above, then you may be missing one or more module dependencies. These dependencies may be found in the comment section at the top of the script.
+
+```shell
+sudo apt install cpanminus libjson-xs-perl libjson-perl
+sudo cpanm Net::WebSocket::Server
 ```
 
 #### Start eos-chronicle

@@ -18,7 +18,10 @@ The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol,
 [FIO.Relic License](https://github.com/fioprotocol/fio.chronicle/blob/develop/LICENSE.txt)
 
 ### Local FIO Blockchain
-See [FIO](https://github.com/fioprotocol/fio/blob/master/README.md) for instructions on how to setup a chain
+See [FIO](https://github.com/fioprotocol/fio/blob/master/README.md) for instructions on how to setup the FIO Protocol fio.nodeos block chain locally. Refer to the [FIO Protocol Developer Hub](https://dev.fio.net/docs/chain-node) documentation to install or attach to an enterprise fio.nodeos blockchain
 
 ### FIO.Relic
-See the [local standup doc](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md)
+See the [FIO.Relic Tech Stack](https://github.com/fioprotocol/fio.relic/blob/develop/docs/tech-stack.md) document to understand the requisite hardware and software needed to install and run fio.relic history server
+
+#### Local/Dev Install
+See the [FIO.Chronicle Install](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/install-local.md) document to install and deploy fio.chronicle to run locally

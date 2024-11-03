@@ -25,11 +25,11 @@ The FIO.Relic tech stack is the set of technologies used to develop and/or deplo
 ## Simple Production API Interaction
 ```mermaid
  graph TD
-     A[FIO Nodeos] <--> B[FIO.Relic]
-     B --> C[Server01]
-     B --> D[Server02]
-     B --> E[Server03]
-     B --> ...
+     A[FIO Nodeos] --> B[FIO.Relic]
+     B <--> C[Client Node 01]
+     B <--> D[Client Node 02]
+     B <--> ...
+     B <--> E[Client Node N]
 ```
 
 ## FIO System Architecture
@@ -38,38 +38,26 @@ The FIO.Relic tech stack is the set of technologies used to develop and/or deplo
       title System Context diagram for FIO Nodeos, Chronicle, External API System
       Enterprise_Boundary(b0, "FIO EcoSystem") {
         Person(customerA, "Block Producer", "Capturing V? History")
-        
+        System_Ext(SystemD, "External FIO Relic Client", "Uses FIO Chronicle Data.")
+
         Enterprise_Boundary(b1, "FIO.Relic") {
 
-          System(SystemC, "FIO.Chroicle", "The FIO.Chronicle History Application")
-          SystemDb(SystemD, "FIO.Chronicle Database", "Relational History Database")
+          System(SystemA, "FIO.Chroicle", "The FIO.Chronicle History Application")
+          SystemDb(SystemB, "FIO.Chronicle Database", "Relational History Database")
 
         }
       }
 
-      Rel(SystemC, customerA, "Uses", "History API")
+      Rel(SystemA, customerA, "Uses", "History API")
+      BiRel(SystemA, SystemB, "Uses")
+      BiRel(SystemA, SystemD, "Uses")
       UpdateElementStyle(customerA, $fontColor="red", $bgColor="grey", $borderColor="red")
-      UpdateRelStyle(SystemC, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")
+      UpdateRelStyle(SystemA, customerA, $textColor="red", $lineColor="red", $offsetX="-50", $offsetY="20")
 
       UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")
 ```
 
-### OLD
-### Example Architecture Diagram; to aid in creation of a tech stack diagram
-```mermaid
-    architecture-beta
-        group api(cloud)[API]
-    
-        service db(database)[Database] in api
-        service disk1(disk)[Storage] in api
-        service disk2(disk)[Storage] in api
-        service server(server)[Server] in api
-    
-        db:L -- R:server
-        disk1:T -- B:server
-        disk2:T -- B:db
-```
-
+### Example Sequence Diagram; once the logic is complete this will outline general sequence of historical data flow
 ```mermaid
 sequenceDiagram
     participant dotcom

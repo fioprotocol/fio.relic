@@ -42,7 +42,7 @@ Start and enable the service
 
 Check service status
 
-`systemctl status postgresql`
+`sudo systemctl status postgresql`
 
 Configuration
 

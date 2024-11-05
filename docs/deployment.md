@@ -23,7 +23,41 @@ To expedite the FIO Nodeos installation, including blockchain configuration and 
 
 ## FIO.Chronicle
 
-See https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/install-local.md for the deployment of the FIO.Chronicle history processor.
+### Local Dev/Test
+For a local standalone dev/test environment see the [install doc](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/install-local.md)
+
+### Production
+In-work
+
+Clone and build Fio.Chronicle
+```shell
+git clone --recursive https://github.com/fioprotocol/fio.chronicle.git && cd ./fio.chronicle && git checkout develop && git pull && mkdir -p build && sudo ./pinned_build/install_deps.sh && nice ./pinned_build/chronicle_pinned_build.sh /opt build $(nproc)
+```
+
+Install fio.chronicle to /opt
+```shell
+sudo mkdir -p /opt/fio-chronicle && sudo cp -r build/* /opt/fio-chronicle
+```
+
+Configure the fio-chronicle server
+```shell
+mkdir -p /opt/fio-chronicle/config /opt/fio-chronicle/data
+
+cat >/opt/fio-chronicle/config/config.ini <<'EOT'
+host = 127.0.0.1
+port = 8080
+mode = scan
+plugin = exp_ws_plugin
+exp-ws-host = 127.0.0.1
+exp-ws-port = 8891
+exp-ws-bin-header = false
+EOT
+```
+
+Start the fio-chronicle-receiver
+```shell
+/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
+```
 
 ## PostgreSQL
 The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, must occur in two parts due to the customization that should be done to provide connectivity as well as security for the target environment.
@@ -89,7 +123,7 @@ If there is a firewall or security measures that would prevent connection to por
 
 `sudo ufw allow 5432/tcp`
 
-#### Connecting to PostgreSQL
+#### Connect to the PostgreSQL Server
 
 ```shell
 sudo -u postgres psql
@@ -113,17 +147,21 @@ By default the admin user account is not password protected. Let's do that;
 
 `ALTER USER postgres PASSWORD 'Str0ngP@ssw0rd';`
 
-Create superusers by creating an admin role using the command;
+#### Create a superuser
+
+Create an admin role using the command;
 
 `CREATE ROLE admin WITH LOGIN SUPERUSER CREATEDB CREATEROLE PASSWORD 'Passw0rd';`
 
 List roles by executing the command (from the postgres prompt); `\du`
 
-To create a database, use the command:
+#### Create a database
+
+Create a database using the command:
 
 `CREATE DATABASE sampleDB;`
 
-To create a user with permissions to manage the database;
+#### Create a user with permissions to manage the database;
 
 ```shell
 CREATE USER demo_user with encrypted password 'PassW0rd';

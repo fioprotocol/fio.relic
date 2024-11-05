@@ -1,7 +1,7 @@
 # FIO.Relic Tech Stack
 
 ### The What
-The FIO.Relic tech stack is the set of technologies used to develop and/or deploy the application, including the programming languages, frameworks, databases, front-end and back-end tools, and APIs. As the FIO Development Envirionment is standalone, it will have a slightly different deployment then a typical production envirionment.
+The FIO.Relic tech stack is the set of technologies used to develop and/or deploy the application, including the programming languages, frameworks, databases, front-end and back-end tools, and APIs. While the production and development tech stack will be very similar, the development environment is standalone, and may have a slightly different stack/deployment then a typical production envirionment. For example, a temporary PostgreSQL instance might be stood up and deployed using docker for development and/or testing purposes.
 
 #### Server Spec
 * Hardware:
@@ -22,7 +22,7 @@ The FIO.Relic tech stack is the set of technologies used to develop and/or deplo
 * Database
   * PostgreSQL 16
 
-## Simple Production API Interaction
+## Production API Interaction
 ```mermaid
  graph TD
      A[FIO Nodeos] --> B[FIO.Relic]
@@ -32,11 +32,11 @@ The FIO.Relic tech stack is the set of technologies used to develop and/or deplo
      B <--> E[Client Node N]
 ```
 
-## FIO System Architecture
+## FIO.Relic System Architecture
 ```mermaid
     C4Context
-      title System Context diagram for FIO Nodeos, Chronicle, External API System
-      Enterprise_Boundary(b0, "FIO EcoSystem") {
+      title System Context diagram for FIO Relic incl FIO Nodeos, FIO Chronicle, and External API System
+      Enterprise_Boundary(b0, "FIO Relic EcoSystem") {
         Person(customerA, "Block Producer", "Capturing V? History")
         System_Ext(SystemD, "External FIO Relic Client", "Uses FIO Chronicle Data.")
 

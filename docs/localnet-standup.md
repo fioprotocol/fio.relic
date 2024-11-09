@@ -28,57 +28,53 @@ cd fio/scripts
 ./fio_install.sh
 ```
 
-### Clone and build EOS-Chronicle
-The following command is a one-stop shop for the clone and build of eos-chronicle and will
-* clone eos-chronicle to a tmp directory
-* move the install to /opt/eos-chronicle
-* update directory and file permissions to run as the default ubuntu user
-* build eos-chronicle including any dependencies (llvm, clang).
-
-This is slightly different from the default instructions outlined in the EOS-Chronicle Project, https://github.com/EOSChronicleProject/eos-chronicle, in that it installs to /opt/eos-chronicle instead of /opt/src.
+## Clone and build Fio.Chronicle
+The following command is a one-stop shop for the clone and build of fio.chronicle and will
+* clone the fio.chronicle repo
+* cd to the fio.chronicle repo and make the build directory
+* Install the necessary fio.chronicle build dependencies
+* execute the build script passing in the build directory
 
 ```shell
-cd $HOME/tmp && git clone --recursive https://github.com/EOSChronicleProject/eos-chronicle.git && sudo mv eos-chronicle /opt && sudo chown -R ubuntu:ubuntu /opt/eos-chronicle && cd /opt/eos-chronicle && sudo ./pinned_build/install_deps.sh && mkdir build && nice ./pinned_build/chronicle_pinned_build.sh /opt/eos-chronicle/chronicle-deps /opt/eos-chronicle/build $(nproc)
+git clone --recursive https://github.com/fioprotocol/fio.chronicle.git && cd ./fio.chronicle && git checkout develop && git pull && mkdir -p build && sudo ./scripts/install_deps.sh && nice ./scripts/build.sh /opt
 ```
 
-### Configure FIO and EOS-Chronicle
+Install fio.chronicle to /opt
+```shell
+./scripts/install.sh
+```
 
-#### FIO
-As this is a localnet deployment of FIO, the fio.devtools framework will be used and everything should be set up by default. However, for clarity it is important to understand the fio.devtools localnet configuration as well as the fio.devtools history node configuration.
+## Configure the FIO blockchain to capture history
+
+### FIO Nodeos
+As this is a localnet deployment of FIO, the fio.devtools framework will be used to set up the runtime environnemnt. However, for clarity it is important to understand the fio.devtools localnet configuration as well as the fio.devtools history node configuration.
 
 The localnet 3-node default blockchain as well as the state history node is started using the fio.devtools start script, start.sh. The 3-node blockchain is configured to process blocks on ports 9876, 9877, and 9878 and have chain api plugin ports of 8879, 8889 and 8890.
 
 The history node, which is run as a docker container, will connect to the 3-node blockchain described above, ingest blocks and store state history. Its state history api port will be 8080 and any connnections to pull state history will utilize this port.
 
-Refering to this in the EOS Chronicle doc (https://github.com/EOSChronicleProject/eos-chronicle?tab=readme-ov-file#state-history-plugin-in-nodeos) the state history node configuration will have the following attributes/values;
+Refering to this in the EOS Chronicle doc (https://github.com/EOSChronicleProject/eos-chronicle?tab=readme-ov-file#state-history-plugin-in-nodeos) the state history node configuration should have the following attributes and values;
+* contracts-console = true
+* validation-mode = light
+* trace-history = true
+* chain-state-history = true
+* plugin = eosio::state_history_plugin
+* state-history-endpoint = 0.0.0.0:8080
+* trace-history-debug-mode = true
 
-```shell
-contracts-console = true
-validation-mode = light
-plugin = eosio::state_history_plugin
-trace-history = true
-chain-state-history = true
-trace-history-debug-mode = true
-state-history-endpoint = 0.0.0.0:8080
-```
+On startup of the fio.devtools history node, the configuration will be updated automatically.
 
-To expedite this update, the fio.devtools start script has been updated to copy the appropriate history node configuration. For example when starting a state history docker node, the script performs the following;
-```shell
-cp scripts/launch/history/container/etc/config.ini-statehistory scripts/launch/history/container/etc/config.ini
-```
-
-This will be used below when starting the history node 
-#### EOS-Chronicle
-Create the config and the data directory and initialize the eos-chronicle config.ini. The config.ini connection options are as follows;
+### FIO Chronicle
+Create the config and the data directory and initialize the fio-chronicle config.ini. The config.ini connection options are as follows;
 * host: the nodeos state history host (upstream connection to fio nodeos state history api endpoint)
 * port: the nodeos state history api port (upstream connection to fio nodeos state history api endpoint port)
 * exp-ws-host: the websocket server host (the downstream connnection to a web socket server host)
 * exp-ws-port: the websocket server port (the downstream connnection to a web socket server port)
 
 ```shell
-mkdir -p /opt/eos-chronicle/config /opt/eos-chronicle/data
+mkdir -p /opt/fio-chronicle/config /opt/fio-chronicle/data
 
-cat >/opt/eos-chronicle/config/config.ini <<'EOT'
+cat >/opt/fio-chronicle/config/config.ini <<'EOT'
 host = 127.0.0.1
 port = 8080
 mode = scan
@@ -89,8 +85,9 @@ exp-ws-bin-header = false
 EOT
 ```
 
-### Run the fio-chronicle-webSocket server ecosystem
-#### Start fio-nodeos
+## Run the fio-chronicle server ecosystem
+
+### Start fio-nodeos
 ```shell
 # Build contracts (optional)
 ./start 3.5, option 2
@@ -99,7 +96,7 @@ EOT
 ./start 3.5, option 1, option 1
 ```
 
-#### Start fio-nodoes state history nodeos
+### Start fio-nodoes state history nodeos
 ```shell
 # Start state history node (as a docker container)
 ./start 3.5, option 1, option 6
@@ -113,11 +110,11 @@ P2P Nodeos Port [8889]:<Enter>
 Choose(#):2<Enter>
 ```
 
-### Start chronicle test web socket server
+### Start fio-chronicle test web socket server
 Note that this web socket server represents a downstream server showing json formatted state history data processed by EOS-Chronicle and is for test purposes only
 
 ```shell
-perl /opt/eos-chronicle/testing/chronicle-ws-dumper.pl --port=8891
+perl /opt/fio-chronicle/testing/chronicle-ws-dumper.pl --port=8891
 ```
 
 Note that if any missing module errors occur running the script above, then you may be missing one or more module dependencies. These dependencies may be found in the comment section at the top of the script.
@@ -127,7 +124,7 @@ sudo apt install cpanminus libjson-xs-perl libjson-perl
 sudo cpanm Net::WebSocket::Server
 ```
 
-#### Start eos-chronicle
+## Start fio-chronicle-receiver
 ```shell
-/opt/eos-chronicle/build/chronicle-receiver --config-dir=/opt/eos-chronicle/config --data-dir=/opt/eos-chronicle/data --end-block=846511
+/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
 ```

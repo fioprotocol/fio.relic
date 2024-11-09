@@ -10,60 +10,20 @@ The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol,
 * For information about the FIO Protocol, visit [FIO](https://fio.net).
 * For information on the FIO Chain, API, and SDKs, including detailed clone, build and deploy instructions, visit [FIO Protocol Developer Hub](https://dev.fio.net).
 
-## FIO Nodeos
+## LocalNet Dev/Test
+For a local dev/test environment of FIO Nodeos, and Fio.Chronicle, see the [LocalNet Deployment Guide](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md).
 
-The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
-
-A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
-* [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
-* [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
-* [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
-
-To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).
-
-## FIO.Chronicle
-
-### Local Dev/Test
-For a local standalone dev/test environment see the [install doc](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/install-local.md)
-
-### Production
-In-work
-
-Clone and build Fio.Chronicle
-```shell
-git clone --recursive https://github.com/fioprotocol/fio.chronicle.git && cd ./fio.chronicle && git checkout develop && git pull && mkdir -p build && sudo ./pinned_build/install_deps.sh && nice ./pinned_build/chronicle_pinned_build.sh /opt build $(nproc)
-```
-
-Install fio.chronicle to /opt
-```shell
-sudo mkdir -p /opt/fio-chronicle && sudo cp -r build/* /opt/fio-chronicle
-```
-
-Configure the fio-chronicle server
-```shell
-mkdir -p /opt/fio-chronicle/config /opt/fio-chronicle/data
-
-cat >/opt/fio-chronicle/config/config.ini <<'EOT'
-host = 127.0.0.1
-port = 8080
-mode = scan
-plugin = exp_ws_plugin
-exp-ws-host = 127.0.0.1
-exp-ws-port = 8891
-exp-ws-bin-header = false
-EOT
-```
-
-Start the fio-chronicle-receiver
-```shell
-/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
-```
+## PostgreSQL, FIO.Chronicle and FIO Nodeos Deployment Overview
+The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos Blockchain. While this guide includes documentation on deploying a FIO Blockchain Node, the assumption is that a FIO Blockchain node is already stood up, configured and running. Regardless, there are three components to a FIO.Relic System;
+1) PostgreSQL RDMS
+2) FIO.Chronicle
+3) FIO Nodeos Blockchain node
 
 ## PostgreSQL
 The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, must occur in two parts due to the customization that should be done to provide connectivity as well as security for the target environment.
 
 ###  Installation
-The PostgreSQL installation portion of a FIO.Relic deployment is described [here](https://www.postgresql.org/download/linux/ubuntu). For an automated install, see the [PostgreSQL install script](https://github.com/fioprotocol/fio.relic/blob/develop/scripts/install-pgsql.sh).
+PostgreSQL provides packages for Ubuntu and may be installed manually, however, for an automated install, see the [PostgreSQL install script](https://github.com/fioprotocol/fio.relic/blob/develop/scripts/install-pgsql.sh). For further support refer to the PostgreSQL Ubuntu documentation located [here](https://www.postgresql.org/download/linux/ubuntu).
 
 ### Configuration
 
@@ -167,3 +127,24 @@ Create a database using the command:
 CREATE USER demo_user with encrypted password 'PassW0rd';
 GRANT ALL PRIVILEGES ON DATABASE sampleDB to demo_user;
 ```
+
+## FIO.Chronicle
+### Build and Install
+Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-instructions) for build and installation instructions
+
+### Start FIO.Chronicle
+Start the fio-chronicle-receiver
+```shell
+/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
+```
+
+## FIO Nodeos
+
+The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
+
+A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
+* [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
+* [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
+* [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
+
+To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).

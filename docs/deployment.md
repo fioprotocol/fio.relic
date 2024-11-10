@@ -19,6 +19,18 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 2) FIO.Chronicle
 3) FIO Nodeos Blockchain node
 
+Each component of the FIO.Relic ecosystem has connection parameters for data processing. For instance, a FIO Nodeos history node will provide history via the state history plugin, FIO.Chronicle will pull data from that port, process it and, via its connection to PostgreSQL, persist it.
+
+The following table outlines the default connection parameters, however, for a production configuration, please use this table as a template for the target environment.
+
+| Application | Parameter | Default Value | Target Env Value |
+|-|-|-|-|
+| FIO Nodeos | state-history-endpoint | 0.0.0.0:8080 |  |
+| FIO.Chronicle | host | 127.0.0.1 |  |
+| FIO.Chronicle | port | 8080 |  |
+| PostgreSQL | PGHOST | 127.0.0.1 |  |
+| PostgreSQL | PGPORT | 5432 |  |
+
 ## PostgreSQL
 The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, must occur in two parts due to the customization that should be done to provide connectivity as well as security for the target environment.
 
@@ -28,7 +40,7 @@ PostgreSQL provides packages for Ubuntu and may be installed manually, however, 
 For further support refer to the PostgreSQL Ubuntu documentation located [here](https://www.postgresql.org/download/linux/ubuntu).
 
 ### Configuration
-TBD: Incorporate connection config, schema creation and db user access from ed's work
+TBD: schema creation and db user access from ed's work
 
 The configuration of PostgresSQ: including connection handling, authentication, database administration is outlined in the PostgresQL configuration [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
 

@@ -36,7 +36,12 @@ For further insight into the PostgreSQL database see [Getting Started](https://w
 
 ## FIO.Chronicle
 ### Build and Install
-Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-instructions) for build and installation instructions
+The build and installation of FIO.Chronicle is straightforward and can be performed in just a few steps. As with PostgreSQL there are several configuration items to identify before doing so. The include;
+* FIO Nodeos history port
+* this
+* that
+
+Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions
 
 ### Start FIO.Chronicle
 Start the fio-chronicle-receiver

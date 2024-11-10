@@ -15,13 +15,11 @@ function pause(){
   echo
 }
 
-echo
 echo "PostgreSQL Uninstall Script"
 echo
 echo "Continuing will completely remove PostgreSQL packages and all related artifacts..."
 pause
 
-echo
 echo "Stopping, and disabling PostgreSQL service..."
 systemctl stop postgresql &> /dev/null
 systemctl disable postgresql &> /dev/null
@@ -38,12 +36,11 @@ apt-get --purge remove postgresql-16
 echo
 echo "Checking for any remaining PostgreSQL packages..."
 dpkg -l | grep postgres
-echo
 for pkg in `dpkg -l | grep postgres | awk '{print $2}'`; do
+  echo
   echo Removing $pkg...
   pause
   apt-get --purge remove ${pkg}
-  echo
 done
 
 echo
@@ -53,12 +50,10 @@ rm -rf /var/lib/postgresql/
 rm -rf /var/log/postgresql/
 rm -rf /etc/postgresql/
 
-echo
 echo "Removing postgres user..."
 pause
 deluser postgres &> /dev/null
 
-echo
 echo "Verifying PostgreSQL has been removed; the following command should fail..."
 echo
 psql --version &>/dev/null

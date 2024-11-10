@@ -54,7 +54,6 @@ if [[ $? -eq 0 ]]; then
   echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
   pause
 
-  echo
   echo "Start and enable the service..."
   pause
   systemctl enable postgresql

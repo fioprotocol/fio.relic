@@ -6,11 +6,11 @@ The FIO.Relic tech stack is the set of technologies used to develop and/or deplo
 #### Server Spec
 * Hardware:
   * ubuntu-focal-20.04-amd64-server
-  * Storage: 120GB minimum
+  * Storage: 160GB minimum
   * Physical CPU: >= 2
   * Virtual CPU: >= 4
   * Architecture: x86_64
-  * Memory: >= 8GB
+  * Memory: >= 12GB
   * Clock Speed: 2.2 GHz
 
 * OS: Ubuntu 20.04

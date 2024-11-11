@@ -1,6 +1,6 @@
 # FIO.Relic Deployment Guide
 
-The FIO.Relic Deployment Guide outlines the steps necessary to build, install and deploy a FIO Nodeos node, the FIO.Chronicle history middleware application, and PostgreSQL.
+The FIO.Relic Deployment Guide outlines the steps necessary to build, install and deploy the FIO.Chronicle history middleware application, the FIO.Chronicle persistence layer, PostgreSQL, as well as configuration for connecting to a FIO Nodeos node publishing history data via its state history API.
 
 While the FIO.Chronicle historical data processor is still under development, this guide contains the latest information to stand up each component of the system.
 
@@ -23,13 +23,13 @@ Each component of the FIO.Relic ecosystem has connection parameters for data pro
 
 The following table outlines the default connection parameters, however, for a production configuration, please use this table as a template for the target environment.
 
-| Application | Parameter | Default Value | Target Env Value |
-|-|-|-|-|
-| FIO Nodeos | state-history-endpoint | 0.0.0.0:8080 |  |
-| FIO.Chronicle | host | 127.0.0.1 |  |
-| FIO.Chronicle | port | 8080 |  |
-| PostgreSQL | PGHOST | 127.0.0.1 |  |
-| PostgreSQL | PGPORT | 5432 |  |
+| Application | Parameter | Default Value | Target Env Value | Purpose |
+|-|-|-|-|-|
+| FIO Nodeos | state-history-endpoint | 0.0.0.0:8080 | | Listen IP Mask and Port |
+| FIO.Chronicle | host | 127.0.0.1 | | Nodeos State History API Host |
+| FIO.Chronicle | port | 8080 | | Nodeos State History API Port |
+| PostgreSQL | PGHOST | 127.0.0.1 | | RDMS Host |
+| PostgreSQL | PGPORT | 5432 | | RDMS Port |
 
 ## PostgreSQL
 The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, must occur in two parts due to the customization that should be done to provide connectivity as well as security for the target environment.
@@ -42,9 +42,7 @@ For further support refer to the PostgreSQL Ubuntu documentation located [here](
 ### Configuration
 TBD: schema creation and db user access from ed's work
 
-The configuration of PostgresSQ: including connection handling, authentication, database administration is outlined in the PostgresQL configuration [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
-
-For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
+The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md). For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ## FIO.Chronicle
 ### Build and Install
@@ -65,7 +63,7 @@ Start the fio-chronicle-receiver
 
 The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
 
-A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
+A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the state history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
 * [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
 * [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
 * [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)

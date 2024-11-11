@@ -42,16 +42,17 @@ For further support refer to the PostgreSQL Ubuntu documentation located [here](
 ### Configuration
 TBD: schema creation and db user access from ed's work
 
-The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md). For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
+The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
+
+For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ## FIO.Chronicle
 ### Build and Install
-The build and installation of FIO.Chronicle is straightforward and can be performed in just a few steps. As with PostgreSQL there are several configuration items to identify before doing so. The include;
-* FIO Nodeos history port
-* this
-* that
+The build and installation of FIO.Chronicle is straightforward and can be performed in just a few steps, using the default configuration. As noted above, there are several configuration items that may be customized, including;
+* FIO Nodeos State History Host and Port
+* PostgreSQL Host and Port
 
-Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions
+Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions.
 
 ### Start FIO.Chronicle
 Start the fio-chronicle-receiver

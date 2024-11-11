@@ -79,9 +79,11 @@ Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle
 Refer to [LocalNet Deployment Guide - Start FIO.Chronicle Web Socket Server](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-chronicle-test-web-socket-server)
 
 ### Start FIO.Chronicle
+In the following command both start block and an end block number will be specified to limit block processing. Note that a local blockchain will process block from block 1 in which case specifying only an end block would be appropriate.
+
 Start the fio-chronicle-receiver
 ```shell
-/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
+/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --start-block=292100000 --end-block=292111588
 ```
 
 ##### Note that the end-block option given above is for dev/test purposes only; this will be updated once a full production-like deployment is published.

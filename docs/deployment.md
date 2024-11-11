@@ -15,13 +15,13 @@ For a local dev/test environment of FIO Nodeos, and Fio.Chronicle, see the [Loca
 
 ## PostgreSQL, FIO.Chronicle and FIO Nodeos Deployment Overview
 The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos Blockchain. While this guide includes documentation on deploying a FIO Blockchain Node, the assumption is that a FIO Blockchain node is already stood up, configured and running. Regardless, there are three components to a FIO.Relic System;
-1) PostgreSQL RDMS
+1) FIO Nodeos Blockchain node
 2) FIO.Chronicle
-3) FIO Nodeos Blockchain node
+3) PostgreSQL RDMS
 
-Each component of the FIO.Relic ecosystem has connection parameters for data processing. For instance, a FIO Nodeos history node will provide history via the state history plugin, FIO.Chronicle will pull data from that port, process it and, via its connection to PostgreSQL, persist it.
+Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugins, FIO.Chronicle will pull data from the API plugin, process it and, via its connection to PostgreSQL, persist it.
 
-The following table outlines the default connection parameters, however, for a production configuration, please use this table as a template for the target environment.
+The following table specifically outlines the default connection parameters, however, for a production configuration please use this table as a template for the actual target environment.
 
 | Application | Parameter | Default Value | Target Env Value | Purpose |
 |-|-|-|-|-|
@@ -31,8 +31,21 @@ The following table outlines the default connection parameters, however, for a p
 | PostgreSQL | PGHOST | 127.0.0.1 | | RDMS Host |
 | PostgreSQL | PGPORT | 5432 | | RDMS Port |
 
+## FIO Nodeos
+
+The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
+
+A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the state history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
+* [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
+* [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
+* [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
+
+To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).
+
+For the purposes of confirming end-to-end connectivity please refer to the [LocalNet Deployment Guide - Start FIO Nodeos](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodeos) and [LocalNet Deployment Guide - Start FIO Nodeos History Node](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodoes-state-history-nodeos)
+
 ## PostgreSQL
-The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, must occur in two parts due to the customization that should be done to provide connectivity as well as security for the target environment.
+The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, will occur in two parts due to the customization that should be done to provide not only the schema but any remote connectivity as well as security for the target environment.
 
 ###  Installation
 PostgreSQL provides packages for Ubuntu and may be installed manually, however, for an automated install, see the [PostgreSQL install script](https://github.com/fioprotocol/fio.relic/blob/develop/scripts/install-pgsql.sh).
@@ -52,7 +65,18 @@ The build and installation of FIO.Chronicle is straightforward and can be perfor
 * FIO Nodeos State History Host and Port
 * PostgreSQL Host and Port
 
-Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions.
+For the default build and install of FIO.Chronicle accessing history locally with output locally, proceed with the following;
+```shell
+cd <FIO.Chronicle Repo>
+
+./scripts/build.sh /opt
+./scripts/install.sh
+```
+
+Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions as well as the advanced configuration [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/docs/advanced-config.md).
+
+### Start the FIO.Chronicle Web Socket Server (Test Only)
+Refer to [LocalNet Deployment Guide - Start FIO.Chronicle Web Socket Server](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-chronicle-test-web-socket-server)
 
 ### Start FIO.Chronicle
 Start the fio-chronicle-receiver
@@ -60,13 +84,5 @@ Start the fio-chronicle-receiver
 /opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=846511
 ```
 
-## FIO Nodeos
+##### Note that the end-block option given above is for dev/test purposes only; this will be updated once a full production-like deployment is published.
 
-The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
-
-A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the state history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
-* [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
-* [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
-* [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
-
-To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).

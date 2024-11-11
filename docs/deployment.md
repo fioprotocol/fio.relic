@@ -86,5 +86,3 @@ Start the fio-chronicle-receiver
 /opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --start-block=292100000 --end-block=292111588
 ```
 
-##### Note that the end-block option given above is for dev/test purposes only; this will be updated once a full production-like deployment is published.
-

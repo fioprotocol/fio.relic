@@ -4,15 +4,6 @@ The FIO.Relic Deployment Guide outlines the steps necessary to build, install an
 
 While the FIO.Chronicle historical data processor is still under development, this guide contains the latest information to stand up each component of the system.
 
-## Relevant Information
-The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol, is an open-source project based on EOSIO 1.8+.
-
-* For information about the FIO Protocol, visit [FIO](https://fio.net).
-* For information on the FIO Chain, API, and SDKs, including detailed clone, build and deploy instructions, visit [FIO Protocol Developer Hub](https://dev.fio.net).
-
-## LocalNet Dev/Test
-For a local dev/test environment of FIO Nodeos, and Fio.Chronicle, see the [LocalNet Deployment Guide](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md).
-
 ## PostgreSQL, FIO.Chronicle and FIO Nodeos Deployment Overview
 The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos Blockchain. While this guide includes documentation on deploying a FIO Blockchain Node, the assumption is that a FIO Blockchain node is already stood up, configured and running. Regardless, there are three components to a FIO.Relic System;
 1) FIO Nodeos Blockchain node
@@ -33,15 +24,23 @@ The following table specifically outlines the default connection parameters, how
 
 ## FIO Nodeos
 
-The FIO Nodeos source code, and build instructions may be found [here](https://github.com/fioprotocol/fio).
+### Installation
+The FIO Nodeos source code, and build instructions are found at the [FIO GitHub Repository](https://github.com/fioprotocol/fio). For installation using official packages see the [FIO Package Install](https://dev.fio.net/docs/install-using-packages) page.
 
-A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) that will used in this deployment is one that is installed with a full history archive and is configured to provide historical data via the state history plugin, and the history api plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
-* [FIO Package Installation](https://dev.fio.net/docs/install-using-packages)
+### Configuration
+A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) must be configured to process and expose state history to consumers, who will pull historical data, including state and trace history data, via the FIO Nodeos state history plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
 * [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
 * [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
 
-To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).
+Note that the important configuration parameters include;
+* plugin = eosio::state_history_plugin
+* state-history-endpoint = 0.0.0.0:8080
+* chain-state-history = true
+* trace-history = true
 
+To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script). 
+
+### LocalNet Dev/Test
 For the purposes of confirming end-to-end connectivity please refer to the [LocalNet Deployment Guide - Start FIO Nodeos](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodeos) and [LocalNet Deployment Guide - Start FIO Nodeos History Node](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodoes-state-history-nodeos)
 
 ## PostgreSQL

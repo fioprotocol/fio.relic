@@ -1,0 +1,15 @@
+\ir CreateBlocks.sql
+\ir CreateAccounts.sql 
+\ir CreateTransactions.sql 
+\ir CreateTraces.sql
+\ir CreateAccountActivities.sql 
+\ir CreateDomains.sql 
+\ir CreateDomainActivities.sql
+\ir CreateHandles.sql
+\ir CreateHandleactivities.sql
+\ir CreatePubaddresses.sql
+\ir CreateNFTSignatures.sql
+\ir CreateTokenTransfers.sql
+\ir CreateTokenStakings.sql
+\ir CreateFIORequests.sql
+\ir CreateFIODatas.sql

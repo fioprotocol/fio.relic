@@ -1,5 +1,5 @@
 \ir CreateInsBlocks.sql
-\ir CreateInsAccounts.sql 
+\ir CreateInsUpdAccounts.sql 
 \ir CreateInsTransactions.sql 
 \ir CreateInsTraces.sql
 

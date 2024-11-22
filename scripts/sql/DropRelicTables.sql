@@ -5,7 +5,7 @@ DROP TABLE tokentransfers CASCADE;
 DROP TABLE nftsignatures CASCADE;
 DROP TABLE pubaddresses CASCADE;
 DROP TABLE handleactivities CASCADE;
-DROP TABLE Handles CASCADE;
+DROP TABLE handles CASCADE;
 DROP TABLE domainactivities CASCADE;
 DROP TABLE domains  CASCADE;
 DROP TABLE accountactivities CASCADE; 

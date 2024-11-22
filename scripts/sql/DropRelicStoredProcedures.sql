@@ -13,5 +13,5 @@ DROP FUNCTION insaccountactivities;
 */ 
 DROP FUNCTION instraces;
 DROP FUNCTION instransactions;
-DROP FUNCTION insaccounts; 
+DROP FUNCTION insupdaccounts; 
 DROP FUNCTION insblocks;

@@ -2,9 +2,10 @@
 \ir CreateInsUpdAccounts.sql 
 \ir CreateInsTransactions.sql 
 \ir CreateInsTraces.sql
+\ir CreateAccountActivities.sql 
 
 /* TODO: to be completed during dev!!!!
-\ir CreateAccountActivities.sql 
+
 \ir CreateDomains.sql 
 \ir CreateDomainActivities.sql
 \ir CreateHandles.sql

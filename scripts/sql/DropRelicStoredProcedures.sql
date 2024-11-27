@@ -8,6 +8,9 @@ DROP FUNCTION inshandles;
 
 
 */ 
+DROP FUNCTION upddomainexp;
+DROP FUNCTION upddomainispublic;
+DROP FUNCTION upddomainowner;
 DROP FUNCTION instokenstakings;
 DROP FUNCTION instokentransfers;
 DROP FUNCTION insdomainactivities;

@@ -4,6 +4,6 @@ CREATE TABLE domainactivities(
     fk_block_number bigint REFERENCES blocks(pk_block_number),
     fk_transaction_id bigint references transactions(pk_transaction_id),
     expiration_stamp timestamp,
-    domain_activity_type varchar(20) NOT NULL CHECK(domain_activity_type IN ('register','renew','transfer','wrap','unwrap','auto_burn')),
+    domain_activity_type varchar(20) NOT NULL CHECK(domain_activity_type IN ('register','renew','transfer','wrap','unwrap','auto_burn','public','non-public')),
     block_tImestamp timestamp
 );

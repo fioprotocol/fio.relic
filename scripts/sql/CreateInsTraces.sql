@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION InsTraces(  
+CREATE OR REPLACE FUNCTION instraces(  
     fktransactionid bigint,
     fkblocknumber bigint,
     actionaccount varchar(12),

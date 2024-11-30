@@ -3,6 +3,6 @@ CREATE TABLE handleactivities(
     fk_handle_id bigint REFERENCES handles(pk_handle_id),
     fk_block_number bigint REFERENCES blocks(pk_block_number),
     fk_transaction_id bigint references transactions(pk_transaction_id),
-    handle_activity_type varchar(20) NOT NULL CHECK(handle_activity_type IN ('register','renew','transfer','add_bundles','add_pubbadd','rem_pubbadd','rem_all_pubbadd','add_nft','rem_nft','rem_all_nft','upd_encryptkey','self_burn','new_request','cancel_request','record_obt')),
+    handle_activity_type varchar(20) NOT NULL CHECK(handle_activity_type IN ('register','renew','transfer','add_bundles','add_pubadd','rem_pubadd','rem_all_pubadd','add_nft','rem_nft','rem_all_nft','upd_encryptkey','self_burn','new_request','cancel_request','record_obt')),
     block_tImestamp timestamp
 );

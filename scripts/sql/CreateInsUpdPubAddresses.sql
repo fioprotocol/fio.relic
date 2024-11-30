@@ -31,7 +31,7 @@ $BODY$
             WHERE handle = fiohandle INTO handleid ;
           
         SELECT pk_pub_addresses_id INTO pkid FROM pubaddresses 
-            WHERE (fk_handle_id = pk_handle_id AND
+            WHERE (fk_handle_id = handleid AND
                   chain_code = chaincode AND
                   token_code = tokencode );
 
@@ -52,10 +52,11 @@ $BODY$
                 pubaddress
             ) RETURNING pk_pub_addresses_id INTO pkid ;
         ELSE
-            UPDATE pubaddresses SET (
+            UPDATE pubaddresses SET 
                 fk_block_number = fkblocknumber,
                 pub_address = pubaddress
-            ) WHERE pk_pub_addresses_id = pkid;
+             WHERE pk_pub_addresses_id = pkid;
+        END IF;
         RETURN pkid;
     END;
 $BODY$;

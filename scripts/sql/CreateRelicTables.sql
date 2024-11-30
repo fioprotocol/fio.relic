@@ -7,7 +7,7 @@
 \ir CreateDomainActivities.sql
 \ir CreateHandles.sql
 \ir CreateHandleActivities.sql
-\ir CreatePubaddresses.sql
+\ir CreatePubAddresses.sql
 \ir CreateNFTSignatures.sql
 \ir CreateTokenTransfers.sql
 \ir CreateTokenStakings.sql

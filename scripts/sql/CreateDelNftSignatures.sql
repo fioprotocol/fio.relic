@@ -14,5 +14,7 @@ declare handleid bigint;
 
         DELETE FROM nftsignatures WHERE
             fk_handle_id = handleid;
+        RETURN 1;
     END;
+
 $BODY$;

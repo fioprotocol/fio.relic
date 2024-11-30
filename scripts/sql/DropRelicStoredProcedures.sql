@@ -9,6 +9,11 @@ DROP FUNCTION inshandles;
 
 */ 
 
+DROP FUNCTION delpubaddress;
+DROP FUNCTION insupdpubaddresses;
+DROP FUNCTION updhandlesaddbundles;
+DROP FUNCTION updhandlesencryptkey;
+DROP FUNCTION rbfork;
 DROP FUNCTION updhandlesxferowner;
 DROP FUNCTION updhandlesrenewbundles;
 DROP FUNCTION delnftsignatures;

@@ -4,19 +4,25 @@
 \ir CreateInsTraces.sql
 \ir CreateInsAccountActivities.sql 
 \ir CreateInsDomains.sql 
-\ir CreateDomainActivities.sql
+\ir CreateInsDomainActivities.sql
 \ir CreateUpdDomainExp.sql
 \ir CreateUpdDomainIsPublic.sql
-\ir CreateInsTokenTransfer.sql
+\ir CreateInsTokenTransfers.sql
 \ir CreateInsTokenStakings.sql
 \ir CreateUpdDomainOwner.sql
 \ir CreateDelNftSignatures.sql
 \ir CreateDelPubAddresses.sql
 \ir CreateInsHandleActivities.sql
-\ir CreateInsPubAddresses.sql
 \ir CreateInsUpdHandles.sql
-\ir CreateUpdHandlesRenewBundels.sql
+\ir CreateUpdHandlesRenewBundles.sql
 \ir CreateUpdHandlesXferOwner.sql
+\ir CreateDelPubAddress.sql
+\ir CreateInsUpdPubAddresses.sql
+\ir CreateUpdHandlesAddBundles.sql
+\ir CreateUpdHandlesRenewBundles.sql
+\ir CreateUpdHandlesEncryptKey.sql
+\ir CreateRBFork.sql
+
 
 
 

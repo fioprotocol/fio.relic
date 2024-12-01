@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION insupdnftsignatures(
     fiohandle varchar(64),
     chaincode varchar(12),
     contractaddress varchar(128),
-    tokenid varchar(64),
+    tokenid varchar(128),
     nfturl varchar(128),
     nfthash varchar(64),
     nftmetadata varchar(128)

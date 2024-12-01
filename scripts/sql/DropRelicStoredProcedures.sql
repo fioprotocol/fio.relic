@@ -8,7 +8,8 @@ DROP FUNCTION inshandles;
 
 
 */ 
-
+DROP FUNCTION delnftsignature;
+DROP FUNCTION insupdnftsignatures;
 DROP FUNCTION delpubaddress;
 DROP FUNCTION insupdpubaddresses;
 DROP FUNCTION updhandlesaddbundles;

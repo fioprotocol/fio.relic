@@ -21,10 +21,13 @@
 \ir CreateUpdHandlesAddBundles.sql
 \ir CreateUpdHandlesRenewBundles.sql
 \ir CreateUpdHandlesEncryptKey.sql
+\ir CreateUpdHandlesSetEncryptKey.sql
 \ir CreateRBFork.sql
 \ir CreateInsUpdNftSignatures.sql
 \ir CreateDelNftSignature.sql
-
+\ir CreateUpdHandlesStatus.sql
+\ir CreateInsAccountActivitiesHandle.sql
+\ir CreateInsFIORequests.sql
 
 
 

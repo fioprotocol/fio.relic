@@ -7,7 +7,7 @@ CREATE TABLE fiorequests(
     binary_content bytea,
     payer_pub_key varchar(53),
     payee_pub_key varchar(53),
-    handle_status varchar(20) NOT NULL CHECK(handle_status IN ('pending','cancelled','sent_to_blockchain')),
+    request_status varchar(20) NOT NULL CHECK(request_status IN ('pending','cancelled','sent_to_blockchain')),
     fk_transaction_id bigint references transactions(pk_transaction_id),
     block_timestamp timestamp
 );

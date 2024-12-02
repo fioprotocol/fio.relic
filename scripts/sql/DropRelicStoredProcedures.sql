@@ -8,6 +8,10 @@ DROP FUNCTION inshandles;
 
 
 */ 
+DROP FUNCTION insfiorequests;
+DROP FUNCTION insaccountactivitieshandle;
+DROP FUNCTION updhandlesstatus;
+DROP FUNCTION updhandlessetencryptkey;
 DROP FUNCTION delnftsignature;
 DROP FUNCTION insupdnftsignatures;
 DROP FUNCTION delpubaddress;

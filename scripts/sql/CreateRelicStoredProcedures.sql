@@ -14,7 +14,7 @@
 \ir CreateDelPubAddresses.sql
 \ir CreateInsHandleActivities.sql
 \ir CreateInsUpdHandles.sql
-\ir CreateUpdHandlesRenewBundles.sql
+\ir CreateUpdHandlesRenewBundles.sql                                   
 \ir CreateUpdHandlesXferOwner.sql
 \ir CreateDelPubAddress.sql
 \ir CreateInsUpdPubAddresses.sql
@@ -28,6 +28,8 @@
 \ir CreateUpdHandlesStatus.sql
 \ir CreateInsAccountActivitiesHandle.sql
 \ir CreateInsFIORequests.sql
+\ir CreateUpdFIORequestsStatus.sql
+\ir CreateInsFIODatas.sql
 
 
 

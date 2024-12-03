@@ -8,6 +8,8 @@ DROP FUNCTION inshandles;
 
 
 */ 
+DROP FUNCTION insfiodatas;
+DROP FUNCTION updfiorequestsstatus;
 DROP FUNCTION insfiorequests;
 DROP FUNCTION insaccountactivitieshandle;
 DROP FUNCTION updhandlesstatus;

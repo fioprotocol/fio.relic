@@ -8,6 +8,9 @@ DROP FUNCTION inshandles;
 
 
 */ 
+DROP FUNCTION updhandleburnt;
+DROP FUNCTION existspubaddress;
+DROP FUNCTION upddomainburnt;
 DROP FUNCTION insfiodatas;
 DROP FUNCTION updfiorequestsstatus;
 DROP FUNCTION insfiorequests;

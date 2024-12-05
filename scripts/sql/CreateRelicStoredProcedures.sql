@@ -30,6 +30,9 @@
 \ir CreateInsFIORequests.sql
 \ir CreateUpdFIORequestsStatus.sql
 \ir CreateInsFIODatas.sql
+\ir CreateUpdDomainBurnt.sql
+\ir CreateExistsPubAddress.sql
+\ir CreateUpdHandleBurnt.sql
 
 
 

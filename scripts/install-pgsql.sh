@@ -39,7 +39,7 @@ apt update -y
 
 echo
 echo "Installing PostgreSQL v16.x (Note install any dependencies it requires)..."
-apt install postgresql-16 postgresql-contrib-16
+apt install -y postgresql-16 postgresql-server-dev-16 postgresql-contrib-16 libpq-dev
 
 #echo
 #echo "Installing LTS version of PostgreSQL (PostgreSQL 17)..."

@@ -29,9 +29,12 @@ systemctl disable postgresql &> /dev/null
 echo
 echo "Removing PostgreSQL packages..."
 pause
-apt-get --purge remove postgresql
-apt-get --purge remove postgresql-17
-apt-get --purge remove postgresql-16
+apt-get --purge remove -y postgresql-16
+apt-get --purge remove -y postgresql-server-dev-16
+apt-get --purge remove -y postgresql-contrib-16
+apt-get --purge remove -y postgresql-common
+apt-get --purge remove -y libpq-dev
+apt autoremove -y
 
 echo
 echo "Checking for any remaining PostgreSQL packages..."

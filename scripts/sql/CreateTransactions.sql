@@ -10,7 +10,7 @@ CREATE TABLE transactions (
     fk_account_id bigint REFERENCES accounts(pk_account_id), --the calling actor/authorization for the action being called
     action_name varchar(12),
     tpid varchar(64),
-    fee integer,
+    fee bigint,
     request_data text,
     response_data text,
     result_status varchar(120));

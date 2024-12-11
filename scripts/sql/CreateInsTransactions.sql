@@ -6,7 +6,7 @@ CREATE OR REPLACE FUNCTION instransactions(
     accountname varchar(12), --the account the authorizes the action, the actor in the fio data.
     actionname varchar(12),
     tpidhandle varchar(64),
-    feeamount integer,
+    feeamount bigint,
     requestdata text,
     responsedata text,
     statusvalue varchar(120)

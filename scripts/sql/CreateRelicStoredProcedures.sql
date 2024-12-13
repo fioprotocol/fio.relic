@@ -22,7 +22,6 @@
 \ir CreateUpdHandlesRenewBundles.sql
 \ir CreateUpdHandlesEncryptKey.sql
 \ir CreateUpdHandlesSetEncryptKey.sql
-\ir CreateRBFork.sql
 \ir CreateInsUpdNftSignatures.sql
 \ir CreateDelNftSignature.sql
 \ir CreateUpdHandlesStatus.sql
@@ -33,6 +32,10 @@
 \ir CreateUpdDomainBurnt.sql
 \ir CreateExistsPubAddress.sql
 \ir CreateUpdHandleBurnt.sql
+\ir CreateLogHandlesUpdate.sql
+\ir CreateOnHandlesUpdate.sql
+\ir CreateRBFork.sql
+
 
 
 

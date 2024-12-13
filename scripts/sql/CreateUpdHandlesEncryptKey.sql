@@ -1,5 +1,6 @@
 
 CREATE OR REPLACE FUNCTION updhandlesencryptkey(
+    blocknumber bigint,
     fiohandle varchar(64),
     encryptkey varchar(64)
 ) RETURNS int     
@@ -17,6 +18,7 @@ $BODY$
         
         IF NOT encryptkeyisset THEN
           UPDATE  handles SET 
+            fk_block_number = blocknumber,
             encryption_key = encryptkey
             WHERE pk_handle_id = pkid;
         END IF;

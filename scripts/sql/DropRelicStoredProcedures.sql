@@ -23,7 +23,6 @@ DROP FUNCTION delpubaddress;
 DROP FUNCTION insupdpubaddresses;
 DROP FUNCTION updhandlesaddbundles;
 DROP FUNCTION updhandlesencryptkey;
-DROP FUNCTION rbfork;
 DROP FUNCTION updhandlesxferowner;
 DROP FUNCTION updhandlesrenewbundles;
 DROP FUNCTION delnftsignatures;
@@ -42,6 +41,10 @@ DROP FUNCTION instraces;
 DROP FUNCTION instransactions;
 DROP FUNCTION insupdaccounts; 
 DROP FUNCTION insblocks;
+DROP TRIGGER onhandlesupdate ON handles;
+DROP FUNCTION loghandlesupdate;
+DROP FUNCTION rbfork;
+
 
 
 

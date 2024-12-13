@@ -1,5 +1,6 @@
 
 CREATE OR REPLACE FUNCTION updhandlesstatus(
+    blocknumber bigint,
     fiohandle varchar(64),
     handlestatus varchar(20)
 ) RETURNS int     
@@ -14,6 +15,7 @@ $BODY$
             WHERE handle = fiohandle;
         
         UPDATE  handles SET 
+            fk_block_number = blocknumber,
             handle_status = handlestatus
             WHERE pk_handle_id = pkid;
 

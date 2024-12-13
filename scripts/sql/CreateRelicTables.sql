@@ -13,3 +13,4 @@
 \ir CreateTokenStakings.sql
 \ir CreateFIORequests.sql
 \ir CreateFIODatas.sql
+\ir CreateHandlesAudit.sql

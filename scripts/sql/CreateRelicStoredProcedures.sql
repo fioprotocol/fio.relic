@@ -35,6 +35,7 @@
 \ir CreateLogHandlesUpdate.sql
 \ir CreateOnHandlesUpdate.sql
 \ir CreateRBFork.sql
+\ir CreateRBHandles.sql
 
 
 

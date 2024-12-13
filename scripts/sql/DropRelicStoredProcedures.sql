@@ -43,6 +43,7 @@ DROP FUNCTION insupdaccounts;
 DROP FUNCTION insblocks;
 DROP TRIGGER onhandlesupdate ON handles;
 DROP FUNCTION loghandlesupdate;
+DROP FUNCTION rbhandles;
 DROP FUNCTION rbfork;
 
 

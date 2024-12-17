@@ -15,15 +15,34 @@ if [[ "$EUID" -ne 0 ]]; then
   exit 1
 fi
 
+if [[ "$(uname)" == "Linux" ]]; then
+   if [[ -e /etc/os-release ]]; then
+      # obtain NAME and other information
+      . /etc/os-release
+      if [[ ${NAME} != "Ubuntu" ]]; then
+         echo && echo "Currently only supporting Ubuntu based insteall. Proceed at your own risk."
+      fi
+   else
+       echo && echo "Currently only supporting Ubuntu based install. /etc/os-release not found. Your Linux distribution is not supported. Proceed at your own risk."
+   fi
+else
+    echo && echo "Currently only supporting Ubuntu based install. Your architecture is not supported. Proceed at your own risk."
+fi
+
+# Set up script environment
+SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+
+. ${SCRIPT_DIR}/utils.sh
+
+# Begin install
 echo "Updating OS..."
 echo
 apt update;
 apt upgrade;
 
-
 echo "Installing required packages..."
 echo
-apt install gnupg2 wget vim -y
+apt install -y gnupg2 wget vim
 
 echo
 echo "Adding the postgres repository..."
@@ -64,3 +83,9 @@ if [[ $? -eq 0 ]]; then
   sleep 5
   systemctl status postgresql
 fi
+
+echo
+if yes_or_no "Create Relic schema..."; then
+  ${SCRIPT_DIR}/create_schema.sh
+fi
+  

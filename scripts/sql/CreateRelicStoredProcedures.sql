@@ -34,8 +34,31 @@
 \ir CreateUpdHandleBurnt.sql
 \ir CreateLogHandlesUpdate.sql
 \ir CreateOnHandlesUpdate.sql
-\ir CreateRBFork.sql
+\ir CreateLogDomainsUpdate.sql
+\ir CreateOnDomainsUpdate.sql
+\ir CreateLogAccountsUpdate.sql
+\ir CreateOnAccountsUpdate.sql
+\ir CreateLogFioRequestsUpdate.sql
+\ir CreateOnFioRequestsUpdate.sql
+\ir CreateLogFioDatasUpdate.sql
+\ir CreateOnFioDatasUpdate.sql
+\ir CreateLogPubAddressesUpdate.sql
+\ir CreateOnPubAddressesUpdate.sql
+\ir CreateLogPubAddressesDelete.sql
+\ir CreateOnPubAddressesDelete.sql
+\ir CreateLogNFTSignaturesUpdate.sql
+\ir CreateOnNFTSignaturesUpdate.sql
+\ir CreateLogNFTSignaturesDelete.sql
+\ir CreateOnNFTSignaturesDelete.sql
 \ir CreateRBHandles.sql
+\ir CreateRBDomains.sql
+\ir CreateRBAccounts.sql
+\ir CreateRBFioRequests.sql
+\ir CreateRBFioDatas.sql
+\ir CreateRBPubAddresses.sql
+\ir CreateRBNFTSignatures.sql
+\ir CreateRBFork.sql
+
 
 
 

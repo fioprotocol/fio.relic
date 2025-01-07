@@ -1,4 +1,3 @@
-/* this procedure will remove all records in the DB with block number >= the specified block number */
 CREATE OR REPLACE FUNCTION rbfork( 
     bnumber bigint
 ) RETURNS int     
@@ -13,27 +12,35 @@ declare auditid bigint;
             RETURN 0;
         END IF;
 
-
        PERFORM rbhandles(bnumber);
-       DELETE FROM nftsignatures WHERE  nftsignatures.fk_block_number >= bnumber;
-       DELETE FROM fiodatas WHERE  fiodatas.fk_block_number >= bnumber;
-       DELETE FROM fiorequests WHERE  fiorequests.fk_block_number >= bnumber;
-       DELETE FROM pubaddresses WHERE  pubaddresses.fk_block_number >= bnumber;
-       DELETE FROM handleactivities where handleactivities.fk_block_number >= bnumber;
-       DELETE FROM handlesaudit WHERE  handlesaudit.fk_block_number  >= bnumber;
-        DELETE FROM handles WHERE  handles.fk_block_number  >= bnumber;
-        DELETE FROM domainactivities WHERE  domainactivities.fk_block_number >= bnumber;
-        DELETE FROM domains WHERE  domains.fk_block_number >= bnumber;
-        DELETE FROM traces WHERE  traces.fk_block_number >= bnumber;
-        DELETE FROM tokenstakings where fk_transaction_id in (
-            SELECT transactions.pk_transaction_id FROM transactions where 
-                fk_block_number >= bnumber);
-        DELETE FROM accountactivities where fk_transaction_id in (
-                    SELECT transactions.pk_transaction_id FROM transactions where 
-                fk_block_number >= bnumber);
-       -- DELETE FROM accounts WHERE  accounts.fk_block_number  >= bnumber;
-       -- DELETE FROM transactions WHERE  transactions.fk_block_number >= bnumber;
-       -- DELETE FROM blocks where pk_block_number >= bnumber; 
+       PERFORM rbdomains(bnumber);
+       PERFORM rbaccounts(bnumber);
+       PERFORM rbfiorequests(bnumber);
+       PERFORM rbfiodatas(bnumber);
+       PERFORM rbpubaddresses(bnumber);
+       PERFORM rbnftsignatures(bnumber);
+       DELETE FROM nftsignatures WHERE  fk_block_number >= bnumber;
+       DELETE FROM nftsignaturesaudit WHERE fk_block_number >= bnumber;
+       DELETE FROM fiodatasaudit WHERE fk_block_number >= bnumber;
+       DELETE FROM fiodatas WHERE  fk_block_number >= bnumber;
+       DELETE FROM fiorequestsaudit WHERE fk_block_number >= bnumber;
+       DELETE FROM fiorequests WHERE  fk_block_number >= bnumber;
+       DELETE FROM handleactivities WHERE fk_block_number >= bnumber;
+       DELETE FROM pubaddresses WHERE  fk_block_number >= bnumber;
+        DELETE FROM pubaddressesaudit WHERE fk_block_number >= bnumber;
+       DELETE FROM handlesaudit WHERE fk_block_number  >= bnumber;
+       DELETE FROM handles WHERE  fk_block_number  >= bnumber;
+       DELETE FROM domainactivities WHERE fk_block_number >= bnumber;
+       DELETE FROM domainsaudit WHERE  fk_block_number  >= bnumber;
+       DELETE FROM domains WHERE  fk_block_number >= bnumber;
+        DELETE FROM traces WHERE  fk_block_number >= bnumber;
+        DELETE FROM tokenstakings WHERE fk_block_number >= bnumber;
+        DELETE FROM accountactivities WHERE fk_block_number >= bnumber;
+        DELETE FROM accountsaudit WHERE  fk_block_number  >= bnumber;
+        DELETE FROM tokentransfers WHERE fk_block_number >= bnumber;
+        DELETE FROM transactions WHERE  fk_block_number >= bnumber;
+        DELETE FROM accounts WHERE fk_block_number  >= bnumber;
+       DELETE FROM blocks where blocks.pk_block_number >= bnumber; 
         RETURN 1;
     END;
 $BODY$;

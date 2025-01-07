@@ -14,3 +14,9 @@
 \ir CreateFIORequests.sql
 \ir CreateFIODatas.sql
 \ir CreateHandlesAudit.sql
+\ir CreateDomainsAudit.sql
+\ir CreateAccountsAudit.sql
+\ir CreateFIORequestsAudit.sql
+\ir CreateFIODatasAudit.sql
+\ir CreatePubAddressesAudit.sql
+\ir CreateNFTSignaturesAudit.sql

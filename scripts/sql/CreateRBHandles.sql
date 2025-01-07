@@ -1,4 +1,3 @@
-/* this procedure will remove all records in the DB with block number >= the specified block number */
 CREATE OR REPLACE FUNCTION rbhandles( 
     bnumber bigint
 ) RETURNS int     
@@ -11,14 +10,14 @@ $BODY$
 
 DECLARE 
     hacurse CURSOR FOR 
-        SELECT fk_handle_id, MAX(pk_handles_audit_id) FROM handlesaudit 
+        SELECT fk_handle_id, MAX(pk_handles_audit_id), table_operation FROM handlesaudit 
           WHERE fk_handle_id IN (
               SELECT pk_handle_id FROM handles 
                 WHERE fk_block_number >= bnumber AND EXISTS (
                   SELECT fk_handle_id FROM handlesaudit 
                       WHERE handles.pk_handle_id = handlesaudit.fk_handle_id
                 )
-          ) AND fk_block_number < bnumber  GROUP BY  fk_handle_id;
+          ) AND fk_block_number < bnumber  GROUP BY  fk_handle_id, table_operation;
     retrow RECORD;
     rowsaffected bigint;
 
@@ -31,6 +30,9 @@ DECLARE
  rowsaffected = 0;
  FETCH FROM hacurse INTO retrow;
   WHILE FOUND LOOP
+   IF NOT (retrow.table_operation = 'update') THEN
+         RAISE 'rollback of operations other than updates not supported on audit table';
+     END IF;
      UPDATE handles
           SET fk_block_number = subquery.fk_block_number,
               fk_domain_id = subquery.fk_domain_id,

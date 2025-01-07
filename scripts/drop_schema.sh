@@ -7,14 +7,13 @@ if [[ "$EUID" -ne 0 ]]; then
   exit 1
 fi
 
-# tables: createrelictables.sql
-# stored procs: createrelicstoredprocedures.sql
+# tables: droprelictables.sql.
+# stored procs: dropstoredprocedures.sql.
 
-# 1) create the user account, user: chronicle_user 
-# 2) create the relicdb, db: relicdb
-# 3) grant access to the account
-# 4) create relic db tables: createrelictables.sql
-# 5) create relic db stored procedures: createrelicstoredprocedures.sql
+# 1) drop relic db stored procedures: droprelicstoredprocedures.sql
+# 2) drop relic db tables: droprelictables.sql
+# 3) drop the relicdb, db: relicdb
+# 4) delete the user account, user: chronicle_user 
 
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
@@ -44,32 +43,30 @@ SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 #
 # wrappers: createuser (createuser --help), dropuser (dropuser --help)
 # example: createuser -h localhost -p 5432 -U postgres -w
-echo "Creating Relic Database..."
 echo
-sudo -u postgres psql -c "CREATE DATABASE relicdb;"
+echo "Dropping Relic DB schema..."
+echo
+#sudo -u postgres psql -U chronicle_user -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicStoredProcedures.sql
+sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicStoredProcedures.sql
+#sudo -u postgres psql -U chronicle_user -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicTables.sql
+sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicTables.sql
 
 echo
-echo "Creating Relic DB schema..."
-echo
-sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicTables.sql
-sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicStoredProcedures.sql
-
-echo
-echo "Creating Relic DB User..."
-echo
-sudo -u postgres psql -c "CREATE USER chronicle_user;"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE relicdb to chronicle_user;"
-
-echo
-echo "Configuring Relic DB User Access"
-# Backup pg_hba.conf file b4 modifying
-if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
-  sudo cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
+if yes_or_no "Drop Relic DB"; then
+  echo
+  echo "Dropping Relic Database..."
+  echo
+  sudo -u postgres psql -c "DROP DATABASE IF EXISTS relicdb;"
 fi
-# Update pg_hba.conf file to trust chronicle_user
-if ! grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
+
+echo
+if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
+  echo
+  echo "Dropping Relic DB User..."
+  echo
+  sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
 fi
 
 # Restart PostgreSQL to enable changes
+echo
 sudo systemctl restart postgresql

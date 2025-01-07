@@ -57,7 +57,7 @@ echo "Updating package list (again)..."
 apt update -y
 
 echo
-echo "Installing PostgreSQL v16.x (Note install any dependencies it requires)..."
+echo "Installing PostgreSQL v16.x..."
 apt install -y postgresql-16 postgresql-server-dev-16 postgresql-contrib-16 libpq-dev
 
 #echo
@@ -85,7 +85,7 @@ if [[ $? -eq 0 ]]; then
 fi
 
 echo
-if yes_or_no "Create Relic schema..."; then
+if yes_or_no "Create Relic DB schema..."; then
   ${SCRIPT_DIR}/create_schema.sh
 fi
-  
+

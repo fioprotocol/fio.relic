@@ -1,0 +1,6 @@
+
+CREATE OR REPLACE TRIGGER onhandlesupdate
+AFTER UPDATE ON handles
+    FOR EACH ROW
+    WHEN (OLD.* IS DISTINCT FROM NEW.*)
+    EXECUTE FUNCTION loghandlesupdate();

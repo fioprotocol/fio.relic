@@ -1,5 +1,6 @@
 
 CREATE OR REPLACE FUNCTION updhandlesrenewbundles(
+    blocknumber bigint,
     fiohandle varchar(64),
     expirationtimestamp timestamp
 ) RETURNS int     
@@ -15,6 +16,7 @@ $BODY$
             WHERE handle = fiohandle;
 
         UPDATE  handles SET 
+            fk_block_number = blocknumber,
             bundled_tx_count = bundlecnt + 100,
             expiration_stamp = expirationtimestamp
             WHERE pk_handle_id = pkid;

@@ -1,0 +1,6 @@
+
+CREATE OR REPLACE TRIGGER ondomainsupdate
+AFTER UPDATE ON domains
+    FOR EACH ROW
+    WHEN (OLD.* IS DISTINCT FROM NEW.*)
+    EXECUTE FUNCTION logdomainsupdate();

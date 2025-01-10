@@ -1,4 +1,5 @@
 CREATE OR REPLACE FUNCTION updhandleburnt( 
+    blocknumber bigint,
     fiohandle    varchar(64),
     bundledtxcount integer,
     expirationtimestamp timestamp
@@ -22,6 +23,7 @@ $BODY$
           bundledtxcount = handlebundlecount AND
           expirationtimestamp = handleexpire) THEN
           UPDATE handles SET
+                 fk_block_number = blocknumber,
                  handle_status = 'burnt'
                  WHERE pk_handle_id = pkid;
             RETURN 1;

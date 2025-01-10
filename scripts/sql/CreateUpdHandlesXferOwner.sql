@@ -1,5 +1,6 @@
 
 CREATE OR REPLACE FUNCTION updhandlesxferowner(
+    blocknumber bigint,
     fiohandle varchar(64),
     owneraccount varchar(12),
     encryptkey varchar(64),
@@ -19,6 +20,7 @@ $BODY$
             WHERE account_name = owneraccount;
 
         UPDATE  handles SET 
+            fk_block_number = blocknumber,
             fk_owner_account_id = owneracctid,
             encryption_key = encryptkey,
             is_encrypt_key_set = encryptkeyisset

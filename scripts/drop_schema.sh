@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 echo
-if [[ "$EUID" -ne 0 ]]; then
-  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
-  echo
-  exit 1
-fi
+#if [[ "$EUID" -ne 0 ]]; then
+#  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
+#  echo
+#  exit 1
+#fi
 
 # tables: droprelictables.sql.
 # stored procs: dropstoredprocedures.sql.
@@ -65,6 +65,19 @@ if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
   echo "Dropping Relic DB User..."
   echo
   sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
+
+  echo
+  echo "Un-configuring Relic DB User Access"
+  # Backup pg_hba.conf file b4 modifying
+  if [[ -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
+    sudo mv /etc/postgresql/16/main/pg_hba.conf.orig /etc/postgresql/16/main/pg_hba.conf
+    sudo chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf
+  else
+    # Update pg_hba.conf file to chronicle_user
+    if sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
+      sudo sed -i '/local   all             chronicle_user                          trust/d' /etc/postgresql/16/main/pg_hba.conf
+    fi
+  fi
 fi
 
 # Restart PostgreSQL to enable changes

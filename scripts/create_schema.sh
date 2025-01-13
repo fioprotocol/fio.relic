@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 echo
-if [[ "$EUID" -ne 0 ]]; then
-  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
-  echo
-  exit 1
-fi
+#if [[ "$EUID" -ne 0 ]]; then
+#  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
+#  echo
+#  exit 1
+#fi
 
 # tables: createrelictables.sql
 # stored procs: createrelicstoredprocedures.sql
@@ -67,7 +67,7 @@ if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
   sudo cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
 fi
 # Update pg_hba.conf file to trust chronicle_user
-if ! grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
+if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
   sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
 fi
 

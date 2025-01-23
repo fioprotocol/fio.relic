@@ -46,7 +46,6 @@ DECLARE
           WHERE pk_pub_addresses_id = retrow.fk_pub_addresses_id;
     
    ELSEIF (retrow.table_operation = 'delete') THEN
-   raise notice 'saw delete!!!';
     INSERT INTO pubaddresses ( 
                 pk_pub_addresses_id,
                 fk_block_number,
@@ -55,14 +54,13 @@ DECLARE
                 token_code,
                 pub_address
             ) VALUES ( 
-                subquery.fk_pub_addresses_id,
-                subquery.fk_block_number,
-                subquery.fk_handle_id,
-                subquery.chain_code,
-                subquery.token_code,
-                subquery.pub_address
+                retrow.fk_pub_addresses_id,
+                retrow.fk_block_number,
+                retrow.fk_handle_id,
+                retrow.chain_code,
+                retrow.token_code,
+                retrow.pub_address
             );
-    raise notice 'done delete';
    END IF;
    rowsaffected = rowsaffected +1;
      FETCH NEXT FROM tcurse INTO retrow;

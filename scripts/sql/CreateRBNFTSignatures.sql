@@ -56,12 +56,15 @@ DECLARE
                 nft_hash,
                 nft_meta_data
             ) VALUES ( 
-                subquery.pk_pub_addresses_id,
-                subquery.fk_block_number,
-                subquery.fk_handle_id,
-                subquery.chain_code,
-                subquery.token_code,
-                subquery.pub_address
+                retrow.fk_nft_signatures_id,
+                retrow.fk_block_number,
+                retrow.fk_handle_id,
+                retrow.chain_code,
+                retrow.token_id,
+                retrow.nft_url,
+                retrow.nft_hash,
+                retrow.nft_meta_data,
+                retrow
             );
    END IF;
    rowsaffected = rowsaffected +1;

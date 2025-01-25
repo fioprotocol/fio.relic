@@ -76,6 +76,7 @@ if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
     # Update pg_hba.conf file to chronicle_user
     if sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
       sudo sed -i '/local   all             chronicle_user                          trust/d' /etc/postgresql/16/main/pg_hba.conf
+      sudo sed -i '/local   all             chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
     fi
   fi
 fi

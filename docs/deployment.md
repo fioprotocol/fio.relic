@@ -10,9 +10,9 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 2) FIO.Chronicle
 3) PostgreSQL RDMS
 
-Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugins, FIO.Chronicle will pull data from the API plugin, process it and, via its connection to PostgreSQL, persist it.
+Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist transformed data into its PostgreSQL database.
 
-The following table specifically outlines the default connection parameters, however, for a production configuration please use this table as a template for the actual target environment.
+The following table describes default connection parameters, however, for a production configuration please use this table as a template for the actual target environment.
 
 | Application | Parameter | Default Value | Target Env Value | Purpose |
 |-|-|-|-|-|
@@ -23,12 +23,13 @@ The following table specifically outlines the default connection parameters, how
 | PostgreSQL | PGPORT | 5432 | | RDMS Port |
 
 ## FIO Nodeos
+The following information describes standup of a TestNet or MainNet history node. To connect to an existing TestNet/MainNet state history node, all that is required is to update the fio.chronicle connection configuration. See the FIO.Chronicle documentation below.
 
 ### Installation
 The FIO Nodeos source code, and build instructions are found at the [FIO GitHub Repository](https://github.com/fioprotocol/fio). For installation using official packages see the [FIO Package Install](https://dev.fio.net/docs/install-using-packages) page.
 
 ### Configuration
-A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) must be configured to process and expose state history to consumers, who will pull historical data, including state and trace history data, via the FIO Nodeos state history plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
+A FIO Nodeos [node](https://dev.fio.net/docs/chain-node) must be configured to process and expose state history, including state and trace history data, via the FIO Nodeos state history plugin. The FIO Nodeos installation is straightforward, however, multiple steps must be followed including;
 * [FIO Nodeos Configuration](https://dev.fio.net/docs/configure-and-run-your-node)
 * [Replaying blockchain blocks](https://dev.fio.net/docs/nodeos-replay)
 
@@ -38,9 +39,9 @@ Note that the important configuration parameters include;
 * chain-state-history = true
 * trace-history = true
 
-To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script). 
+To expedite the FIO Nodeos installation, including blockchain configuration and history playback, use the [install script](https://dev.fio.net/docs/install-script).
 
-### LocalNet Dev/Test
+#### LocalNet FIO History Node
 For the purposes of confirming end-to-end connectivity please refer to the [LocalNet Deployment Guide - Start FIO Nodeos](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodeos) and [LocalNet Deployment Guide - Start FIO Nodeos History Node](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodoes-state-history-nodeos)
 
 ## PostgreSQL
@@ -72,7 +73,7 @@ cd <FIO.Chronicle Repo>
 ./scripts/install.sh
 ```
 
-Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/README.md#build-and-install-instructions) for build and installation instructions as well as the advanced configuration [README](https://github.com/fioprotocol/fio.chronicle/blob/feature/bd-4660-buildinstall-updates/docs/advanced-config.md).
+Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/README.md#build-and-install-instructions) for build and installation instructions as well as the advanced configuration [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md).
 
 ### Start the FIO.Chronicle Web Socket Server (Test Only)
 Refer to [LocalNet Deployment Guide - Start FIO.Chronicle Web Socket Server](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-chronicle-test-web-socket-server)

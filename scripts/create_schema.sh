@@ -44,24 +44,49 @@ SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 #
 # wrappers: createuser (createuser --help), dropuser (dropuser --help)
 # example: createuser -h localhost -p 5432 -U postgres -w
-echo "Creating Relic Database..."
+
+echo
+echo "Verifying that the PostgreSQL database server is installed and running..."
+dpkg -l | grep postgres >/dev/null
+if [[ $? -ne 0 ]]; then
+  echo
+  echo "The PostgreSQL database server does not appear to be installed!"
+  echo
+  echo "PostgreSQL 16 may be installed using the script, ./scripts/install-pgsql.sh. Once,"
+  echo "complete re-execute this script."
+  echo
+  exit 1
+fi
+
+systemctl | grep running | grep -q postgresql
+if [[ $? -ne 0 ]]; then
+  echo
+  echo "The PostgreSQL database server does not appear to be running!"
+  echo
+  echo "Start the server using the command, 'systemctl start postgresql', and re-execute this script."
+  echo
+  exit 1
+fi
+
+echo
+echo "Creating the FIO.Relic Database..."
 echo
 sudo -u postgres psql -c "CREATE DATABASE relicdb;"
 
 echo
-echo "Creating Relic DB schema..."
+echo "Creating FIO.Relic DB schema, including tables and stored procedures..."
 echo
 sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicTables.sql
 sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicStoredProcedures.sql
 
 echo
-echo "Creating Relic DB User..."
+echo "Creating FIO.Relic DB User..."
 echo
 sudo -u postgres psql -c "CREATE USER chronicle_user;"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE relicdb to chronicle_user;"
 
 echo
-echo "Configuring Relic DB User Access"
+echo "Configuring FIO.Relic DB User Access"
 # Backup pg_hba.conf file b4 modifying
 if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
   sudo cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
@@ -72,4 +97,7 @@ if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
 fi
 
 # Restart PostgreSQL to enable changes
+echo
+echo "Restarting PostgreSQL to reload any configuration changes..."
 sudo systemctl restart postgresql
+echo

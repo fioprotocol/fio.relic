@@ -80,30 +80,42 @@ The FIO.Chronicle state history processor ingests state history data from a FIO 
 
 ```shell
 git clone --recursive https://github.com/fioprotocol/fio.chronicle.git
-cd fio.relic
+cd fio.chronicle
 ```
 
-### Build and Install
+### Build, Install and Configure
 The build and installation of FIO.Chronicle is straightforward and can be performed in just a few steps, using the default configuration. As noted above, there are several configuration items that may be customized, including;
 * FIO Nodeos State History Host and Port
 * PostgreSQL Host and Port
 
-For the default build and install of FIO.Chronicle accessing history locally with output locally, proceed with the following;
+To build and install FIO.Chronicle, along with its default configuration, execute the following;
 ```shell
 ./scripts/build.sh /opt
 ./scripts/install.sh
 ```
 
-Refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/README.md#build-and-install-instructions) for build and installation instructions as well as the advanced configuration [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md).
+Note that the default configuration will access a local state history node and output data to a local web socket server (if running).
 
-### Start the FIO.Chronicle Web Socket Server (Test Only)
-Refer to [LocalNet Deployment Guide - Start FIO.Chronicle Web Socket Server](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-chronicle-test-web-socket-server)
+The first command will build FIO.Chronicle, installing any necessary pre-built packages as well as download and build any pinned dependencies. The second command will install FIO.Chronicle into /opt/fio-chronicle, along with a default configuration as noted. To update the configuration, edit the FIO.Chronicle `config.ini` file, located in `/opt/fio-chronicle/config`. For example, to utilize the FIO.Relic data exporter, update the config.ini as follows;
+```shell
+host = 127.0.0.1
+port = 8080
+mode = scan
+plugin = exp_relic_plugin
+exp-relic-host = 127.0.0.1
+exp-relic-port = 5432
+exp-relic-username = chronicle_user
+exp-relic-password = password123!
+```
+
+For more information, i.e. advanced configuration options, refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/README.md#build-and-install-instructions) for build and installation instructions as well as the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md).
 
 ### Start FIO.Chronicle
-In the following command both start block and an end block number will be specified to limit block processing. Note that a local blockchain will process block from block 1 in which case specifying only an end block would be appropriate.
+The following command has only an end block specified and, therefore, FIO.Chronicle will process blocks from block 1 up to and including the end block. To limit processing, specify both a start block, `--start-block` and and end block, `--end-block`. 
 
 Start the fio-chronicle-receiver
 ```shell
-/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --start-block=292100000 --end-block=292111588
+/opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=400000000
 ```
 
+Again, refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.

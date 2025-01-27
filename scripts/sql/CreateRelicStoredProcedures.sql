@@ -58,20 +58,3 @@
 \ir CreateRBPubAddresses.sql
 \ir CreateRBNFTSignatures.sql
 \ir CreateRBFork.sql
-
-
-
-
-
-/* TODO: to be completed during dev!!!!
-
-
-\ir CreateHandles.sql
-\ir CreateHandleactivities.sql
-\ir CreatePubaddresses.sql
-\ir CreateNFTSignatures.sql
-\ir CreateTokenTransfers.sql
-\ir CreateTokenStakings.sql
-\ir CreateFIORequests.sql
-\ir CreateFIODatas.sql
-*/

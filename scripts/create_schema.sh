@@ -86,6 +86,11 @@ sudo -u postgres psql -c "CREATE USER chronicle_user;"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE relicdb to chronicle_user;"
 
 echo
+echo "Creating FIO.Relic DB User..."
+echo
+sudo -u postgres psql -c "ALTER USER chronicle_user WITH PASSWORD 'password123\!';"
+
+echo
 echo "Configuring FIO.Relic DB User Access"
 # Backup pg_hba.conf file b4 modifying
 if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
@@ -93,7 +98,7 @@ if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
 fi
 # Update pg_hba.conf file to trust chronicle_user
 if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
+  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
 fi
 
 # Restart PostgreSQL to enable changes

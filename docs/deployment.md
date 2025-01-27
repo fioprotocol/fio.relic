@@ -12,15 +12,18 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 
 Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist transformed data into its PostgreSQL database.
 
-The following table describes the default connection parameters, however, for a production configuration please use this table as a template substituting the target environment values.
+The following table describes the basic attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values.
 
-| Application | Parameter | Default Value | Target Env Value | Purpose |
+| Application | Associated Parameter | Default Value | Target Env Value | Purpose |
 |-|-|-|-|-|
-| FIO Nodeos | state-history-endpoint | 0.0.0.0:8080 | | Listen IP Mask and Port |
-| FIO.Chronicle | host | 127.0.0.1 | | Nodeos State History API Host |
-| FIO.Chronicle | port | 8080 | | Nodeos State History API Port |
-| PostgreSQL | PGHOST | 127.0.0.1 | | RDMS Host |
-| PostgreSQL | PGPORT | 5432 | | RDMS Port |
+| FIO Nodeos | state-history-endpoint | 0.0.0.0:8080 | | FIO.Nodeos Listen IP Mask and Port |
+| FIO Nodeos | host | 127.0.0.1 | | FIO.Nodeos State History API Host |
+| FIO Nodeos | port | 8080 | | FIO.Nodeos State History API Port |
+| PostgreSQL | exp-relic-host | 127.0.0.1 | | RDMS Host |
+| PostgreSQL | exp-relic-port | 5432 | | RDMS Port |
+| PostgreSQL | exp-relic-db | relicdb | | RDMS Database |
+| PostgreSQL | exp-relic-username | chronicle_user | | RDMS User |
+| PostgreSQL | exp-relic-password | password123! | | RDMS Password |
 
 ## FIO Nodeos
 The following information describes standup of a TestNet or MainNet history node. To connect to an existing TestNet/MainNet state history node, all that is required is to update the fio.chronicle connection configuration. See the FIO.Chronicle [documentation](#fiochronicle) below.

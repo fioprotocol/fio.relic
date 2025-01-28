@@ -10,7 +10,7 @@ echo
 # tables: createrelictables.sql
 # stored procs: createrelicstoredprocedures.sql
 
-# 1) create the user account, user: chronicle_user 
+# 1) create the user account, user: chronicle_user
 # 2) create the relicdb, db: relicdb
 # 3) grant access to the account
 # 4) create relic db tables: createrelictables.sql
@@ -25,7 +25,7 @@ SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 # Remote connections
 # - sudo vim /etc/postgresql/16/main/postgresql.conf
 # - edit listen_addresses as follows (default: localhost); listen_addresses = '*'
-# Authentication 
+# Authentication
 # - Peer (password-based): sudo sed -i '/^host/s/ident/md5/' /etc/postgresql/16/main/pg_hba.conf
 # - Trust (role -based): sudo sed -i '/^local/s/peer/trust/' /etc/postgresql/16/main/pg_hba.conf
 # Remote Access
@@ -74,32 +74,47 @@ echo
 sudo -u postgres psql -c "CREATE DATABASE relicdb;"
 
 echo
-echo "Creating FIO.Relic DB schema, including tables and stored procedures..."
-echo
-sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicTables.sql
-sudo -u postgres psql -U postgres -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicStoredProcedures.sql
-
-echo
 echo "Creating FIO.Relic DB User..."
 echo
 sudo -u postgres psql -c "CREATE USER chronicle_user;"
+
+echo
+echo "Granting privileges to FIO.Relic DB User..."
+echo
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE relicdb to chronicle_user;"
+sudo -u postgres psql -d relicdb -c "GRANT ALL ON SCHEMA public TO chronicle_user;"
 
 echo
-echo "Creating FIO.Relic DB User..."
-echo
-sudo -u postgres psql -c "ALTER USER chronicle_user WITH PASSWORD 'password123\!';"
-
-echo
-echo "Configuring FIO.Relic DB User Access"
+echo "Configuring initial FIO.Relic DB User Access"
 # Backup pg_hba.conf file b4 modifying
 if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
   sudo cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
 fi
 # Update pg_hba.conf file to trust chronicle_user
 if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
+  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
 fi
+
+# Restart PostgreSQL to enable changes
+echo
+echo "Restarting PostgreSQL to reload any configuration changes..."
+sudo systemctl restart postgresql
+echo
+
+echo
+echo "Creating FIO.Relic DB schema, including tables and stored procedures..."
+echo
+sudo -u postgres psql -U chronicle_user -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicTables.sql
+sudo -u postgres psql -U chronicle_user -d relicdb -a -f ${SCRIPT_DIR}/sql/CreateRelicStoredProcedures.sql
+
+echo
+echo "Setting FIO.Relic DB User password..."
+echo
+sudo -u postgres psql -c "ALTER USER chronicle_user WITH PASSWORD 'password123!';"
+
+echo
+echo "Configuring final FIO.Relic DB User Access"
+sudo sed -i '/local   all             chronicle_user                          trust/c\local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
 
 # Restart PostgreSQL to enable changes
 echo

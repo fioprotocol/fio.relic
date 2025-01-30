@@ -36,10 +36,12 @@ SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 
 # Begin install
 echo "Updating OS..."
+pause
 echo
 apt update;
-apt upgrade;
+apt upgrade -y;
 
+echo
 echo "Installing required packages..."
 echo
 apt install -y gnupg2 wget vim
@@ -71,6 +73,8 @@ if [[ $? -eq 0 ]]; then
   echo
   echo "In another window, verify install was successful using the following commands before proceeding;"
   echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
+  echo
+  echo "Otherwise, exit this script, determine the failure reason(s) and fix the installation"
   pause
 
   echo "Start and enable the service..."
@@ -83,9 +87,4 @@ if [[ $? -eq 0 ]]; then
   sleep 5
   systemctl status postgresql
 fi
-
 echo
-if yes_or_no "Create Relic DB schema..."; then
-  ${SCRIPT_DIR}/create_schema.sh
-fi
-

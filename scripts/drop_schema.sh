@@ -52,18 +52,12 @@ sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicStoredProcedur
 sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicTables.sql
 
 echo
-if yes_or_no "Drop Relic DB"; then
-  echo
-  echo "Dropping Relic Database..."
-  echo
-  sudo -u postgres psql -c "DROP DATABASE IF EXISTS relicdb;"
-fi
-
-echo
 if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
   echo
   echo "Dropping Relic DB User..."
   echo
+  sudo -u postgres psql -d relicdb -c "REVOKE ALL PRIVILEGES ON DATABASE relicdb from chronicle_user;"
+  sudo -u postgres psql -d relicdb -c "REVOKE ALL ON SCHEMA public FROM chronicle_user;"
   sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
 
   echo
@@ -75,9 +69,17 @@ if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
   else
     # Update pg_hba.conf file to chronicle_user
     if sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-      sudo sed -i '/local   all             chronicle_user                          trust/d' /etc/postgresql/16/main/pg_hba.conf
+      sudo sed -i '/local   all             chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
     fi
   fi
+fi
+
+echo
+if yes_or_no "Drop Relic DB"; then
+  echo
+  echo "Dropping Relic Database..."
+  echo
+  sudo -u postgres psql -c "DROP DATABASE IF EXISTS relicdb;"
 fi
 
 # Restart PostgreSQL to enable changes

@@ -71,13 +71,14 @@ if [[ $? -eq 0 ]]; then
   echo "PostgreSQL has been installed successfully"
 
   echo
-  echo "In another window, verify install was successful using the following commands before proceeding;"
+  echo "In another window, verify the install using the following commands;"
   echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
   echo
-  echo "Otherwise, exit this script, determine the failure reason(s) and fix the installation"
-  pause
+  echo "Both commands should result in the display of the installed PostgreSQL version. In"
+  echo "case of an error, exit this script, determine the failure reason(s) and fix the installation"
+  echo
 
-  echo "Start and enable the service..."
+  echo "Start and enable the PostgreSQL service..."
   pause
   systemctl enable postgresql
   systemctl start postgresql
@@ -86,5 +87,9 @@ if [[ $? -eq 0 ]]; then
   echo "Checking service status..."
   sleep 5
   systemctl status postgresql
+else
+  echo
+  echo "An error occured installing PostgreSQL. Unable to proceed!"
+  echo "Exiting..."
 fi
 echo

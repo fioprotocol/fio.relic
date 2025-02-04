@@ -12,7 +12,7 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 
 Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist transformed data into its PostgreSQL database.
 
-The following table describes the basic attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values.
+The following table describes the attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values. These will be needed when configuring [FIO.Chronicle](#build-install-and-configure)
 
 | Application | Associated Parameter | Default Value | Target Env Value | Purpose |
 |-|-|-|-|-|
@@ -91,15 +91,19 @@ The build and installation of FIO.Chronicle is straightforward and can be perfor
 * FIO Nodeos State History Host and Port
 * PostgreSQL Host and Port
 
-To build and install FIO.Chronicle, along with its default configuration, execute the following;
+To build FIO.Chronicle, execute the following;
 ```shell
 ./scripts/build.sh /opt
+```
+
+To install FIO.Chronicle, along with its default configuration, execute the following;
+```shell
 ./scripts/install.sh
 ```
 
 Note that the default configuration will access a local state history node and output data to a local web socket server (if running).
 
-The first command will build FIO.Chronicle, installing any necessary pre-built packages as well as download and build any pinned dependencies. The second command will install FIO.Chronicle into /opt/fio-chronicle, along with a default configuration as noted. To update the configuration, edit the FIO.Chronicle `config.ini` file, located in `/opt/fio-chronicle/config`. For example, to utilize the FIO.Relic data exporter, update the config.ini as follows;
+The first command will build FIO.Chronicle, installing any necessary pre-built packages as well as download and build any pinned dependencies. The second command will install FIO.Chronicle into `/opt/fio-chronicle`, along with a default configuration as noted. To update the configuration, edit the FIO.Chronicle `config.ini` file, located in `/opt/fio-chronicle/config`. For example, to utilize the FIO.Relic data exporter, update the config.ini as follows;
 ```shell
 host = 127.0.0.1
 port = 8080
@@ -111,6 +115,8 @@ exp-relic-username = chronicle_user
 exp-relic-password = password123!
 ```
 
+Note: The config attributes above will connect to FIO Nodes state history plugin (_host_) at 127.0.0.1 and PostgreSQL (_exp-relic-host_) at 127.0.0.1. Update these and any other attributes based on your environment.
+
 For more information, i.e. advanced configuration options, refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/README.md#build-and-install-instructions) for build and installation instructions as well as the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md).
 
 ### Start FIO.Chronicle
@@ -121,4 +127,42 @@ Start the fio-chronicle-receiver
 /opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=400000000
 ```
 
-Again, refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.
+Refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.
+
+### Verify processing
+Verification that FIO.Chronicle is processing blocks may be done in two ways; reviewing the fio.chronicle log, currently as standard out from execution of the above command, as well as through inspection of the database.
+
+Each method is described below;
+FIO.Chronicle log: output should resemble log below, where block number is increasing over time.
+`info  2025-02-04T18:32:27.914 chronicle receiver_plugin.cpp:863       receive_result       ] block=180000; irreversible=306774533; dbmem_free=99; received_blocks=180000`
+
+**FIO.Relic database**
+Using the exp-relic-username and exp-relic-password from the config above, execute the following commands
+```shell
+psql -d relicdb -U chronicle_user
+Password for user chronicle_user:
+```
+
+To get a listing of all tables, execute the command;
+```shell
+relicdb=> \dt
+                  List of relations
+ Schema |        Name        | Type  |     Owner
+--------+--------------------+-------+----------------
+ public | accountactivities  | table | chronicle_user
+ public | accounts           | table | chronicle_user
+ public | accountsaudit      | table | chronicle_user
+ public | blocks             | table | chronicle_user
+ public | domainactivities   | table | chronicle_user
+ public | domains            | table | chronicle_user
+...
+```
+
+To get a count of the number of transactions processed, execute the following command;
+```shell
+relicdb=> select count(*) from transactions;
+ count
+-------
+ 36051
+(1 row)
+```

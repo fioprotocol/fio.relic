@@ -12,7 +12,7 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 
 Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist transformed data into its PostgreSQL database.
 
-The following table describes the basic attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values.
+The following table describes the attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values. These will be needed when configuring [FIO.Chronicle](#build-install-and-configure)
 
 | Application | Associated Parameter | Default Value | Target Env Value | Purpose |
 |-|-|-|-|-|
@@ -114,6 +114,8 @@ exp-relic-port = 5432
 exp-relic-username = chronicle_user
 exp-relic-password = password123!
 ```
+
+Note: The config attributes above will connect to FIO Nodes state history plugin (_host_) at 127.0.0.1 and PostgreSQL (_exp-relic-host_) at 127.0.0.1. Update these and any other attributes based on your environment.
 
 For more information, i.e. advanced configuration options, refer to the FIO.Chronicle [README](https://github.com/fioprotocol/fio.chronicle/blob/develop/README.md#build-and-install-instructions) for build and installation instructions as well as the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md).
 

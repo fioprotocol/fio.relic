@@ -91,15 +91,19 @@ The build and installation of FIO.Chronicle is straightforward and can be perfor
 * FIO Nodeos State History Host and Port
 * PostgreSQL Host and Port
 
-To build and install FIO.Chronicle, along with its default configuration, execute the following;
+To build FIO.Chronicle, execute the following;
 ```shell
 ./scripts/build.sh /opt
+```
+
+To install FIO.Chronicle, along with its default configuration, execute the following;
+```shell
 ./scripts/install.sh
 ```
 
 Note that the default configuration will access a local state history node and output data to a local web socket server (if running).
 
-The first command will build FIO.Chronicle, installing any necessary pre-built packages as well as download and build any pinned dependencies. The second command will install FIO.Chronicle into /opt/fio-chronicle, along with a default configuration as noted. To update the configuration, edit the FIO.Chronicle `config.ini` file, located in `/opt/fio-chronicle/config`. For example, to utilize the FIO.Relic data exporter, update the config.ini as follows;
+The first command will build FIO.Chronicle, installing any necessary pre-built packages as well as download and build any pinned dependencies. The second command will install FIO.Chronicle into `/opt/fio-chronicle`, along with a default configuration as noted. To update the configuration, edit the FIO.Chronicle `config.ini` file, located in `/opt/fio-chronicle/config`. For example, to utilize the FIO.Relic data exporter, update the config.ini as follows;
 ```shell
 host = 127.0.0.1
 port = 8080
@@ -121,4 +125,4 @@ Start the fio-chronicle-receiver
 /opt/fio-chronicle/chronicle-receiver --config-dir=/opt/fio-chronicle/config --data-dir=/opt/fio-chronicle/data --end-block=400000000
 ```
 
-Again, refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.
+Refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.

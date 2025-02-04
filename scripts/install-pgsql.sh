@@ -74,7 +74,7 @@ if [[ $? -eq 0 ]]; then
   echo "In another window, verify the install using the following commands;"
   echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
   echo
-  echo "Note; both commands should result in the display of the installed PostgreSQL version. In"
+  echo "Both commands should result in the display of the installed PostgreSQL version. In"
   echo "case of an error, exit this script, determine the failure reason(s) and fix the installation"
   echo
 

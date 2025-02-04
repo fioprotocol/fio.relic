@@ -1,7 +1,14 @@
 # FIO.Relic
 
 ## Overview
-FIO.Relic is the history ecosystem solution for the FIO Blockchain comprised of a FIO Nodeos node providing state history via the state-history plugin, FIO.Chronicle for ingest and processing of that historical data and a relational database for utilization by consumers such as the FIO Dashbboard, a block explorer or any entity desiring relevant FIO historical data. It is based on the opensource product EOS-Chronicle, a middleware app that consumes history data available via the state history plugin of an Antelope (EOSIO) blockchain and provides downstream consumers json formatted data via plugins. In summary, FIO.Relic is the integrated system of applications incorporating the ingest of state history data, as well as the parsing and storage of that data into a relational database for asynchronous consumption by 3rd party applications.
+FIO.Relic is the state history solution for the FIO Blockchain incorporating the ingest of state history data, as well as the parsing and storage of that data into a relational database for asynchronous consumption by 3rd party applications.
+
+The FIO.Relic ecosystem is comprised of;
+* FIO Nodeos node providing state history via the state-history plugin
+* The FIO.Relic state history plugin and FIO.Chronicle backend state history processor which ingests and processes state historical data from FIO.Nodeos
+* A PostgreSQL database as the state history data store
+
+FIO.Relic is based on the opensource project [EOS-Chronicle](https://github.com/EOSChronicleProject/eos-chronicle), a middleware app that consumes history data available via the state history plugin of an Antelope (EOSIO) blockchain and provides downstream consumers json formatted data.
 
 # FIO Protocol
 The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol, is an open-source project based on EOSIO 1.8+.
@@ -22,7 +29,7 @@ Refer to the [FIO Protocol Developer Hub](https://dev.fio.net/docs/chain-node) d
 
 ### FIO.Relic
 
-#### Tech Stack
+#### Tech Stack and Architecture Diagram
 See the [FIO.Relic Tech Stack](https://github.com/fioprotocol/fio.relic/blob/develop/docs/tech-stack.md) document for the requisite hardware and software needed to install and run the FIO.Relic ecosystem
 
 #### Deployment Guide

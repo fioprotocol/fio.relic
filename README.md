@@ -29,6 +29,9 @@ Refer to the [FIO Protocol Developer Hub](https://dev.fio.net/docs/chain-node) d
 
 ### FIO.Relic
 
+### Clone the repository
+To clone the FIO.Relic repository, execute the command; `git clone  https://github.com/fioprotocol/fio.relic.git`. see [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) for more information.
+
 #### Tech Stack and Architecture Diagram
 See the [FIO.Relic Tech Stack](https://github.com/fioprotocol/fio.relic/blob/develop/docs/tech-stack.md) document for the requisite hardware and software needed to install and run the FIO.Relic ecosystem
 

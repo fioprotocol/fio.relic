@@ -128,3 +128,41 @@ Start the fio-chronicle-receiver
 ```
 
 Refer to the [advanced configuration](https://github.com/fioprotocol/fio.chronicle/blob/develop/docs/advanced-config.md) for more options.
+
+### Verify processing
+Verification that FIO.Chronicle is processing blocks may be done in two ways; reviewing the fio.chronicle log, currently as standard out from execution of the above command, as well as through inspection of the database.
+
+Each method is described below;
+FIO.Chronicle log: output should resemble log below, where block number is increasing over time.
+`info  2025-02-04T18:32:27.914 chronicle receiver_plugin.cpp:863       receive_result       ] block=180000; irreversible=306774533; dbmem_free=99; received_blocks=180000`
+
+**FIO.Relic database**
+Using the exp-relic-username and exp-relic-password from the config above, execute the following commands
+```shell
+psql -d relicdb -U chronicle_user
+Password for user chronicle_user:
+```
+
+To get a listing of all tables, execute the command;
+```shell
+relicdb=> \dt
+                  List of relations
+ Schema |        Name        | Type  |     Owner
+--------+--------------------+-------+----------------
+ public | accountactivities  | table | chronicle_user
+ public | accounts           | table | chronicle_user
+ public | accountsaudit      | table | chronicle_user
+ public | blocks             | table | chronicle_user
+ public | domainactivities   | table | chronicle_user
+ public | domains            | table | chronicle_user
+...
+```
+
+To get a count of the number of transactions processed, execute the following command;
+```shell
+relicdb=> select count(*) from transactions;
+ count
+-------
+ 36051
+(1 row)
+```

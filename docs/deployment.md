@@ -134,7 +134,14 @@ Verification that FIO.Chronicle is processing blocks may be done in two ways; re
 
 Each method is described below;
 FIO.Chronicle log: output should resemble log below, where block number is increasing over time.
-`info  2025-02-04T18:32:27.914 chronicle receiver_plugin.cpp:863       receive_result       ] block=180000; irreversible=306774533; dbmem_free=99; received_blocks=180000`
+
+`
+info  2025-02-06T23:34:01.094 chronicle receiver_plugin.cpp:640       request_blocks       ] Start block: 1
+...
+info  2025-02-06T23:34:02.178 chronicle exp_relic_plugin.cpp:1985     push_msg             ] exp_relic_plugin queue_size=1
+...
+info  2025-02-05T03:32:49.345 chronicle receiver_plugin.cpp:863       receive_result       ] block=10000; irreversible=306839321; dbmem_free=99; received_blocks=10000
+`
 
 **FIO.Relic database**
 Using the exp-relic-username and exp-relic-password from the config above, execute the following commands
@@ -163,6 +170,6 @@ To get a count of the number of transactions processed, execute the following co
 relicdb=> select count(*) from transactions;
  count
 -------
- 36051
+ 13051
 (1 row)
 ```

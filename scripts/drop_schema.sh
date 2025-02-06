@@ -7,6 +7,16 @@ echo
 #  exit 1
 #fi
 
+#echo "WARNING: This script runs commands as the 'postgres' user using sudo to update the database'
+#pause
+
+groups $(id -un) | grep sudo >/dev/null
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: User $(id -un) does NOT have sudo privilege! sudo privilege is required to run this script. Exiting..."
+  echo
+  exit 1
+fi
+
 # tables: droprelictables.sql.
 # stored procs: dropstoredprocedures.sql.
 

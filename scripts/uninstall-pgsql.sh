@@ -3,12 +3,14 @@
 # Debug
 #set -x
 
+echo && echo "PostgreSQL v${POSTGRES_VER} Uninstall"
+
 # Set up script environment
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 . ${SCRIPT_DIR}/utils.sh
 
-echo
 if [[ "$EUID" -ne 0 ]]; then
+  echo
   echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
@@ -16,9 +18,8 @@ fi
 
 POSTGRES_VER=16
 
-echo "PostgreSQL v${POSTGRES_VER} Uninstall"
 echo
-echo "Continuing will completely remove PostgreSQL packages and all related artifacts..."
+echo "WARNING: Execution of this script will remove all PostgreSQL v${POSTGRES_VER} packages and related artifacts..."
 pause
 
 echo "Stopping, and disabling PostgreSQL service..."

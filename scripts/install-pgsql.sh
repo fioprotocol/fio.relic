@@ -3,12 +3,14 @@
 # Debug
 #set -x
 
+echo && echo "PostgreSQL v${POSTGRES_VER} Install"
+
 # Set up script environment
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 . ${SCRIPT_DIR}/utils.sh
 
-echo
 if [[ "$EUID" -ne 0 ]]; then
+  echo
   echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
@@ -34,7 +36,7 @@ fi
 POSTGRES_VER=16
 
 # Begin install
-echo "PostgreSQL v${POSTGRES_VER} Install"
+
 echo
 echo "Continuing will install PostgreSQL packages and all related artifacts..."
 pause

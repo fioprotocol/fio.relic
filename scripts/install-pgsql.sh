@@ -3,6 +3,8 @@
 # Debug
 #set -x
 
+POSTGRES_VER=16
+
 echo && echo "PostgreSQL v${POSTGRES_VER} Install"
 
 # Set up script environment
@@ -32,8 +34,6 @@ else
     echo "Currently only supporting Ubuntu based install. Your architecture is not supported. Proceed at your own risk."
     pause
 fi
-
-POSTGRES_VER=16
 
 # Begin install
 

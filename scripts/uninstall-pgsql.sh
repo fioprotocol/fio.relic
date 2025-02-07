@@ -3,6 +3,8 @@
 # Debug
 #set -x
 
+POSTGRES_VER=16
+
 echo && echo "PostgreSQL v${POSTGRES_VER} Uninstall"
 
 # Set up script environment
@@ -15,8 +17,6 @@ if [[ "$EUID" -ne 0 ]]; then
   echo
   exit 1
 fi
-
-POSTGRES_VER=16
 
 echo
 echo "WARNING: Execution of this script will remove all PostgreSQL v${POSTGRES_VER} packages and related artifacts..."

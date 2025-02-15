@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
-# Utility functions
-function pause(){
-  echo
-  read -s -n 1 -p "Press any key to continue (CTRL-c to exit)..."
-  echo
-  echo
-}
+# Debug
+#set -x
 
-echo
+POSTGRES_VER=16
+
+echo && echo "PostgreSQL v${POSTGRES_VER} Install"
+
+# Set up script environment
+SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+. ${SCRIPT_DIR}/utils.sh
+
 if [[ "$EUID" -ne 0 ]]; then
+  echo
   echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
@@ -20,21 +23,24 @@ if [[ "$(uname)" == "Linux" ]]; then
       # obtain NAME and other information
       . /etc/os-release
       if [[ ${NAME} != "Ubuntu" ]]; then
-         echo && echo "Currently only supporting Ubuntu based insteall. Proceed at your own risk."
+         echo "Currently only supporting Ubuntu based insteall. Proceed at your own risk."
+         pause
       fi
    else
-       echo && echo "Currently only supporting Ubuntu based install. /etc/os-release not found. Your Linux distribution is not supported. Proceed at your own risk."
+       echo "Currently only supporting Ubuntu based install. /etc/os-release not found. Your Linux distribution is not supported. Proceed at your own risk."
+       pause
    fi
 else
-    echo && echo "Currently only supporting Ubuntu based install. Your architecture is not supported. Proceed at your own risk."
+    echo "Currently only supporting Ubuntu based install. Your architecture is not supported. Proceed at your own risk."
+    pause
 fi
 
-# Set up script environment
-SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
-
-. ${SCRIPT_DIR}/utils.sh
-
 # Begin install
+
+echo
+echo "Continuing will install PostgreSQL packages and all related artifacts..."
+pause
+
 echo "Updating OS..."
 pause
 echo
@@ -59,16 +65,12 @@ echo "Updating package list (again)..."
 apt update -y
 
 echo
-echo "Installing PostgreSQL v16.x..."
-apt install -y postgresql-16 postgresql-server-dev-16 postgresql-contrib-16 libpq-dev
-
-#echo
-#echo "Installing LTS version of PostgreSQL (PostgreSQL 17)..."
-#apt-get -y install postgresql postgresql-contrib
+echo "Installing PostgreSQL v${POSTGRES_VER}.x..."
+apt install -y postgresql-${POSTGRES_VER} postgresql-server-dev-${POSTGRES_VER} postgresql-contrib-${POSTGRES_VER} libpq-dev
 
 if [[ $? -eq 0 ]]; then
   echo
-  echo "PostgreSQL has been installed successfully"
+  echo "PostgreSQL v${POSTGRES_VER} has been installed successfully"
 
   echo
   echo "In another window, verify the install using the following commands;"

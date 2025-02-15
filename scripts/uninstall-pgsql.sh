@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 
-echo
+# Debug
+#set -x
+
+POSTGRES_VER=16
+
+echo && echo "PostgreSQL v${POSTGRES_VER} Uninstall"
+
+# Set up script environment
+SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+. ${SCRIPT_DIR}/utils.sh
+
 if [[ "$EUID" -ne 0 ]]; then
+  echo
   echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
 fi
 
-# Utility functions
-function pause(){
-  echo
-  read -s -n 1 -p "Press any key to continue (CTRL-c to exit)..."
-  echo
-  echo
-}
-
-echo "PostgreSQL Uninstall Script"
 echo
-echo "Continuing will completely remove PostgreSQL packages and all related artifacts..."
+echo "WARNING: Execution of this script will remove all PostgreSQL v${POSTGRES_VER} packages and related artifacts..."
 pause
 
 echo "Stopping, and disabling PostgreSQL service..."
 systemctl stop postgresql &> /dev/null
 systemctl disable postgresql &> /dev/null
-#rm /usr/lib/systemd/system/*postgresql
-#rm /etc/init.d/*postgresql
 
 echo
 echo "Removing PostgreSQL packages..."
 pause
-apt-get --purge remove -y postgresql-16
-apt-get --purge remove -y postgresql-server-dev-16
-apt-get --purge remove -y postgresql-contrib-16
+apt-get --purge remove -y postgresql-${POSTGRES_VER}
+apt-get --purge remove -y postgresql-server-dev-${POSTGRES_VER}
+apt-get --purge remove -y postgresql-contrib-${POSTGRES_VER}
 apt-get --purge remove -y postgresql-common
 apt-get --purge remove -y libpq-dev
 apt autoremove -y

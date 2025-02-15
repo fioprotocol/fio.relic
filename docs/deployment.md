@@ -72,6 +72,7 @@ To create the FIO.Relic database, schema and user execute the script _create_sch
 ./scripts/create_schema.sh
 ```
 
+Verification of the relicdb may be done by executing the 
 The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
@@ -163,9 +164,15 @@ relicdb=> \dt
  public | domainactivities   | table | chronicle_user
  public | domains            | table | chronicle_user
 ...
+ public | transactions       | table | chronicle_user
+(22 rows)
 ```
 
-To get a count of the number of transactions processed, execute the following command;
+Other commands, to verify the Relic DB schema, are;
+* To get a listing of all stored procedures, execute the command; `\df` (Total: 50)
+* To get a listing of all stored procedures, execute the command; `\ds` (Total: 21)
+
+To get a count of the number of transactions processed, execute the following command (and repeat as necessary);
 ```shell
 relicdb=> select count(*) from transactions;
  count

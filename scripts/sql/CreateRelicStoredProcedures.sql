@@ -13,6 +13,7 @@
 \ir CreateDelNftSignatures.sql
 \ir CreateDelPubAddresses.sql
 \ir CreateInsHandleActivities.sql
+\ir CreateInsHandleActivitiesFIORequest.sql
 \ir CreateInsUpdHandles.sql
 \ir CreateUpdHandlesRenewBundles.sql                                   
 \ir CreateUpdHandlesXferOwner.sql

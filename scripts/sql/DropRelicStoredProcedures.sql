@@ -28,6 +28,7 @@ DROP FUNCTION updhandlesrenewbundles;
 DROP FUNCTION delnftsignatures;
 DROP FUNCTION delpubaddresses;
 DROP FUNCTION inshandleactivities;
+DROP FUNCTION inshandleactivitiesfiorequest;
 DROP FUNCTION insupdhandles;
 DROP FUNCTION upddomainexp;
 DROP FUNCTION upddomainispublic;

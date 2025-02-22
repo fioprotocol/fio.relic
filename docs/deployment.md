@@ -78,7 +78,7 @@ The configuration of PostgresSQL including connection handling, authentication, 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ## FIO.Chronicle
-The FIO.Chronicle state history processor ingests state history data from a FIO State History Server, via the state history plugin, processes it and persists into the FIO.Relic database. To get started with the FIO.Chronicle application do the following;
+The FIO.Chronicle application ingests state history data, then processes and persists that data into the FIO.Relic database. To get started with the FIO.Chronicle application do the following;
 1. Clone the FIO.Chronicle repo
 2. Change directory into the FIO.Chronicle repo
 

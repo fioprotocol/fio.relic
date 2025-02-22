@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
+# Debug
+#set -x
+
+# Load utilities
+SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+. ${SCRIPT_DIR}/utils.sh
+
 echo
-#if [[ "$EUID" -ne 0 ]]; then
-#  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
-#  echo
-#  exit 1
-#fi
-
-#echo "WARNING: This script runs commands as the 'postgres' user using sudo to update the database'
-#pause
-
-groups $(id -un) | grep sudo >/dev/null
-if [[ $? -ne 0 ]]; then
-  echo "ERROR: User $(id -un) does NOT have sudo privilege! sudo privilege is required to run this script. Exiting..."
+if [[ "$EUID" -ne 0 ]]; then
+  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
 fi
+
+#echo "WARNING: This script runs commands as the 'postgres' user using sudo to update the database'
+#pause
 
 # tables: createrelictables.sql
 # stored procs: createrelicstoredprocedures.sql
@@ -25,10 +25,6 @@ fi
 # 3) grant access to the account
 # 4) create relic db tables: createrelictables.sql
 # 5) create relic db stored procedures: createrelicstoredprocedures.sql
-
-SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
-
-. ${SCRIPT_DIR}/utils.sh
 
 # Configure PostgreSQL DB
 # Refer to https://computingforgeeks.com/install-and-configure-postgresql-on-ubuntu/
@@ -98,17 +94,17 @@ echo
 echo "Configuring initial FIO.Relic DB User Access"
 # Backup pg_hba.conf file b4 modifying
 if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
-  sudo cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
+  cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
 fi
 # Update pg_hba.conf file to trust chronicle_user
 if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-  sudo sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
+  sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
 fi
 
 # Restart PostgreSQL to enable changes
 echo
 echo "Restarting PostgreSQL to reload any configuration changes..."
-sudo systemctl restart postgresql
+systemctl restart postgresql
 echo
 
 echo
@@ -124,7 +120,7 @@ sudo -u postgres psql -c "ALTER USER chronicle_user WITH PASSWORD 'password123!'
 
 echo
 echo "Configuring final FIO.Relic DB User Access"
-sudo sed -i '/local   all             chronicle_user                          trust/c\local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
+sed -i '/local   all             chronicle_user                          trust/c\local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
 
 # Restart PostgreSQL to enable changes
 echo

@@ -10,7 +10,7 @@ The FIO.Relic ecosystem is comprised of PostgreSQL, FIO.Chronicle and FIO Nodeos
 2) FIO.Chronicle
 3) PostgreSQL RDMS
 
-Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist transformed data into its PostgreSQL database.
+Each component of the FIO.Relic ecosystem has configuration parameters for history data processing. For instance, a FIO Nodeos history node will process and provide history via the state history plugin, FIO.Chronicle will query state history (via the state history api), process it, then persist then transformed data into its PostgreSQL database via the relic exporter plugin, exp_relic_plugin.
 
 The following table describes the attributes that must be set to successfully stand up the FIO.Relic ecosystem. Use this table as a template substituting specific target environment values. These will be needed when configuring [FIO.Chronicle](#build-install-and-configure)
 
@@ -102,7 +102,7 @@ To install FIO.Chronicle, along with its default configuration, execute the foll
 ./scripts/install.sh
 ```
 
-Note that the default configuration will access a local state history node and output data to a local PostgreSQL server. For example, the installed configuration, as described in `/opt/fio-chronicle/config/config.ini`, is as follows;
+Note that the default configuration will query data from a local state history node and its state history endpoint, and output data to a local PostgreSQL server, via the FIO.Relic plugin. For example, the installed configuration, as described in `/opt/fio-chronicle/config/config.ini`, is as follows;
 ```shell
 host = 127.0.0.1
 port = 8080

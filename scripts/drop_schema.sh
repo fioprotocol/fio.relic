@@ -29,33 +29,27 @@ echo
 sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicStoredProcedures.sql
 sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicTables.sql
 
+echo && echo "Dropping Relic DB User..."
 echo
-if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
-  echo && echo "Dropping Relic DB User..."
-  echo
-  sudo -u postgres psql -d relicdb -c "REVOKE ALL PRIVILEGES ON DATABASE relicdb from chronicle_user;"
-  sudo -u postgres psql -d relicdb -c "REVOKE ALL ON SCHEMA public FROM chronicle_user;"
-  sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
+sudo -u postgres psql -d relicdb -c "REVOKE ALL PRIVILEGES ON DATABASE relicdb from chronicle_user;"
+sudo -u postgres psql -d relicdb -c "REVOKE ALL ON SCHEMA public FROM chronicle_user;"
+sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
 
-  echo && echo "Un-configuring Relic DB User Access..."
-  # Backup pg_hba.conf file b4 modifying
-  if [[ -e /etc/postgresql/16/main/pg_hba.conf.relic ]]; then
-    mv /etc/postgresql/16/main/pg_hba.conf.relic /etc/postgresql/16/main/pg_hba.conf
-    chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf
-  else
-    # Update pg_hba.conf file to chronicle_user
-    if grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-      sed -i '/local[[:space:]]\+all[[:space:]]\+chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
-    fi
+echo && echo "Un-configuring Relic DB User Access..."
+# Backup pg_hba.conf file b4 modifying
+if [[ -e /etc/postgresql/16/main/pg_hba.conf.relic ]]; then
+  mv /etc/postgresql/16/main/pg_hba.conf.relic /etc/postgresql/16/main/pg_hba.conf
+  chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf
+else
+  # Update pg_hba.conf file to chronicle_user
+  if grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
+    sed -i '/local[[:space:]]\+all[[:space:]]\+chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
   fi
 fi
 
+echo && echo "Dropping Relic Database..."
 echo
-if yes_or_no "Drop Relic DB"; then
-  echo && echo "Dropping Relic Database..."
-  echo
-  sudo -u postgres psql -c "DROP DATABASE IF EXISTS relicdb;"
-fi
+sudo -u postgres psql -c "DROP DATABASE IF EXISTS relicdb;"
 
 # Restart PostgreSQL to enable changes
 echo && echo "Restarting PostgreSQL to load configuration changes..."

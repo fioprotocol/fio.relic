@@ -99,7 +99,6 @@ sed -i '/# "local" is for Unix domain socket connections only/a local   all     
 # Restart PostgreSQL to enable changes
 echo && echo "Restarting PostgreSQL to load configuration changes..."
 systemctl restart postgresql
-echo
 
 echo && echo "Creating FIO.Relic DB schema, including tables and stored procedures..."
 echo

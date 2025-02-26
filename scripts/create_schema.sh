@@ -7,9 +7,8 @@
 SCRIPT_DIR=$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
 . ${SCRIPT_DIR}/utils.sh
 
-echo
 if [[ "$EUID" -ne 0 ]]; then
-  echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
+  echo && echo "ERROR: Script must be run as root! Use sudo command as follows; sudo ./<script name>"
   echo
   exit 1
 fi

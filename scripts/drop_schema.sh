@@ -41,15 +41,15 @@ if yes_or_no "Drop Relic DB User, 'chronicle_user'"; then
   sudo -u postgres psql -c "DROP USER IF EXISTS chronicle_user;"
 
   echo
-  echo "Un-configuring Relic DB User Access"
+  echo "Un-configuring Relic DB User Access..."
   # Backup pg_hba.conf file b4 modifying
-  if [[ -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
-    mv /etc/postgresql/16/main/pg_hba.conf.orig /etc/postgresql/16/main/pg_hba.conf
+  if [[ -e /etc/postgresql/16/main/pg_hba.conf.relic ]]; then
+    mv /etc/postgresql/16/main/pg_hba.conf.relic /etc/postgresql/16/main/pg_hba.conf
     chown postgres:postgres /etc/postgresql/16/main/pg_hba.conf
   else
     # Update pg_hba.conf file to chronicle_user
     if grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-      sed -i '/local   all             chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
+      sed -i '/local[[:space:]]\+all[[:space:]]\+chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
     fi
   fi
 fi
@@ -64,4 +64,5 @@ fi
 
 # Restart PostgreSQL to enable changes
 echo
+echo "Restarting PostgreSQL to load configuration changes..."
 systemctl restart postgresql

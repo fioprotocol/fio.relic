@@ -92,18 +92,21 @@ sudo -u postgres psql -d relicdb -c "GRANT ALL ON SCHEMA public TO chronicle_use
 
 echo
 echo "Configuring initial FIO.Relic DB User Access"
-# Backup pg_hba.conf file b4 modifying
-if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.orig ]]; then
-  cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.orig
+
+# Delete chronicle_user authentication if it exists
+sed -i '/local[[:space:]]\+all[[:space:]]\+chronicle_user/d' /etc/postgresql/16/main/pg_hba.conf
+
+# Backup pg_hba.conf file b4 adding Relic user
+if [[ ! -e /etc/postgresql/16/main/pg_hba.conf.relic ]]; then
+  cp /etc/postgresql/16/main/pg_hba.conf /etc/postgresql/16/main/pg_hba.conf.relic
 fi
-# Update pg_hba.conf file to trust chronicle_user
-if ! sudo grep -q chronicle_user /etc/postgresql/16/main/pg_hba.conf; then
-  sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
-fi
+
+# Update pg_hba.conf file to add chronicle_user with trust perm
+sed -i '/# "local" is for Unix domain socket connections only/a local   all             chronicle_user                          trust' /etc/postgresql/16/main/pg_hba.conf
 
 # Restart PostgreSQL to enable changes
 echo
-echo "Restarting PostgreSQL to reload any configuration changes..."
+echo "Restarting PostgreSQL to load configuration changes..."
 systemctl restart postgresql
 echo
 
@@ -119,11 +122,11 @@ echo
 sudo -u postgres psql -c "ALTER USER chronicle_user WITH PASSWORD 'password123!';"
 
 echo
-echo "Configuring final FIO.Relic DB User Access"
-sed -i '/local   all             chronicle_user                          trust/c\local   all             chronicle_user                          md5' /etc/postgresql/16/main/pg_hba.conf
+echo "Updating FIO.Relic DB User Access"
+sed -i 's/local   all             chronicle_user                          trust/local   all             chronicle_user                          md5/' /etc/postgresql/16/main/pg_hba.conf
 
 # Restart PostgreSQL to enable changes
 echo
-echo "Restarting PostgreSQL to reload any configuration changes..."
+echo "Restarting PostgreSQL to load configuration changes..."
 sudo systemctl restart postgresql
 echo

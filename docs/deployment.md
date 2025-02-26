@@ -170,7 +170,7 @@ Other commands, to verify the Relic DB schema, are;
 
 To get a count of the number of transactions processed, execute the following command (and repeat as necessary);
 ```shell
-relicdb=> select count(*) from transactions;
+relicdb=> select count(*) from blocks;
  count
 -------
  13051

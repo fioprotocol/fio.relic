@@ -10,18 +10,17 @@ $BODY$
     
     BEGIN  
     SELECT pk_handle_id
-         INTO pkid FROM handles 
-         WHERE handle = fiohandle; 
+        INTO pkid FROM handles 
+        WHERE handle = fiohandle; 
 
     IF FOUND THEN
-          UPDATE handles SET
-                 fk_block_number = blocknumber,
-                 handle_status = 'burnt'
-                 WHERE pk_handle_id = pkid;
-            RETURN 1;
+        UPDATE handles SET
+            fk_block_number = blocknumber,
+            handle_status = 'burnt'
+        WHERE pk_handle_id = pkid;
+        RETURN 1;
     ELSE
-            RETURN 0;
-        END IF;
+        RETURN 0;
     END IF;
     END;
 $BODY$;

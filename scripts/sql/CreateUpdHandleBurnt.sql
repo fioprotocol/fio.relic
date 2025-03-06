@@ -16,6 +16,7 @@ $BODY$
     IF FOUND THEN
         UPDATE handles SET
             fk_block_number = blocknumber,
+            fk_owner_account_id = null,
             handle_status = 'burnt'
         WHERE pk_handle_id = pkid;
         RETURN 1;

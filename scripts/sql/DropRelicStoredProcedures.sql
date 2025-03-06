@@ -68,6 +68,7 @@ DROP FUNCTION rbfiodatas;
 DROP FUNCTION rbpubaddresses;
 DROP FUNCTION rbnftsignatures;
 DROP FUNCTION rbfork;
+DROP FUNCTION getaccountpubkeyandid;
 
 
 

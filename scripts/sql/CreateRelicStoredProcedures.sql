@@ -59,3 +59,4 @@
 \ir CreateRBPubAddresses.sql
 \ir CreateRBNFTSignatures.sql
 \ir CreateRBFork.sql
+\ir CreateGetAccountPubKeyAndID.sql

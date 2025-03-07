@@ -17,6 +17,8 @@ $BODY$
         UPDATE handles SET
             fk_block_number = blocknumber,
             fk_owner_account_id = null,
+            encryption_key = '',
+            is_encrypt_key_set = false,
             handle_status = 'burnt'
         WHERE pk_handle_id = pkid;
         RETURN 1;

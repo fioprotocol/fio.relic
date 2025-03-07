@@ -27,6 +27,7 @@ DROP FUNCTION updhandlesxferowner;
 DROP FUNCTION updhandlesrenewbundles;
 DROP FUNCTION delnftsignatures;
 DROP FUNCTION delpubaddresses;
+DROP FUNCTION clearpubaddresses;
 DROP FUNCTION inshandleactivities;
 DROP FUNCTION inshandleactivitiesfiorequest;
 DROP FUNCTION insupdhandles;

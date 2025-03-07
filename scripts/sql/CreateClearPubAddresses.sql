@@ -1,5 +1,5 @@
 
-CREATE OR REPLACE FUNCTION delpubaddresses(  
+CREATE OR REPLACE FUNCTION clearpubaddresses(  
     fiohandle varchar(64)
 ) RETURNS int     
 LANGUAGE 'plpgsql'   
@@ -12,7 +12,7 @@ $BODY$
         SELECT pk_handle_id INTO handleid FROM handles
            WHERE handle = fiohandle;
         DELETE FROM pubaddresses WHERE
-            fk_handle_id = handleid;
+            fk_handle_id = handleid AND NOT(chain_code = 'FIO' AND token_code = 'FIO');
         RETURN 1;
     END;
 $BODY$;

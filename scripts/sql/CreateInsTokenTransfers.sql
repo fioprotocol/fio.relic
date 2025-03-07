@@ -36,7 +36,7 @@ $BODY$
             DEFAULT,
             fkblocknumber,
             payeeaccount,
-            'UNKNOWN',
+            '',
             blocktimestamp
         )RETURNING pk_account_id INTO payeeaccountid;
       END IF;

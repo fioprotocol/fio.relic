@@ -33,7 +33,7 @@ $BODY$
                 DEFAULT,
                 blocknumber,
                 actionaccount,
-                'UNKNOWN',
+                '',
                 blocktimestamp
                 )RETURNING pk_account_id INTO actionaccountid ;
         END IF;
@@ -50,7 +50,7 @@ $BODY$
                     DEFAULT,
                     blocknumber,
                     accountname,
-                    'UNKNOWN',
+                    '',
                     blocktimestamp
                     )RETURNING pk_account_id INTO accountid ;
             END IF;

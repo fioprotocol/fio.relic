@@ -30,7 +30,7 @@ $BODY$
                 DEFAULT,
                 fkblocknumber,
                 actionaccount,
-                'UNKNOWN',
+                '',
                 blocktimestamp
                 )RETURNING pk_account_id INTO actionaccountid ;
         END IF;
@@ -47,7 +47,7 @@ $BODY$
                 DEFAULT,
                 fkblocknumber,
                 receiveraccountname,
-                'UNKNOWN',
+                '',
                 blocktimestamp
                 )RETURNING pk_account_id INTO accountid ;
             END IF;

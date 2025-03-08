@@ -25,16 +25,12 @@ $BODY$
         IF (fkblocknumber< 0) THEN 
             RETURN -1;
         END IF;
-        SELECT pk_handle_id, fk_owner_account_id 
-            INTO payerhandleid, payeraccountid from handles 
+        SELECT pk_handle_id, fk_owner_account_id, encryption_key 
+            INTO payerhandleid, payeraccountid, payerpubkey from handles 
             WHERE handle = payerhandle ;
-        SELECT pk_handle_id, fk_owner_account_id 
-            INTO payeehandleid, payeeaccountid from handles 
+        SELECT pk_handle_id, fk_owner_account_id, encryption_key 
+            INTO payeehandleid, payeeaccountid, payeepubkey from handles 
             WHERE handle = payeehandle ;
-        SELECT public_key INTO payerpubkey from accounts 
-            WHERE pk_account_id = payeraccountid;
-        SELECT public_key INTO payeepubkey from accounts 
-            WHERE pk_account_id = payeeaccountid;
 
         
       

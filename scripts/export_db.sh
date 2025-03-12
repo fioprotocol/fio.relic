@@ -28,15 +28,21 @@ if [[ $# -eq 0 || -z "$1" ]]; then
   exit -1
 fi
 
-if [[ ! -r "$1" ]]; then
+if [[ -e "$1" ]]; then
   echo
-  echo "ERROR: $1 is NOT valid; Check permissions and retry!" && echo
-  echo "Usage:"
-  echo "./scripts/build.sh <DB dump file>"
-  echo
-  exit -1
+  echo "WARNING: The FIO.Relic DB dump file, $1, already exists! Proceeding will overwrite file..." && echo
+  pause
 fi
-dumpfile="${1}"
+
+PID=$(pgrep chronicle)
+if [[ -n $PID ]]; then
+  echo && echo "WARNING: FIO.Chronicle appears to be running! Both FIO.Chronicle state and the FIO.Relic DB must be n-sync to be valid!"
+  echo
+  if ! yes_or_no "Proceed?"; then
+    echo
+    exit 1
+  fi
+fi
 
 # Check that the database exists
 echo && echo "Checking Relic DB existence for DB export..."
@@ -56,14 +62,28 @@ fi
 # 1) export (dump) existing db including users, tables, functions (stored procs), data
 echo && echo "INFO: A DB export will dump users, all existing tables, all functions and data"
 echo
-if ! yes_or_no "Do you want to proceed"; then
+if ! yes_or_no "Proceed"; then
   echo && echo "Exiting export of FIO.Relic DB!";
   echo
   exit 1
 fi
 
-echo && echo "Exporting Relic DB ..."
+# Stop fio.chronicle with using its stop script
+# Capture fio.chronicle state with
+#   tar -czvf /opt/fio-chronicle/bkups/rcvr-state.bkup1.tar.gz /opt/fio-chronicle/data/receiver-state/
+# Capture fio.relic db with
+#   sudo ./scripts/export_db.sh /opt/fio-chronicle/bkups/relicdb.bkup1.tar.gz
+dumpfile="${1}"
+echo && echo "Exporting Relic DB to ${dumpfile}..."
+sudo rm -f ${dumpfile}
 sudo -u postgres pg_dump relicdb > ${dumpfile}
+
+if [[ ! -e "${dumpfile}" ]]; then
+  echo && echo "ERROR: ${dumpfile} is NOT valid; DB export failed!" && echo
+  exit -1
+fi
+chown $(id -un):$(id -gn) $dumpfile
+echo && echo "INFO: Export completed, see ${dumpfile}." && echo
 
 # And done
 echo && echo "Done!"

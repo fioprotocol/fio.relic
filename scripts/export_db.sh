@@ -34,14 +34,13 @@ if [[ -e "$1" ]]; then
   pause
 fi
 
+# Verify fio.chronicle is not running
+# As fio.chronicle chronicle captures state in-memory it must be shut down to capture consistent state
 PID=$(pgrep chronicle)
 if [[ -n $PID ]]; then
-  echo && echo "WARNING: FIO.Chronicle appears to be running! Both FIO.Chronicle state and the FIO.Relic DB must be n-sync to be valid!"
+  echo && echo "ERROR: FIO.Chronicle appears to be running! To capture consistent state FIO.Chronicle should NOT be running..."
   echo
-  if ! yes_or_no "Proceed?"; then
-    echo
-    exit 1
-  fi
+  exit 1
 fi
 
 # Check that the database exists
@@ -60,7 +59,7 @@ fi
 
 # Steps
 # 1) export (dump) existing db including users, tables, functions (stored procs), data
-echo && echo "INFO: A DB export will dump users, all existing tables, all functions and data"
+echo && echo "INFO: A DB export will dump users, all existing tables, all functions and all data..."
 echo
 if ! yes_or_no "Proceed"; then
   echo && echo "Exiting export of FIO.Relic DB!";

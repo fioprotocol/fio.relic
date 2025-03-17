@@ -68,7 +68,7 @@ echo && echo "Dropping Relic DB schema..."
 sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicStoredProcedures.sql
 sudo -u postgres psql -d relicdb -a -f ${SCRIPT_DIR}/sql/DropRelicTables.sql
 
-echo && echo "Creating FIO.Relic DB schema, including tables and stored procedures..."
+echo && echo "Importing FIO.Relic DB schema, including tables, stored procedures and data..."
 echo
 sudo -u postgres psql -d relicdb -f ${dumpfile}
 

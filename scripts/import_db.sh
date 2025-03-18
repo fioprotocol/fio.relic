@@ -23,7 +23,7 @@ if [[ $# -eq 0 || -z "$1" ]]; then
   echo
   echo "ERROR: No argument provided for FIO.Relic DB dump file (from pg_dump)!" && echo
   echo "Usage:"
-  echo "./scripts/build.sh <DB dump file>"
+  echo "./scripts/import_db.sh <dump file>"
   echo
   exit -1
 fi
@@ -32,7 +32,7 @@ if [[ ! -r "$1" ]]; then
   echo
   echo "ERROR: $1 is NOT valid; Check permissions and retry!" && echo
   echo "Usage:"
-  echo "./scripts/build.sh <DB dump file>"
+  echo "./scripts/import_db.sh <dump file>"
   echo
   exit -1
 fi

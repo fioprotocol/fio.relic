@@ -9,8 +9,8 @@ $BODY$
    
 
         UPDATE  domains SET 
-                domain_status = 'burnt'
-                fk_owner_account_id = null,
+                domain_status = 'burnt',
+                fk_owner_account_id = null
             WHERE domain_name = domainname;
         RETURN 1;
 

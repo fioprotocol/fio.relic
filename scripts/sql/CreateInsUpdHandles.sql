@@ -6,7 +6,6 @@ CREATE OR REPLACE FUNCTION insupdhandles(
     fiohandle varchar(64),
     encryptkey varchar(64), 
     isencryptkeyset boolean, 
-    bundledtxcount integer,
     expirationtimestamp timestamp,
     handlestatus varchar(20)
 ) RETURNS int     
@@ -40,7 +39,6 @@ $BODY$
                 fk_owner_account_id,
                 encryption_key,
                 is_encrypt_key_set,
-                bundled_tx_count,
                 expiration_stamp,
                 handle_status
             ) VALUES (
@@ -51,7 +49,6 @@ $BODY$
                 owneraccountid,
                 encryptkey,
                 isencryptkeyset,
-                bundledtxcount,
                 expirationtimestamp,
                 handlestatus
             ) RETURNING pk_handle_id INTO pkid ;
@@ -63,7 +60,6 @@ $BODY$
                 fk_owner_account_id = owneraccountid,
                 encryption_key = encryptkey,
                 is_encrypt_key_set = isencryptkeyset,
-                bundled_tx_count = bundledtxcount,
                 expiration_stamp = expirationtimestamp,
                 handle_status = handlestatus
             WHERE pk_handle_id = pkid;

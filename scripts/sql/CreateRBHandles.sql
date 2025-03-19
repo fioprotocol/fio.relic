@@ -40,7 +40,6 @@ DECLARE
               fk_owner_account_id = subquery.fk_owner_account_id,
               encryption_key = subquery.encryption_key,
               is_encrypt_key_set = subquery.is_encrypt_key_set,
-              bundled_tx_count = subquery.bundled_tx_count,
               expiration_stamp = subquery.expiration_stamp,
               handle_status = subquery.handle_status
           FROM (

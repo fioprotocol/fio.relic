@@ -26,13 +26,25 @@ $BODY$
             --so if we dont have them, then just add them to the accounts
             --at the block when we first see them used.
         IF NOT FOUND THEN
+           IF actionaccount = 'fio.token' THEN
+                INSERT INTO accounts VALUES (
+                    DEFAULT,
+                    fkblocknumber,
+                    actionaccount,
+                    '',
+                    1000000000000000000,
+                    blocktimestamp
+                ) RETURNING pk_account_id INTO actionaccountid ;
+          ELSE
               INSERT INTO accounts VALUES (
                 DEFAULT,
                 fkblocknumber,
                 actionaccount,
                 '',
+                0,
                 blocktimestamp
                 )RETURNING pk_account_id INTO actionaccountid ;
+          END IF;
         END IF;
         SELECT pk_account_id from accounts 
             WHERE account_name = receiveraccountname INTO accountid ;
@@ -41,15 +53,27 @@ $BODY$
             --so if we dont have a fio contract account them, then just add them to the accounts
             --at the block when we first see them used.
         IF NOT FOUND THEN
-            IF STARTS_WITH(receiveraccountname,'fio.')  OR
-            STARTS_WITH(receiveraccountname,'eosio.') THEN 
-              INSERT INTO accounts VALUES (
-                DEFAULT,
-                fkblocknumber,
-                receiveraccountname,
-                '',
-                blocktimestamp
-                )RETURNING pk_account_id INTO accountid ;
+             IF receiveraccountname = 'fio.token' THEN
+                INSERT INTO accounts VALUES (
+                    DEFAULT,
+                    fkblocknumber,
+                    receiveraccountname,
+                    '',
+                    1000000000000000000,
+                    blocktimestamp
+                ) RETURNING pk_account_id INTO accountid ;
+             ELSE 
+               IF STARTS_WITH(receiveraccountname,'fio.')  OR
+                STARTS_WITH(receiveraccountname,'eosio.') THEN 
+                    INSERT INTO accounts VALUES (
+                        DEFAULT,
+                        fkblocknumber,
+                        receiveraccountname,
+                        '',
+                        0,
+                        blocktimestamp
+                        )RETURNING pk_account_id INTO accountid ;
+               END IF;
             END IF;
         END IF;
         INSERT INTO traces ( 

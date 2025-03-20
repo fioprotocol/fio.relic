@@ -29,13 +29,25 @@ $BODY$
             --so if we dont have them, then just add them to the accounts
             --at the block when we first see them used.
         IF NOT FOUND THEN
+           IF actionaccount = 'fio.token' THEN
+                INSERT INTO accounts VALUES (
+                    DEFAULT,
+                    fkblocknumber,
+                    actionaccount,
+                    '',
+                    1000000000000000000,
+                    blocktimestamp
+                ) RETURNING pk_account_id INTO pkid ;
+          ELSE
               INSERT INTO accounts VALUES (
                 DEFAULT,
                 blocknumber,
                 actionaccount,
                 '',
+                0,
                 blocktimestamp
                 )RETURNING pk_account_id INTO actionaccountid ;
+          END IF;
         END IF;
         SELECT pk_account_id INTO accountid from accounts 
             WHERE account_name = accountname;
@@ -44,16 +56,28 @@ $BODY$
             --so if we dont have a fio contract account them, then just add them to the accounts
             --at the block when we first see them used.
         IF NOT FOUND THEN
-            IF STARTS_WITH(accountname,'fio.') OR
-              STARTS_WITH(accountname,'eosio.') THEN 
+             IF accountname = 'fio.token' THEN
                 INSERT INTO accounts VALUES (
                     DEFAULT,
                     blocknumber,
                     accountname,
                     '',
+                    1000000000000000000,
                     blocktimestamp
-                    )RETURNING pk_account_id INTO accountid ;
-            END IF;
+                ) RETURNING pk_account_id INTO accountid ;
+             ELSE 
+                IF STARTS_WITH(accountname,'fio.') OR
+                    STARTS_WITH(accountname,'eosio.') THEN 
+                     INSERT INTO accounts VALUES (
+                        DEFAULT,
+                        blocknumber,
+                        accountname,
+                        '',
+                        0,
+                        blocktimestamp
+                        )RETURNING pk_account_id INTO accountid ;
+                END IF;
+             END IF;
         END IF;
         INSERT INTO transactions (
             pk_transaction_id,

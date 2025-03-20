@@ -15,15 +15,17 @@ VOLATILE AS
 $BODY$  
     declare pkid bigint;
     declare payeraccountid bigint;
+    declare payerbalance bigint;
+    declare payeebalance bigint;
     declare payeeaccountid bigint;
     BEGIN  
         IF (fkblocknumber< 0) THEN 
             RETURN -1;
         END IF;
-        SELECT pk_account_id from accounts 
-            WHERE account_name = payeraccount INTO payeraccountid ;
-        SELECT pk_account_id from accounts 
-            WHERE account_name = payeeaccount INTO payeeaccountid;
+        SELECT pk_account_id, fio_balance_suf from accounts 
+            WHERE account_name = payeraccount INTO payeraccountid, payerbalance ;
+        SELECT pk_account_id, fio_balance_suf from accounts 
+            WHERE account_name = payeeaccount INTO payeeaccountid, payeebalance ;
             /*fio creates accounts as part of token transfers, 
               so if the account is not found, then we must assume it will
               be created during the actions that make up this tx...
@@ -37,8 +39,10 @@ $BODY$
             fkblocknumber,
             payeeaccount,
             '',
+            0,
             blocktimestamp
         )RETURNING pk_account_id INTO payeeaccountid;
+        payeebalance := 0;
       END IF;
        
         INSERT INTO tokentransfers ( 
@@ -62,6 +66,25 @@ $BODY$
             transfermemo,
             blocktimestamp
         ) RETURNING pk_token_transfers_id INTO pkid ;
+
+ payeebalance := payeebalance + sufamount;
+ payerbalance := payerbalance - sufamount;
+
+ if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
+     RAISE EXCEPTION 'out of bounds value computed for payee balance : %', a USING HINT = 'EXCEPTION illegal value of balsnce computed in instokentransfers';
+ END IF;
+ if payerbalance > 1000000000000000000 OR payerbalance < 0 THEN
+     RAISE EXCEPTION 'out of bounds value computed for payer balance : %', a USING HINT = 'EXCEPTION illegal value of balsnce computed in instokentransfers';
+ END IF;
+
+ UPDATE  accounts SET 
+            fio_balance_suf = payeebalance
+ WHERE pk_account_id = payeeaccountid;
+
+ UPDATE  accounts SET 
+            fio_balance_suf = payerbalance
+ WHERE pk_account_id = payeraccountid;
+
         RETURN pkid;
     END;
 $BODY$;

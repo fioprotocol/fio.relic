@@ -14,13 +14,25 @@ $BODY$
     SELECT pk_account_id INTO pkid FROM accounts
          WHERE account_name = accountname; 
     IF NOT FOUND THEN
+       IF accountname = 'fio.token' THEN
+         INSERT INTO accounts VALUES (
+            DEFAULT,
+            fkblocknumber,
+            accountname,
+            publickey,
+            1000000000000000000,
+            blocktimestamp
+        ) RETURNING pk_account_id INTO pkid ;
+       ELSE
         INSERT INTO accounts VALUES (
             DEFAULT,
             fkblocknumber,
             accountname,
             publickey,
+            0,
             blocktimestamp
         ) RETURNING pk_account_id INTO pkid ;
+        END IF;
     ELSE
      IF (doupdates) THEN
        UPDATE  accounts SET 

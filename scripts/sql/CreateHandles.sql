@@ -6,7 +6,6 @@ CREATE TABLE handles(
     fk_owner_account_id bigint REFERENCES accounts(pk_account_id),
     encryption_key varchar(64),
     is_encrypt_key_set boolean DEFAULT false,
-    bundled_tx_count integer,
     expiration_stamp timestamp,
     handle_status varchar(20) NOT NULL CHECK(handle_status IN ('active','burnt'))
 );

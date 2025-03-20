@@ -38,6 +38,7 @@ DECLARE
           SET fk_block_number = subquery.fk_block_number,
               account_name = subquery.account_name,
               public_key = subquery.public_key,
+              fio_balance_suf = subquery.fio_balance_suf,
               block_timestamp = subquery.block_timestamp
           FROM (
                  SELECT * FROM accountsaudit

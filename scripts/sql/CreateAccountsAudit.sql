@@ -7,6 +7,7 @@ CREATE TABLE accountsaudit (
    fk_block_number bigint REFERENCES blocks(pk_block_number),
    account_name varchar(12),
    public_key varchar(53),
+   fio_balance_suf bigint,
    block_timestamp timestamp,
    table_operation varchar(20) NOT NULL CHECK(table_operation IN ('update')),
    table_timestamp timestamp

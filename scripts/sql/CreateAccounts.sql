@@ -6,5 +6,6 @@ CREATE TABLE accounts (
    fk_block_number bigint REFERENCES blocks(pk_block_number),
    account_name varchar(12) UNIQUE,
    public_key varchar(53),
+   fio_balance_suf bigint,
    block_timestamp timestamp
 );

@@ -16,6 +16,7 @@ $BODY$
             fk_block_number,
             account_name,
             public_key,
+            fio_balance_suf,
             block_timestamp,
             table_operation,
             table_timestamp
@@ -25,6 +26,7 @@ $BODY$
                 OLD.fk_block_number,
                 OLD.account_name,
                 OLD.public_key,
+                OLD.fio_balance_suf,
                 OLD.block_timestamp,
                 'update',
                 blocktimestamp

@@ -71,10 +71,10 @@ $BODY$
  payerbalance := payerbalance - sufamount;
 
  if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
-     RAISE EXCEPTION 'out of bounds value computed for payee balance : %', a USING HINT = 'EXCEPTION illegal value of balsnce computed in instokentransfers';
+     RAISE EXCEPTION 'out of bounds value computed for payee balance';
  END IF;
  if payerbalance > 1000000000000000000 OR payerbalance < 0 THEN
-     RAISE EXCEPTION 'out of bounds value computed for payer balance : %', a USING HINT = 'EXCEPTION illegal value of balsnce computed in instokentransfers';
+     RAISE EXCEPTION 'out of bounds value computed for payer balance : ';
  END IF;
 
  UPDATE  accounts SET 

@@ -70,12 +70,14 @@ $BODY$
  payeebalance := payeebalance + sufamount;
  payerbalance := payerbalance - sufamount;
 
- if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
+/* comment this out because there are transfers on chain that 
+  trigger this logic on main net.  if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
      RAISE EXCEPTION 'out of bounds value computed for payee balance';
  END IF;
  if payerbalance > 1000000000000000000 OR payerbalance < 0 THEN
      RAISE EXCEPTION 'out of bounds value computed for payer balance : ';
  END IF;
+ */
 
  UPDATE  accounts SET 
             fio_balance_suf = payeebalance

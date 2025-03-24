@@ -24,9 +24,21 @@ $BODY$
         END IF;
         SELECT pk_account_id, fio_balance_suf from accounts 
             WHERE account_name = payeraccount INTO payeraccountid, payerbalance ;
+       
+       payerbalance := payerbalance - sufamount;
+
+       if payerbalance > 1000000000000000000 OR payerbalance < 0 THEN
+            RAISE EXCEPTION 'out of bounds value computed for payer balance : ';
+       END IF;
+
+        UPDATE  accounts SET 
+            fio_balance_suf = payerbalance
+        WHERE pk_account_id = payeraccountid;
+ 
         SELECT pk_account_id, fio_balance_suf from accounts 
             WHERE account_name = payeeaccount INTO payeeaccountid, payeebalance ;
-            /*fio creates accounts as part of token transfers, 
+ 
+        /*fio creates accounts as part of token transfers, 
               so if the account is not found, then we must assume it will
               be created during the actions that make up this tx...
               we dont do validation here, just create the account cuz
@@ -44,6 +56,18 @@ $BODY$
         )RETURNING pk_account_id INTO payeeaccountid;
         payeebalance := 0;
       END IF;
+
+        payeebalance := payeebalance + sufamount;
+ 
+        if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
+           RAISE EXCEPTION 'out of bounds value computed for payee balance';
+        END IF;
+ 
+        UPDATE  accounts SET 
+            fio_balance_suf = payeebalance
+        WHERE pk_account_id = payeeaccountid;
+
+          
        
         INSERT INTO tokentransfers ( 
             pk_token_transfers_id, 
@@ -67,25 +91,8 @@ $BODY$
             blocktimestamp
         ) RETURNING pk_token_transfers_id INTO pkid ;
 
- payeebalance := payeebalance + sufamount;
- payerbalance := payerbalance - sufamount;
+ 
 
-/* comment this out because there are transfers on chain that 
-  trigger this logic on main net.  if payeebalance > 1000000000000000000 OR payeebalance < 0 THEN
-     RAISE EXCEPTION 'out of bounds value computed for payee balance';
- END IF;
- if payerbalance > 1000000000000000000 OR payerbalance < 0 THEN
-     RAISE EXCEPTION 'out of bounds value computed for payer balance : ';
- END IF;
- */
-
- UPDATE  accounts SET 
-            fio_balance_suf = payeebalance
- WHERE pk_account_id = payeeaccountid;
-
- UPDATE  accounts SET 
-            fio_balance_suf = payerbalance
- WHERE pk_account_id = payeraccountid;
 
         RETURN pkid;
     END;

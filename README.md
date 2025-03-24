@@ -24,16 +24,86 @@ The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol,
 
 [FIO.Relic License](https://github.com/fioprotocol/fio.chronicle/blob/develop/LICENSE.txt)
 
-### FIO Blockchain
-Refer to the [FIO Protocol Developer Hub](https://dev.fio.net/docs/chain-node) documentation to install or attach to an enterprise fio.nodeos blockchain. See the [FIO Readme](https://github.com/fioprotocol/fio/blob/master/README.md) for instructions on how to build and install the FIO Protocol fio.nodeos block chain locally. 
-
-### FIO.Relic
-
-### Clone the repository
-To clone the FIO.Relic repository, execute the command; `git clone https://github.com/fioprotocol/fio.relic.git`. see [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) for more information.
-
-#### Tech Stack and Architecture Diagram
+### Tech Stack and Architecture Diagram
 See the [FIO.Relic Tech Stack](https://github.com/fioprotocol/fio.relic/blob/develop/docs/tech-stack.md) document for the requisite hardware and software needed to install and run the FIO.Relic ecosystem
 
-#### Deployment Guide
-See the [FIO.Relic Deployment Guide](https://github.com/fioprotocol/fio.relic/blob/develop/docs/deployment.md) document for the deployment outline of a FIO History Node, and FIO.Chronicle which includes the RDMS, PostgreSQL.
+### Comprehensive Deployment Guide: How to deploy FIO Nodeos, and FIO.Relic
+See the [FIO.Relic Deployment Guide](https://github.com/fioprotocol/fio.relic/blob/develop/docs/deployment.md) document for the deployment outline of a FIO History Node, FIO.Relic including a RDMS as well as the state history processor.
+
+## Clone the repository
+To clone the FIO.Relic repository, execute the command;
+```shell
+git clone https://github.com/fioprotocol/fio.relic.git
+```
+
+see [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) for more information.
+
+## FIO.Relic Database Server
+The installation and configuration of the FIO.Relic PostgreSQL database will occur in two parts;
+1. Installation and configuration of the database server as a system application
+2. Creation and configuration of the database schema including tables, and functions, as well as connectivity and user access
+
+### Installation and System Configuration
+PostgreSQL provides packages for Ubuntu and may be installed manually, however, for an automated install, the [PostgreSQL install script](https://github.com/fioprotocol/fio.relic/blob/develop/scripts/install_pgsql.sh) will be used. To install PostgreSQL, execute the following command;
+```shell
+sudo ./scripts/install_pgsql.sh
+```
+
+The PostgreSQL install script will update the OS, install PostgreSQL and any required PostgreSQL package dependencies. Note that the PostgreSQL installation includes configuration and startup of the PostgreSQL database.
+
+For further support refer to the PostgreSQL Ubuntu documentation located [here](https://www.postgresql.org/download/linux/ubuntu).
+
+### Database Creation and Configuration
+To create the FIO.Relic database, including tables, functions as well as configure the necessary user access and connectivity, execute the following command;
+```shell
+sudo ./scripts/create_schema.sh
+```
+
+Verification of the relicdb may be done by executing the following commands;
+```shell
+psql -d relicdb -U chronicle_user
+Password for user chronicle_user:
+```
+Note that the default password is **password123!**
+
+To get a listing of all tables, execute the command;
+```shell
+relicdb=> \dt
+                  List of relations
+ Schema |        Name        | Type  |     Owner
+--------+--------------------+-------+----------------
+ public | accountactivities  | table | chronicle_user
+ public | accounts           | table | chronicle_user
+ public | accountsaudit      | table | chronicle_user
+ public | blocks             | table | chronicle_user
+ public | domainactivities   | table | chronicle_user
+ public | domains            | table | chronicle_user
+...
+ public | transactions       | table | chronicle_user
+(22 rows)
+```
+
+The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
+
+For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
+
+### Data Capture: Export and Import
+Import and Export of data from PostgreSQL databases is a well-documented feature and while there are a few methods to this two scripts are provided for convenience.
+
+To export the FIO.Relic database schema including tables, functions, users and data execute the script, _export_db.sh_, passing in a file name, including path. For example, to export the data to the file _relicdb_export.tar.gz_, execute the command; 
+```shell
+sudo ./scripts/export_db.sh relicdb_export.tar.gz
+```
+
+Note: It is required to shut down any state history processing, i.e. the FIO.Relic state history processor is shut down.
+
+To import the FIO.Relic database schema including tables, functions, users and data execute the script, _import_db.sh_, passing in a file name, including path. For example, to import the data previously exported to the file _relicdb_export.tar.gz_, execute the command; 
+```shell
+sudo ./scripts/import_db.sh relicdb_export.tar.gz
+```
+
+Note: ***The import script will clear any and all data as well as tables, functions and users!***
+
+
+## FIO.Relic State History Processor
+The FIO.Relic state history processor utilizes the FIO.Relic database server and schema as the peristence layer for historical data for the FIO Nodeos blockchain. See [FIO.Chronicle](https://github.com/fioprotocol/fio.chronicle) to stand up the FIO.Relic State History Processor.

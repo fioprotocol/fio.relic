@@ -47,35 +47,26 @@ To expedite the FIO Nodeos installation, including blockchain configuration and 
 #### LocalNet FIO History Node
 For the purposes of confirming end-to-end connectivity please refer to the [LocalNet Deployment Guide - Start FIO Nodeos](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodeos) and [LocalNet Deployment Guide - Start FIO Nodeos History Node](https://github.com/fioprotocol/fio.relic/blob/develop/docs/localnet-standup.md#start-fio-nodoes-state-history-nodeos)
 
-## PostgreSQL
-The installation and configuration of PostgreSQL, the persistance layer of the FIO.Relic system, will occur in two parts due to the customization that must be done to configure connectivity including security for the target environment but also installation of the FIO.Relic schema.
+## FIO.Relic Database Server
+The installation and configuration of the FIO.Relic PostgreSQL database will occur in two parts;
+1. Installation and configuration of the database server as a system application
+2. Creation and configuration of the database schema including tables, and functions, as well as connectivity and user access
 
-###  Installation
-PostgreSQL provides packages for Ubuntu and may be installed manually, however, for an automated install, the [PostgreSQL install script](https://github.com/fioprotocol/fio.relic/blob/develop/scripts/install-pgsql.sh) will be used. Follow these steps to install PostgreSQL as well as the FIO.Relic schema;
-1. Clone the FIO.Relic repo
-2. Change directory into the FIO.Relic repo
-3. Execute the script, ./scripts/install-pgsql.sh, as the root user and follow the prompts
-
+###  Installation and System Configuration
+Execute the following steps to install and configure the database server;
 ```shell
 git clone https://github.com/fioprotocol/fio.relic.git
 cd fio.relic
-sudo ./scripts/install-pgsql.sh
+sudo ./scripts/install_pgsql.sh
 ```
 
 The PostgreSQL install script will update the OS, install PostgreSQL and any required PostgreSQL package dependencies. Note that the PostgreSQL installation includes configuration and startup of the PostgreSQL database.
 
-For further support refer to the PostgreSQL Ubuntu documentation located [here](https://www.postgresql.org/download/linux/ubuntu).
-
-### FIO.Relic Database
-To create the FIO.Relic database, schema and user execute the script _create_schema.sh_. This will include creating the necessary tables, stored procedures as well as the user allowing FIO.Chronicle to connect, and persist data.
+### Database Creation and Configuration
+To create the FIO.Relic database, including tables, functions as well as configure the necessary user access and connectivity, execute the following command;
 ```shell
 sudo ./scripts/create_schema.sh
 ```
-
-Verification of the relicdb may be done by executing the 
-The configuration of PostgresSQL including connection handling, authentication, database administration is outlined in the PostgresQL configuration document [here](https://github.com/fioprotocol/fio.relic/blob/develop/docs/postgres-config.md).
-
-For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ## FIO.Chronicle
 The FIO.Chronicle application ingests state history data, then processes and persists that data into the FIO.Relic database. To get started with the FIO.Chronicle application do the following;
@@ -146,27 +137,6 @@ Using the exp-relic-username and exp-relic-password from the config above, execu
 psql -d relicdb -U chronicle_user
 Password for user chronicle_user:
 ```
-
-To get a listing of all tables, execute the command;
-```shell
-relicdb=> \dt
-                  List of relations
- Schema |        Name        | Type  |     Owner
---------+--------------------+-------+----------------
- public | accountactivities  | table | chronicle_user
- public | accounts           | table | chronicle_user
- public | accountsaudit      | table | chronicle_user
- public | blocks             | table | chronicle_user
- public | domainactivities   | table | chronicle_user
- public | domains            | table | chronicle_user
-...
- public | transactions       | table | chronicle_user
-(22 rows)
-```
-
-Other commands, to verify the Relic DB schema, are;
-* To get a listing of all stored procedures, execute the command; `\df` (Total: 50)
-* To get a listing of all stored procedures, execute the command; `\ds` (Total: 21)
 
 To get a count of the number of transactions processed, execute the following command (and repeat as necessary);
 ```shell

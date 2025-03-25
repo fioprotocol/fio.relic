@@ -88,22 +88,22 @@ The configuration of PostgresSQL including connection handling, authentication, 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ### Data Capture: Export and Import
-Import and Export of data from PostgreSQL databases is a well-documented feature and while there are a few methods to this two scripts are provided for convenience.
+Two scripts are provided to handle the export and import of data from/to the FIO.Relic PostgreSQL database, _export_db.sh_ and _import_db.sh_.
 
-To export the FIO.Relic database schema including tables, functions, users and data execute the script, _export_db.sh_, passing in a file name, including path. For example, to export the data to the file _relicdb_export.tar.gz_, execute the command; 
+To export the FIO.Relic database schema including tables, functions, users and data execute the script, _export_db.sh_, passing in a file name, including path. For example, to export the data to the file _relicdb_snapshot.tar.gz_, execute the command; 
 ```shell
-sudo ./scripts/export_db.sh relicdb_export.tar.gz
+sudo ./scripts/export_db.sh relicdb_snapshot.tar.gz
 ```
 
-Note: It is required to shut down any state history processing, i.e. the FIO.Relic state history processor is shut down.
+Note: Capture of the FIO.Relic database must coincide with capture of the FIO.Relic state history processor state, therefore, it is recommended to shut down the state history processor, export as instructed above and capture the FIO.Relic state history processor state. See [FIO.Chronicle Data Capture](https://github.com/fioprotocol/fio.chronicle#data-capture:-export-and-import)
 
-To import the FIO.Relic database schema including tables, functions, users and data execute the script, _import_db.sh_, passing in a file name, including path. For example, to import the data previously exported to the file _relicdb_export.tar.gz_, execute the command; 
+To import the FIO.Relic database schema including tables, functions, users and data execute the script, _import_db.sh_, passing in a file name, including path. For example, to import the data previously exported to the file _relicdb_snapshot.tar.gz_, execute the command; 
 ```shell
-sudo ./scripts/import_db.sh relicdb_export.tar.gz
+sudo ./scripts/import_db.sh relicdb_snapshot.tar.gz
 ```
 
-Note: ***The import script will clear any and all data as well as tables, functions and users!***
+WARNING: ***The import script will clear any and all data as well as tables, functions and users!***
 
 
 ## FIO.Relic State History Processor
-The FIO.Relic state history processor utilizes the FIO.Relic database server and schema as the peristence layer for historical data for the FIO Nodeos blockchain. See [FIO.Chronicle](https://github.com/fioprotocol/fio.chronicle) to stand up the FIO.Relic State History Processor.
+The FIO.Relic state history processor, FIO.Chronicle, utilizes the FIO.Relic database server and schema as the peristence layer for historical data for the FIO Nodeos blockchain. See [FIO.Chronicle](https://github.com/fioprotocol/fio.chronicle) to stand up the FIO.Relic State History Processor.

@@ -8,6 +8,8 @@ The FIO.Relic ecosystem is comprised of;
 * The FIO.Relic state history plugin and FIO.Chronicle backend state history processor which ingests and processes state historical data from FIO.Nodeos
 * A PostgreSQL database as the state history data store
 
+The FIO.Chronicle state history processor utilizes the FIO.Relic database server and schema as the peristence layer for historical data ingested from the FIO Nodeos blockchain. See [FIO.Chronicle](https://github.com/fioprotocol/fio.chronicle) to stand up FIO.Chronicle.
+
 FIO.Relic is based on the opensource project [EOS-Chronicle](https://github.com/EOSChronicleProject/eos-chronicle), a middleware app that consumes history data available via the state history plugin of an Antelope (EOSIO) blockchain and provides downstream consumers json formatted data.
 
 # FIO Protocol
@@ -15,13 +17,8 @@ The Foundation for Interwallet Operability (FIO) or, in short, the FIO Protocol,
 
 * For information on FIO Protocol, visit [FIO](https://fio.net).
 * For information on the FIO Chain, API, and SDKs, including detailed clone, build and deploy instructions, visit [FIO Protocol Developer Hub](https://dev.fio.net).
-* To get updates on the development roadmap, visit [FIO Improvement Proposals](https://github.com/fioprotocol/fips). Anyone is welcome and encouraged to contribute.
-* To contribute, please review [Contributing to FIO](https://dev.fio.net/docs/contributing-to-fio)
-* To join the community, visit [Discord](https://discord.com/invite/pHBmJCc)
 
-## Licenses
-[FIO License](https://github.com/fioprotocol/fio/blob/master/LICENSE)
-
+## License
 [FIO.Relic License](https://github.com/fioprotocol/fio.chronicle/blob/develop/LICENSE.txt)
 
 ### Tech Stack and Architecture Diagram
@@ -88,6 +85,13 @@ The configuration of PostgresSQL including connection handling, authentication, 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
 ### Data Capture: Export and Import
+The export as well as the import of the FIO.Relic database must coincide with the export and import of the FIO.Chronicle state, therefore, it is imperative to shut down FIO.Chronicle, when perform data export or import.
+
+Data capture is comprised of two parts;
+* The export of the FIO.Relic PostgreSQL Database
+* The archive of FIO.Chronicle State
+
+Part 1: Export
 Two scripts are provided to handle the export and import of data from/to the FIO.Relic PostgreSQL database, _export_db.sh_ and _import_db.sh_.
 
 To export the FIO.Relic database schema including tables, functions, users and data execute the script, _export_db.sh_, passing in a file name, including path. For example, to export the data to the file _relicdb_snapshot.tar.gz_, execute the command; 
@@ -95,15 +99,12 @@ To export the FIO.Relic database schema including tables, functions, users and d
 sudo ./scripts/export_db.sh relicdb_snapshot.tar.gz
 ```
 
-Note: Capture of the FIO.Relic database must coincide with capture of the FIO.Relic state history processor state, therefore, it is recommended to shut down the state history processor, export as instructed above and capture the FIO.Relic state history processor state. See [FIO.Chronicle Data Capture](https://github.com/fioprotocol/fio.chronicle#data-capture:-export-and-import)
+See [FIO.Chronicle Data Capture](https://github.com/fioprotocol/fio.chronicle#data-capture:-export-and-import)
 
+Part 2: Import
 To import the FIO.Relic database schema including tables, functions, users and data execute the script, _import_db.sh_, passing in a file name, including path. For example, to import the data previously exported to the file _relicdb_snapshot.tar.gz_, execute the command; 
 ```shell
 sudo ./scripts/import_db.sh relicdb_snapshot.tar.gz
 ```
 
 WARNING: ***The import script will clear any and all data as well as tables, functions and users!***
-
-
-## FIO.Relic State History Processor
-The FIO.Relic state history processor, FIO.Chronicle, utilizes the FIO.Relic database server and schema as the peristence layer for historical data for the FIO Nodeos blockchain. See [FIO.Chronicle](https://github.com/fioprotocol/fio.chronicle) to stand up the FIO.Relic State History Processor.

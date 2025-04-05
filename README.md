@@ -84,6 +84,16 @@ The configuration of PostgresSQL including connection handling, authentication, 
 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
+### Starting and stopping the application
+The PostgreSQL service is started automatically on installation and will stop and start automatically on shutdown or boot up, respectively. While unnecessary under normal circumstances, the following commands are used to start and stop the PostgreSQL service.
+```shell
+systemctl start postgresql
+```
+
+```shell
+systemctl stop postgresql
+```
+
 ### Data Capture: Export and Import
 The export as well as the import of the FIO.Relic database must coincide with the export and import of the FIO.Chronicle state, therefore, it is imperative to shut down FIO.Chronicle, when perform data export or import.
 

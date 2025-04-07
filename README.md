@@ -84,6 +84,16 @@ The configuration of PostgresSQL including connection handling, authentication, 
 
 For further insight into the PostgreSQL database see [Getting Started](https://www.postgresql.org/docs/16/tutorial-start.html).
 
+### Starting and stopping the application
+The PostgreSQL service is started automatically on installation and will stop and start automatically on shutdown or boot up, respectively. While unnecessary under normal circumstances, the following commands are used to start and stop the PostgreSQL service.
+```shell
+systemctl start postgresql
+```
+
+```shell
+systemctl stop postgresql
+```
+
 ### Data Capture: Export and Import
 There are two components which represent state;
 1) FIO.Relic PostgreSQL database

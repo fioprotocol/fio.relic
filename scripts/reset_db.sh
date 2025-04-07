@@ -13,6 +13,8 @@ if [[ "$EUID" -ne 0 ]]; then
   exit 1
 fi
 
+echo && echo "Resetting the FIO.Relic Database (full drop and create of all tables, and functions). All data will be deleted during this process!"
+pause
 #echo "WARNING: This script runs commands as the 'postgres' user using sudo to update the database'
 #pause
 

@@ -38,9 +38,8 @@ fi
 # As fio.chronicle chronicle captures state in-memory it must be shut down to capture consistent state
 PID=$(pgrep chronicle)
 if [[ -n $PID ]]; then
-  echo && echo "ERROR: FIO.Chronicle appears to be running! To capture consistent state FIO.Chronicle should NOT be running..."
-  echo
-  exit 1
+  echo && echo "WARNING: FIO.Chronicle appears to be running! To capture consistent state FIO.Chronicle should NOT be running..."
+  pause
 fi
 
 # Check that the database exists

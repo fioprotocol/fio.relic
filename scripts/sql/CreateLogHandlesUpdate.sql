@@ -6,15 +6,18 @@ VOLATILE AS
 $BODY$  
 
   declare blocktimestamp timestamp;
-    
+  declare currentblock bigint;
+      
     BEGIN  
         SELECT stamp INTO blocktimestamp FROM blocks
         WHERE pk_block_number = OLD.fk_block_number;
+        SELECT MAX(pk_block_number) INTO currentblock from blocks;
     
         INSERT INTO handlesaudit (
                 pk_handles_audit_id,
                 fk_handle_id,
                 fk_block_number,
+                fk_table_operation_block_number,
                 fk_domain_id,
                 handle,
                 fk_owner_account_id,
@@ -28,6 +31,7 @@ $BODY$
                 DEFAULT,
                 OLD.pk_handle_id,
                 OLD.fk_block_number,
+                currentblock,
                 OLD.fk_domain_id,
                 OLD.handle,
                 OLD.fk_owner_account_id,

@@ -34,14 +34,61 @@ else
   pause
 fi
 
+function usage() {
+   echo
+   printf "Usage: $0 OPTION...
+   -d     Install development libraries only (libpq and postgresql-server-dev-16)
+   -x     Run in debug mode
+   -h     Display usage
+   \\n" "$0" 1>&2
+   exit 1
+}
+
+# Set global vars and get command line options
+DEBUG=${DEBUG:-false}
+DEV_ONLY=${DEV_ONLY:-false}
+UPGRADE_OS=${UPGRADE_OS:-false}
+if [ $# -ne 0 ]; then
+   while getopts "duxh" opt; do
+      # echo "flag -$flag, Argument $OPTARG";
+      case "${opt}" in
+      d)
+         DEV_ONLY=true
+         ;;
+      u)
+         UPGRADE_OS=true
+         ;;
+      x)
+         DEBUG=true
+         set -x
+         ;;
+      h)
+         usage
+         ;;
+      ?)
+         echo "Invalid Option!" 1>&2
+         usage
+         ;;
+      :)
+         echo "Invalid Option: -${OPTARG} requires an argument." 1>&2
+         usage
+         ;;
+      *)
+         usage
+         ;;
+      esac
+   done
+fi
+
 # Begin install
 
-echo && echo "Continuing will install PostgreSQL packages and all related artifacts..."
-pause
+echo && echo "Installing PostgreSQL..."
 
-echo && echo "Updating OS..."
-apt update;
-apt upgrade -y;
+if ${UPGRADE_OS}; then
+  echo && echo "Updating OS..."
+  apt update;
+  apt upgrade -y;
+fi
 
 echo && echo "Installing required packages..."
 apt install -y gnupg2 wget vim
@@ -55,12 +102,23 @@ curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o
 echo && echo "Updating package list (again)..."
 apt update -y
 
-echo && echo "Installing PostgreSQL v${POSTGRES_VER}.x..."
-apt install -y postgresql-${POSTGRES_VER} postgresql-server-dev-${POSTGRES_VER} postgresql-contrib-${POSTGRES_VER} libpq-dev
+if ${DEV_ONLY}; then
+  echo && echo "Installing PostgreSQL v${POSTGRES_VER}.x development libraries"
+  apt install -y postgresql-server-dev-${POSTGRES_VER} libpq-dev
+else
+  echo && echo "Installing PostgreSQL v${POSTGRES_VER}.x server, client, and development libraries..."
+  apt install -y postgresql-${POSTGRES_VER} postgresql-server-dev-${POSTGRES_VER} postgresql-contrib-${POSTGRES_VER} libpq-dev
+fi
 
-if [[ $? -eq 0 ]]; then
-  echo && echo "PostgreSQL v${POSTGRES_VER} has been installed successfully"
+if [[ $? -ne 0 ]]; then
+  echo && echo "ERROR: An error occured installing PostgreSQL!"
+  echo "Exiting..."
+  exit 1
+fi
 
+echo && echo "PostgreSQL v${POSTGRES_VER} has been installed successfully"
+
+if ! ${DEV_ONLY}; then
   echo && echo "In another window, verify the install using the following commands;"
   echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
   echo
@@ -75,8 +133,5 @@ if [[ $? -eq 0 ]]; then
   echo && echo "Checking service status..."
   sleep 5
   systemctl status postgresql
-else
-  echo && echo "An error occured installing PostgreSQL. Unable to proceed!"
-  echo "Exiting..."
 fi
 echo

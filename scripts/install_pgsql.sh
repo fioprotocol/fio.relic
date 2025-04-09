@@ -34,14 +34,60 @@ else
   pause
 fi
 
+function usage() {
+   echo
+   printf "Usage: $0 OPTION...
+   -u     Update and upgrade OS packages
+   -x     Run in debug mode
+   -h     Display usage
+   \\n" "$0" 1>&2
+   exit 1
+}
+
+# Set global vars and get command line options
+DEBUG=${DEBUG:-false}
+DEV_ONLY=${DEV_ONLY:-false}
+UPGRADE_OS=${UPGRADE_OS:-false}
+if [ $# -ne 0 ]; then
+   while getopts "uxh" opt; do
+      # echo "flag -$flag, Argument $OPTARG";
+      case "${opt}" in
+      u)
+         UPGRADE_OS=true
+         ;;
+      x)
+         DEBUG=true
+         set -x
+         ;;
+      h)
+         usage
+         ;;
+      ?)
+         echo "Invalid Option!" 1>&2
+         usage
+         ;;
+      :)
+         echo "Invalid Option: -${OPTARG} requires an argument." 1>&2
+         usage
+         ;;
+      *)
+         usage
+         ;;
+      esac
+   done
+fi
+
 # Begin install
 
-echo && echo "Continuing will install PostgreSQL packages and all related artifacts..."
-pause
+echo && echo "Installing PostgreSQL..."
 
-echo && echo "Updating OS..."
-apt update;
-apt upgrade -y;
+if ! ${UPGRADE_OS}; then
+  echo && echo "Bypassing OS Upgrade (-u)..."
+else
+  echo && echo "Updating OS..."
+  apt update;
+  apt upgrade -y;
+fi
 
 echo && echo "Installing required packages..."
 apt install -y gnupg2 wget vim
@@ -55,28 +101,29 @@ curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o
 echo && echo "Updating package list (again)..."
 apt update -y
 
-echo && echo "Installing PostgreSQL v${POSTGRES_VER}.x..."
+echo && echo "Installing PostgreSQL v${POSTGRES_VER}.x server, client, and development libraries..."
 apt install -y postgresql-${POSTGRES_VER} postgresql-server-dev-${POSTGRES_VER} postgresql-contrib-${POSTGRES_VER} libpq-dev
 
-if [[ $? -eq 0 ]]; then
-  echo && echo "PostgreSQL v${POSTGRES_VER} has been installed successfully"
-
-  echo && echo "In another window, verify the install using the following commands;"
-  echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
-  echo
-  echo "Both commands should result in the display of the installed PostgreSQL version. In"
-  echo "case of an error, exit this script, determine the failure reason(s) and fix the installation"
-  pause
-
-  echo && echo "Enabling and starting the PostgreSQL service..."
-  systemctl enable postgresql
-  systemctl start postgresql
-
-  echo && echo "Checking service status..."
-  sleep 5
-  systemctl status postgresql
-else
-  echo && echo "An error occured installing PostgreSQL. Unable to proceed!"
+if [[ $? -ne 0 ]]; then
+  echo && echo "ERROR: An error occured installing PostgreSQL!"
   echo "Exiting..."
+  exit 1
 fi
+
+echo && echo "PostgreSQL v${POSTGRES_VER} has been installed successfully"
+
+echo && echo "In another window, verify the install using the following commands;"
+echo "psql --version OR sudo -u postgres psql -c \"SELECT version();\""
+echo
+echo "Both commands should result in the display of the installed PostgreSQL version. In"
+echo "case of an error, exit this script, determine the failure reason(s) and fix the installation"
+pause
+
+echo && echo "Enabling and starting the PostgreSQL service..."
+systemctl enable postgresql
+systemctl start postgresql
+
+echo && echo "Checking service status..."
+sleep 5
+systemctl status postgresql
 echo

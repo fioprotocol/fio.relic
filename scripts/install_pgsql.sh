@@ -81,7 +81,9 @@ fi
 
 echo && echo "Installing PostgreSQL..."
 
-if ${UPGRADE_OS}; then
+if ! ${UPGRADE_OS}; then
+  echo && echo "Bypassing OS Upgrade (-u)..."
+else
   echo && echo "Updating OS..."
   apt update;
   apt upgrade -y;

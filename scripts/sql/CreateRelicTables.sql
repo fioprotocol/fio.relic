@@ -20,3 +20,4 @@
 \ir CreateFIODatasAudit.sql
 \ir CreatePubAddressesAudit.sql
 \ir CreateNFTSignaturesAudit.sql
+\ir CreateRelicIndexes.sql
